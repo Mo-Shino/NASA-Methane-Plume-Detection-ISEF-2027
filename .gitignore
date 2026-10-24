@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data files (keep raw satellite tiles out of git)
+data/raw/
+data/cache/
+*.nc
+*.nc4
+*.h5
+*.hdf5
+*.tif
+*.tiff
+*.zip
+*.tar.gz
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment variables & secrets
+.env
+earthdata_credentials.json
+
+# IDE
+.vscode/
+.idea/

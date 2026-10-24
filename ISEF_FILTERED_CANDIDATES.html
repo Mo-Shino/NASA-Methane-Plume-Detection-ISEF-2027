@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاضنة أفكار ريجينيرون 2027 | فارس & الشناوي</title>
+    <!-- Google Fonts: IBM Plex Sans Arabic + Inter + JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light, Eye-Comfort Minimalist Palette */
+            --bg-page: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-highlight: #e2e8f0;
+            
+            --border-light: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --border-focus: #3b82f6;
+            
+            --text-title: #0f172a;
+            --text-body: #334155;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            
+            /* Gentle Soft Tints for Tags & Badges */
+            --color-blue: #2563eb;
+            --tint-blue: #eff6ff;
+            --border-blue: #bfdbfe;
+            
+            --color-emerald: #059669;
+            --tint-emerald: #ecfdf5;
+            --border-emerald: #a7f3d0;
+            
+            --color-purple: #7c3aed;
+            --tint-purple: #f5f3ff;
+            --border-purple: #ddd6fe;
+            
+            --color-amber: #d97706;
+            --tint-amber: #fffbeb;
+            --border-amber: #fde68a;
+            
+            --color-rose: #e11d48;
+            --tint-rose: #fff1f2;
+            --border-rose: #fecdd3;
+            
+            --color-cyan: #0284c7;
+            --tint-cyan: #f0f9ff;
+            --border-cyan: #bae6fd;
+
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 12px 28px -4px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+            
+            --radius-xl: 18px;
+            --radius-lg: 14px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --transition: all 0.22s ease-in-out;
+        }
+
+        /* Dark Mode Option */
+        body.dark-mode {
+            --bg-page: #090d16;
+            --bg-surface: #111827;
+            --bg-subtle: #1f2937;
+            --bg-highlight: #374151;
+            --border-light: #1f2937;
+            --border-hover: #374151;
+            --border-focus: #60a5fa;
+            --text-title: #f9fafb;
+            --text-body: #d1d5db;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --tint-blue: rgba(37, 99, 235, 0.15);
+            --tint-emerald: rgba(5, 150, 105, 0.15);
+            --tint-purple: rgba(124, 58, 237, 0.15);
+            --tint-amber: rgba(217, 119, 6, 0.15);
+            --tint-rose: rgba(225, 29, 72, 0.15);
+            --tint-cyan: rgba(2, 132, 199, 0.15);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 12px 28px rgba(0,0,0,0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-body);
+            line-height: 1.75;
+            min-height: 100vh;
+            padding-bottom: 70px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .en-code {
+            font-family: 'Inter', 'JetBrains Mono', monospace;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Top Header */
+        header {
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-light);
+            padding: 36px 0 26px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--tint-blue);
+            color: var(--color-blue);
+            border: 1px solid var(--border-blue);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .brand-badge::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background-color: var(--color-blue);
+            border-radius: 50%;
+        }
+
+        h1 {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 700;
+            color: var(--text-title);
+            letter-spacing: -0.3px;
+        }
+
+        .sub-title {
+            color: var(--text-secondary);
+            font-size: 0.98rem;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--bg-surface);
+            color: var(--text-body);
+            border: 1px solid var(--border-light);
+            padding: 9px 16px;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn:hover {
+            background: var(--bg-subtle);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--color-blue);
+            border-color: var(--color-blue);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            color: #ffffff;
+        }
+
+        .btn-toggle-mode {
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            justify-content: center;
+            border-radius: var(--radius-md);
+        }
+
+        /* Overview Stat Banner */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 32px 0 26px;
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            padding: 18px 20px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-hover);
+        }
+
+        .stat-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--text-title);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* Filter & Controls Bar */
+        .controls-bar {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            background: var(--bg-subtle);
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pill:hover {
+            color: var(--text-title);
+            background: var(--bg-highlight);
+        }
+
+        .pill.active {
+            background: var(--tint-blue);
+            color: var(--color-blue);
+            border-color: var(--border-blue);
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex-grow: 1;
+            max-width: 340px;
+            min-width: 240px;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            color: var(--text-title);
+            padding: 9px 38px 9px 14px;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 0.88rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-wrapper input:focus {
+            background: var(--bg-surface);
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .search-wrapper svg {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            fill: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .expand-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--color-blue);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+        }
+
+        .expand-toggle-btn:hover {
+            background: var(--tint-blue);
+        }
+
+        /* Projects List / Grid */
+        .projects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Project Card */
+        .project-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: 26px 30px;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .project-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .id-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-subtle);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+        }
+
+        .category-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 999px;
+            letter-spacing: 0.2px;
+        }
+
+        .tag-space { background: var(--tint-cyan); color: var(--color-cyan); border: 1px solid var(--border-cyan); }
+        .tag-cyber { background: var(--tint-rose); color: var(--color-rose); border: 1px solid var(--border-rose); }
+        .tag-systems { background: var(--tint-blue); color: var(--color-blue); border: 1px solid var(--border-blue); }
+        .tag-bio { background: var(--tint-emerald); color: var(--color-emerald); border: 1px solid var(--border-emerald); }
+
+        .score-badge {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-emerald);
+            background: var(--tint-emerald);
+            padding: 3px 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-emerald);
+        }
+
+        .project-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--text-title);
+            margin-bottom: 4px;
+            line-height: 1.35;
+        }
+
+        .project-en-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem;
+            color: var(--color-blue);
+            margin-bottom: 14px;
+            font-weight: 500;
+            direction: ltr;
+            text-align: right;
+        }
+
+        /* 1-Line Pitch Callout */
+        .pitch-banner {
+            background: var(--bg-subtle);
+            border-right: 4px solid var(--color-blue);
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-size: 0.96rem;
+            color: var(--text-title);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+
+        /* Tech Tags */
+        .tech-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .tech-chip {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.76rem;
+            padding: 3px 9px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        /* Collapsible Detailed Content */
+        .card-details {
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+            display: none;
+        }
+
+        .card-details.open {
+            display: block;
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Detailed Grid inside card */
+        .detail-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .detail-box {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+        }
+
+        .detail-box-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-title);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-box-title svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: var(--color-blue);
+            stroke-width: 2;
+        }
+
+        .detail-box-text {
+            font-size: 0.88rem;
+            color: var(--text-body);
+            line-height: 1.68;
+        }
+
+        .detail-box-text ul {
+            padding-right: 18px;
+            margin-top: 6px;
+        }
+
+        .detail-box-text li {
+            margin-bottom: 4px;
+        }
+
+        /* Team Roles Box */
+        .team-split-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 640px) {
+            .team-split-box {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .member-role {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .member-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .badge-fares-name { color: var(--color-blue); }
+        .badge-shnawy-name { color: var(--color-purple); }
+
+        .member-desc {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+        }
+
+        /* Card Toggle Button */
+        .toggle-card-btn {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            color: var(--color-blue);
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            margin-top: 6px;
+        }
+
+        .toggle-card-btn:hover {
+            background: var(--tint-blue);
+            border-color: var(--border-blue);
+        }
+
+        .toggle-card-btn svg {
+            width: 15px;
+            height: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .toggle-card-btn.open svg {
+            transform: rotate(180deg);
+        }
+
+        /* Master Comparison Table Section */
+        .table-section {
+            margin-top: 48px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-xl);
+            padding: 28px 30px;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        .table-heading {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-title);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: right;
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        th {
+            background: var(--bg-subtle);
+            color: var(--text-secondary);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--bg-subtle);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            border-top: 1px solid var(--border-light);
+            padding-top: 28px;
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: #ffffff !important; color: #000000 !important; }
+            header, .controls-bar, .toggle-card-btn, footer { display: none !important; }
+            .card-details { display: block !important; }
+            .project-card { border: 1px solid #ccc !important; box-shadow: none !important; page-break-inside: avoid; margin-bottom: 24px; }
+            .table-section { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-wrap">
+                <div>
+                    <span class="brand-badge">REGENERON ISEF 2027 • EGYPT PIPELINE</span>
+                    <h1>حاضنة أفكار مسابقة ISEF | فارس & الشناوي</h1>
+                    <p class="sub-title">الأفكار البرمجية والحوسبية الستة المختارة بعد الفلترة الشاملة • تصميم مريح للقراءة والبحث</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-toggle-mode" onclick="toggleTheme()" title="تبديل الوضع الليلي / الفاتح">
+                        <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </button>
+                    <button class="btn" onclick="window.print()">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+                        طباعة / PDF
+                    </button>
+                    <a href="ISEF_SELECTED_IDEAS.md" target="_blank" class="btn btn-primary">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                        ملف Markdown للموديلات
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Stat Row -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">6 <span style="font-size: 0.95rem; color: var(--color-blue); font-weight: 500;">مشاريع</span></div>
+                <div class="stat-label">الأفكار المتأهلة للقائمة الذهبية</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">100% <span style="font-size: 0.95rem; color: var(--color-emerald); font-weight: 500;">برمجي</span></div>
+                <div class="stat-label">صفر هاردوير ومعامل رطبة مكلفة</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">91.5% <span style="font-size: 0.95rem; color: var(--color-purple); font-weight: 500;">متوسط</span></div>
+                <div class="stat-label">نسبة النجاح والجدوى العملية</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">Grand <span style="font-size: 0.95rem; color: var(--color-amber); font-weight: 500;">Awards</span></div>
+                <div class="stat-label">المستوى التنافسي المستهدف في أمريكا</div>
+            </div>
+        </div>
+
+        <!-- Filter & Search Controls Bar -->
+        <div class="controls-bar">
+            <div class="filter-pills" id="categoryFilter">
+                <button class="pill active" data-filter="all">جميع المجالات (6)</button>
+                <button class="pill" data-filter="cyber">الأمن السيبراني والنظم (3)</button>
+                <button class="pill" data-filter="space">الفضاء والبيئة (1)</button>
+                <button class="pill" data-filter="biomed">الطب الحيوي والأعصاب (2)</button>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <button class="expand-toggle-btn" id="expandAllBtn" onclick="toggleAllCards()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                    <span>توسيع كل التفاصيل</span>
+                </button>
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" placeholder="ابحث باسم الفكرة، التقنية، أو الباحث...">
+                    <svg viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Cards List -->
+        <div class="projects-list" id="projectsContainer">
+
+            <!-- Card 1: NASA Methane Radar -->
+            <div class="project-card" data-category="space">
+                <div class="card-header">
+                    <div class="header-meta">
+                        <span class="id-badge">PROJECT 01</span>
+                        <span class="category-tag tag-space">EAEV / SOFT</span>
+                        <span class="score-badge">نسبة الجدوى: 92%</span>
+                    </div>
+                    <button class="toggle-card-btn" onclick="toggleSingleCard(this)">
+                        <span>عرض الشرح والتفاصيل</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </div>
+
+                <h2 class="project-title">رادار ناسا الفضائي لرصد سحب الميثان الخفية</h2>
+                <div class="project-en-title">Autonomous Super-Emitter Methane Plume Detection & Flux Rate Quantification from NASA EMIT Hyperspectral Satellite Data via Computer Vision</div>
+
+                <div class="pitch-banner">
+                    <strong>الفكرة باختصار:</strong> ذكاء اصطناعي للرؤية الحاسوبية يرصد سحب انبعاثات وتسريبات غاز الميثان غير المرئية من الفضاء بدقة المتر الواحد عبر بيانات قمر وكالة NASA فائق الأطياف (EMIT)، ويحسب كمية الغاز المتسرب بالطن/ساعة لحماية كوكب الأرض.
+                </div>
+
+                <div class="tech-chips">
+                    <span class="tech-chip">NASA EMIT Satellite</span>
+                    <span class="tech-chip">285 Hyperspectral Bands</span>
+                    <span class="tech-chip">Spatial-Spectral CNN</span>
+                    <span class="tech-chip">IME Plume Flux</span>
+                    <span class="tech-chip">Python / PyTorch</span>
+                </div>
+
+                <div class="card-details">
+                    <div class="detail-sections">
+                        
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                                1. المشكلة الواقعية ولماذا هي خطيرة؟
+                            </div>
+                            <div class="detail-box-text">
+                                غاز الميثان هو أخطر مسبب للاحتباس الحراري السريع (تأثيره 84 ضعف غاز CO2). الأخطر أن أغلب التسريبات تخرج من خطوط أنابيب النفط والغاز أو مقالب القمامة العملاقة بشكل مفاجئ وغير مرئي، ولا توجد مستشعرات أرضية كافية لتغطية آلاف الكيلومترات، مما يترك الغاز يتسرب لشهور دون أن يلاحظه أحد.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+                                2. أين الفجوة العلمية ولماذا تفشل الحلول الحالية؟
+                            </div>
+                            <div class="detail-box-text">
+                                وكالة <strong>NASA</strong> أطلقت مستشعراً فائق الأطياف على محطة الفضاء الدولية (EMIT) يصور الأرض في 285 نطاقاً ضوئياً وفتحت بياناته مجاناً. لكن حجم الملفات ضخم جداً، والفلاتر الرياضية الحالية (Matched Filters) بطيئة وتعطي إنذارات كاذبة لأن بعض أنواع التربة والصخور تعكس ضوءاً يشبه طيف الميثان.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                                3. الأبلكيشن الذي سنبنيه خطوة بخطوة
+                            </div>
+                            <div class="detail-box-text">
+                                <ul>
+                                    <li>نظام بايثون يسحب تلقائياً صور قمر ناسا الحديثة عبر NASA Earthdata API.</li>
+                                    <li>يحلل بصمة امتصاص الغاز عند الطول الموجي 2.3 ميكرومتر.</li>
+                                    <li>يمرر الصور عبر موديل رؤية حاسوبية خفيف يرسم حدود سحابة الغاز (Segmentation).</li>
+                                    <li>يحسب معدل التدفق بالكيلوجرام/ساعة ويعرضه على خريطة تفاعلية باللون الأحمر.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4. الابتكار الخوارزمي وسر الفوز بـ ISEF
+                            </div>
+                            <div class="detail-box-text">
+                                الابتكار هو دمج فلتر الامتصاص الكيميائي مع شبكة انتباه مكانية-طيفية (Dual Attention CNN) تلغي ضوضاء التربة تلقائياً وتعمل بسرعة فائقة (&lt; 30 ثانية لكل خريطة). عند الوقوف أمام المحكمين: "نحن نستخدم بيانات وكالة ناسا لرصد انبعاثات الشرق الأوسط بدقة المتر وحماية المناخ!"
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="team-split-box">
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-fares-name">دور فارس (البرمجة وهندسة النظم):</span>
+                            </div>
+                            <div class="member-desc">بناء خط سحب ومعالجة بيانات الأقمار الصناعية (Data Pipeline)، تدريب نموذج الرؤية الحاسوبية، وتطوير لوحة التحكم والخرائط الجغرافية.</div>
+                        </div>
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-shnawy-name">دور الشناوي (الفيزياء والرياضيات):</span>
+                            </div>
+                            <div class="member-desc">دراسة فيزياء امتصاص الميثان عند 2.3 ميكرومتر، حسابات سرعة الرياح، وتطبيق نموذج انتشار وتدفق السحب (IME Plume Flux Model).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: VeriAgent Studio -->
+            <div class="project-card" data-category="cyber">
+                <div class="card-header">
+                    <div class="header-meta">
+                        <span class="id-badge">PROJECT 02</span>
+                        <span class="category-tag tag-cyber">SOFT / AI Security</span>
+                        <span class="score-badge">نسبة الجدوى: 93%</span>
+                    </div>
+                    <button class="toggle-card-btn" onclick="toggleSingleCard(this)">
+                        <span>عرض الشرح والتفاصيل</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </div>
+
+                <h2 class="project-title">VeriAgent Studio: حارس الوكلاء الأذكياء بالبرهان الرياضي</h2>
+                <div class="project-en-title">Runtime Formal Verification & SMT Invariant Enforcement for Autonomous AI Agent Systems</div>
+
+                <div class="pitch-banner">
+                    <strong>الفكرة باختصار:</strong> طبقة وسيطة (Middleware) تعترض قرارات واستدعاءات وكلاء الذكاء الاصطناعي (Autonomous AI Agents) في الـ Runtime وتخضعها لإثبات رياضي صارم بمحرك Z3 SMT Solver لمنع الأخطاء التتابعية والخروقات الأمنية قبل وصولها للسيرفر.
+                </div>
+
+                <div class="tech-chips">
+                    <span class="tech-chip">C# / ASP.NET Core</span>
+                    <span class="tech-chip">Microsoft Z3 Solver</span>
+                    <span class="tech-chip">First-Order Logic</span>
+                    <span class="tech-chip">Formal Verification</span>
+                    <span class="tech-chip">Agent Security</span>
+                </div>
+
+                <div class="card-details">
+                    <div class="detail-sections">
+                        
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                                1. المشكلة الواقعية ولماذا هي خطيرة؟
+                            </div>
+                            <div class="detail-box-text">
+                                العالم يتحول من مجرد شات بوتس إلى وكلاء مستقلين (AI Agents) يديرون محافظ مالية، يعدلون قواعد بيانات، ويستدعون Web APIs. لأن النماذج اللغوية بطبيعتها احتمالية وغير حتمية، عندما يتفاعل أكثر من وكيل معاً تحدث أخطاء منطقية مركبة ومفاجئة لا يمكن للاختبارات العادية توقعها.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+                                2. أين الفجوة العلمية ولماذا تفشل الحلول الحالية؟
+                            </div>
+                            <div class="detail-box-text">
+                                حلول الأمان المتوفرة حالياً (مثل Prompt Guardrails) هي مجرد ذكاء اصطناعي آخر يقرأ الكلام لغوياً؛ وهي بطيئة، غير حتمية، ومعرضة للاختراق بالـ Jailbreak. لا توجد طبقة برمجية تترجم خطة الوكيل لمعادلات رياضية قطعية وتحلها بمحرك إثبات رسمي في أجزاء من المللي ثانية.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                                3. الأبلكيشن الذي سنبنيه خطوة بخطوة
+                            </div>
+                            <div class="detail-box-text">
+                                <ul>
+                                    <li>ميدلوير (Middleware) يقف بين الـ AI Agent والسيرفر، يعترض كل API Call ينوي الوكيل تنفيذه.</li>
+                                    <li>يحتوي النظام على شروط أمان منطقية (مثلاً: رصيد العميل لا يمكن أن يصبح سالباً).</li>
+                                    <li>يترجم نية الوكيل إلى معادلة منطق رياضي بصيغة SMT-LIB.</li>
+                                    <li>يمررها لمحرك مايكروسوفت Z3؛ لو خرقت الشرط، تُلغى العملية فوراً في أقل من 10 مللي ثانية مع إعطاء برهان رياضي للسبب.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4. الابتكار الخوارزمي وسر الفوز بـ ISEF
+                            </div>
+                            <div class="detail-box-text">
+                                تحويل قرارات الذكاء الاصطناعي النصية غير المهيكلة إلى معادلات منطق من الدرجة الأولى (First-Order Logic) وحلها في الـ Runtime بسرعة البرق. هذا صميم هندسة النظم وأمان الذكاء الاصطناعي (AI Safety & Systems Software)، وهو التخصص الأكثر طلباً واحتراماً في العالم.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="team-split-box">
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-fares-name">دور فارس (البرمجة وهندسة النظم):</span>
+                            </div>
+                            <div class="member-desc">صميم تخصصه بالكامل: كتابة الـ Middleware المتوازي في C# / ASP.NET، اعتراض طلبات الـ HTTP/APIs، وبناء لوحة تحكم رسومية حية عبر WebSockets.</div>
+                        </div>
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-shnawy-name">دور الشناوي (الرياضيات والمنطق):</span>
+                            </div>
+                            <div class="member-desc">صياغة قيود وشروط الأمان المنطقية (Formal Logic Invariants)، ربط مدخلات محرك Z3 Solver، وإثبات الحدود الرياضية لعدم التعارض.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: CrypTiming -->
+            <div class="project-card" data-category="cyber">
+                <div class="card-header">
+                    <div class="header-meta">
+                        <span class="id-badge">PROJECT 03</span>
+                        <span class="category-tag tag-cyber">SECU / SOFT</span>
+                        <span class="score-badge">نسبة الجدوى: 90%</span>
+                    </div>
+                    <button class="toggle-card-btn" onclick="toggleSingleCard(this)">
+                        <span>عرض الشرح والتفاصيل</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </div>
+
+                <h2 class="project-title">CrypTiming: كاشف ثغرات التوقيت التشفيري عن بُعد</h2>
+                <div class="project-en-title">Remote Side-Channel Timing Leak Auditing in Cryptographic APIs & Web Services via Statistical Jitter Filtering</div>
+
+                <div class="pitch-banner">
+                    <strong>الفكرة باختصار:</strong> تطبيق فحص أمني يرسل طلبات استعلام فائقة الدقة الزمنية للسيرفرات، ويطبق خوارزميات إحصائية متقدمة لتصفية ضوضاء الإنترنت، مما يمكنه من كشف ثغرات تسريب التوقيت (Timing Attacks) التي تكشف المفاتيح السرية عن بُعد.
+                </div>
+
+                <div class="tech-chips">
+                    <span class="tech-chip">C# / Python</span>
+                    <span class="tech-chip">Timing Attacks</span>
+                    <span class="tech-chip">Welch's t-test</span>
+                    <span class="tech-chip">Box-Cox Transform</span>
+                    <span class="tech-chip">Side-Channel Security</span>
+                </div>
+
+                <div class="card-details">
+                    <div class="detail-sections">
+                        
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                                1. المشكلة الواقعية ولماذا هي خطيرة؟
+                            </div>
+                            <div class="detail-box-text">
+                                عند التحقق من كلمة مرور أو توقيع رقمي في السيرفر، مقارنة النصوص العادية تأخذ وقتاً أطول ببضع نانو ثوانٍ كلما تطابق حرف إضافي في البداية. الهاكرز يستغلون هذه الفروق الزمنية الميكروية لتخمين كلمات المرور والمفاتيح السرية حرفاً بحرف عبر هجمات التوقيت.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+                                2. أين الفجوة العلمية ولماذا تفشل الحلول الحالية؟
+                            </div>
+                            <div class="detail-box-text">
+                                فحص السيرفرات عن بُعد عبر الإنترنت أمر شديد الصعوبة؛ لأن سرعة الإنترنت تتذبذب باستمرار بعشرات الميكروثواني (Network Jitter)، مما يغطي تماماً على الفارق الزمني النانوي للثغرة. الأدوات الحالية إما تتطلب الوصول لكود السيرفر من الداخل، أو تفشل تماماً عبر الشبكة.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                                3. الأبلكيشن الذي سنبنيه خطوة بخطوة
+                            </div>
+                            <div class="detail-box-text">
+                                <ul>
+                                    <li>أداة فحص (CLI Tool + GUI Dashboard) نحدد لها رابط الـ Endpoint المراد فحصها.</li>
+                                    <li>ترسل الأداة آلاف الطلبات التتابعية الموزونة وتقيس زمن كل طلب بمؤقت نانوي فائق الدقة.</li>
+                                    <li>تطبق تحويلاً إحصائياً (Box-Cox) يطرد ضوضاء الإنترنت العشوائية ويعزل زمن المعالجة الحقيقي.</li>
+                                    <li>تجري اختبار فرضية ويلش (Welch's t-test) لتؤكد وجود الثغرة بنسبة ثقة إحصائية 99.9%.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4. الابتكار الخوارزمي وسر الفوز بـ ISEF
+                            </div>
+                            <div class="detail-box-text">
+                                ابتكار خوارزمية تصفية إحصائية قادرة على استخراج تسريبات التوقيت النانوية عبر الإنترنت الحقيقي بدون الحاجة لفتح كود السيرفر (Black-box Remote Auditing). المحكمون في فئة Cybersecurity يعشقون أبحاث الـ Side-Channel Attacks المثبتة رياضياً.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="team-split-box">
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-fares-name">دور فارس (البرمجة وهندسة النظم):</span>
+                            </div>
+                            <div class="member-desc">برمجة محرك إرسال الطلبات فائق الدقة في C# باستخدام مؤقتات المعالج الدقيقة، بناء بيئة السيرفرات الاختبارية وتطوير واجهة التقارير.</div>
+                        </div>
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-shnawy-name">دور الشناوي (الرياضيات والإحصاء):</span>
+                            </div>
+                            <div class="member-desc">التحليل الإحصائي لتوزيعات الأزمنة، تطبيق تحويلات Box-Cox لتطبيع الضوضاء غير الغوسية، واشتقاق فترات الثقة عبر اختبارات ويلش.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: NeuroSaccade -->
+            <div class="project-card" data-category="biomed">
+                <div class="card-header">
+                    <div class="header-meta">
+                        <span class="id-badge">PROJECT 04</span>
+                        <span class="category-tag tag-bio">ENBM / CBIO</span>
+                        <span class="score-badge">نسبة الجدوى: 85%</span>
+                    </div>
+                    <button class="toggle-card-btn" onclick="toggleSingleCard(this)">
+                        <span>عرض الشرح والتفاصيل</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </div>
+
+                <h2 class="project-title">NeuroSaccade: رصد الارتجاج الدماغي بحركة العين بكاميرات الويب</h2>
+                <div class="project-en-title">Sub-Pixel Micro-Saccadic Eye Dynamics for Mild Traumatic Brain Injury Screening via Standard Webcams</div>
+
+                <div class="pitch-banner">
+                    <strong>الفكرة باختصار:</strong> تطبيق حاسوبي يشخص إصابات الارتجاج الدماغي للرياضيين في الملاعب والمدارس عبر كاميرات اللابتوب العادية (60 FPS) فقط، باستخدام خوارزميات رصد لحركة العين المجهرية بدقة تحت مستوى البكسل (Sub-pixel).
+                </div>
+
+                <div class="tech-chips">
+                    <span class="tech-chip">Computer Vision</span>
+                    <span class="tech-chip">Sub-Pixel Phase Correlation</span>
+                    <span class="tech-chip">Kalman Filter</span>
+                    <span class="tech-chip">Brain Concussion (mTBI)</span>
+                    <span class="tech-chip">PhysioNet Datasets</span>
+                </div>
+
+                <div class="card-details">
+                    <div class="detail-sections">
+                        
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                                1. المشكلة الواقعية ولماذا هي خطيرة؟
+                            </div>
+                            <div class="detail-box-text">
+                                الارتجاج الدماغي البسيط (mTBI) الذي يصيب الرياضيين في الملاعب يصعب اكتشافه بالعين المجردة، وأجهزة الرنين المغناطيسي باهظة ولا توجد في الملاعب. استمرار اللاعب المصاب في اللعب يعرضه لمتلازمة الضربة الثانية القاتلة أو مضاعفات عصبية مزمنة.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+                                2. أين الفجوة العلمية ولماذا تفشل الحلول الحالية؟
+                            </div>
+                            <div class="detail-box-text">
+                                الأدلة الطبية تثبت أن الارتجاج يسبب تأخراً مجهرياً في سرعة حركة العين الخاطفة (Saccades). لكن قياس هذا التأخر يحتاج أجهزة طبية مخصصة تفوق قيمتها 10,000 دولار وتعمل بـ 500-1000 إطار في الثانية، بينما الكاميرات العادية لا تتجاوز 60 إطاراً في الثانية.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                                3. الأبلكيشن الذي سنبنيه خطوة بخطوة
+                            </div>
+                            <div class="detail-box-text">
+                                <ul>
+                                    <li>تطبيق لابتوب يطلب من الرياضي متابعة نقطة تتحرك على الشاشة لمدة 60 ثانية.</li>
+                                    <li>تسجل الكاميرا العادية حركة العين ويحدد الكود مركز البؤبؤ بدقة تحت مستوى البكسل.</li>
+                                    <li>يطبق مرشح كالمان لتقدير منحنى التسارع وسرعة الانطلاق وزمن التأخير العصبي (Latency).</li>
+                                    <li>يصدر تقريراً فورياً للطبيب أو المدرب يوضح كفاءة وظائف جذع الدماغ واحتمال الإصابة.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4. الابتكار الخوارزمي وسر الفوز بـ ISEF
+                            </div>
+                            <div class="detail-box-text">
+                                كسر حاجز الهاردوير باهظ الثمن بالرياضيات المتقدمة؛ حيث ترفع الخوارزمية دقة كاميرا الـ 60 FPS لتعادل أداء كاميرات الـ 250 FPS الطبية. المشروع يمتلك أثراً إنسانياً وطبياً هائلاً ومبني على بيانات PhysioNet الطبية المفتوحة.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="team-split-box">
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-fares-name">دور فارس (البرمجة وهندسة النظم):</span>
+                            </div>
+                            <div class="member-desc">بناء واجهة التطبيق التفاعلية واختبار النقطة البصرية، معالجة إطارات الفيديو اللحظية من الكاميرا، وحساب الإحداثيات وتوليد التقارير.</div>
+                        </div>
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-shnawy-name">دور الشناوي (الرياضيات والإشارات):</span>
+                            </div>
+                            <div class="member-desc">خوارزميات الارتباط الطوري تحت البكسل (Phase Correlation)، تطبيق مرشح كالمان ثنائي الاتجاه، والتحليل الإحصائي لبيانات PhysioNet.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5: API-Snoop -->
+            <div class="project-card" data-category="cyber">
+                <div class="card-header">
+                    <div class="header-meta">
+                        <span class="id-badge">PROJECT 05</span>
+                        <span class="category-tag tag-cyber">SOFT / SECU</span>
+                        <span class="score-badge">نسبة الجدوى: 92%</span>
+                    </div>
+                    <button class="toggle-card-btn" onclick="toggleSingleCard(this)">
+                        <span>عرض الشرح والتفاصيل</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </div>
+
+                <h2 class="project-title">API-Snoop: صائد ثغرات تتابع الصلاحيات في الـ Microservices</h2>
+                <div class="project-en-title">Automated Cascading BOLA Vulnerability Discovery in Distributed Microservices via Graph-Guided Symbolic Fuzzing</div>
+
+                <div class="pitch-banner">
+                    <strong>الفكرة باختصار:</strong> أداة فحص هندسية تكتشف ثغرات الصلاحيات المتسلسلة (Cascading BOLA) في معماريات الخوادم الموزعة (Microservices) عبر رسم مخططات اعتماديات الـ APIs واستخدام الفحص الموجه بنظرية المخططات (Symbolic Fuzzing).
+                </div>
+
+                <div class="tech-chips">
+                    <span class="tech-chip">C# / .NET Core</span>
+                    <span class="tech-chip">OpenAPI / Swagger</span>
+                    <span class="tech-chip">Call Graph Dependency</span>
+                    <span class="tech-chip">Symbolic Fuzzing</span>
+                    <span class="tech-chip">OWASP BOLA #1</span>
+                </div>
+
+                <div class="card-details">
+                    <div class="detail-sections">
+                        
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                                1. المشكلة الواقعية ولماذا هي خطيرة؟
+                            </div>
+                            <div class="detail-box-text">
+                                ثغرة BOLA هي التهديد رقم 1 للـ APIs في تصنيف OWASP العالمي. في الشركات التي تستخدم Microservices، قد يفحص المهندس كل سيرفس بمفردها ويجدها آمنة؛ لكن استدعاء الـ APIs بمسار تتابعي غير مقصود ينشئ ثغرة تمنح المستخدم وصولاً لحسابات وبيانات مستخدمين آخرين!
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+                                2. أين الفجوة العلمية ولماذا تفشل الحلول الحالية؟
+                            </div>
+                            <div class="detail-box-text">
+                                أدوات الفحص الأمني الحالية (مثل Postman و OWASP ZAP) تفحص كل نقطة نهاية (Endpoint) منفصلة عن الأخرى. لا توجد أداة تبني مخططاً استدلالياً لعلاقات الاستدعاء المتبادلة بين الخدمات، وتكتشف الثغرات التتابعية الخفية قبل رفع الكود للإنتاج.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                                3. الأبلكيشن الذي سنبنيه خطوة بخطوة
+                            </div>
+                            <div class="detail-box-text">
+                                <ul>
+                                    <li>أداة CLI ولوحة تحكم رسومية يغذيها المطور بملف مواصفات الـ APIs (Swagger/OpenAPI) وكود C#.</li>
+                                    <li>يرسم التطبيق مخططاً بيانياُ شبكياً لكيفية انتقال المعرفات (Object IDs) وتغيرات الحالة بين الخدمات.</li>
+                                    <li>يولد تلقائياً سيناريوهات استدعاء هجومية ذكية (Exploit Chains).</li>
+                                    <li>ينفذ السيناريوهات في بيئة تجريبية ويصدر تقريراً بالمكان الدقيق للخلل المنطقي.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4. الابتكار الخوارزمي وسر الفوز بـ ISEF
+                            </div>
+                            <div class="detail-box-text">
+                                توجيه الفحص بخوارزميات نظرية المخططات (State-Mutation Guided Fuzzing) التي تختصر ملايين الاحتمالات العشوائية وتركز فقط على المسارات التي تغير بيانات الكائنات الحساسة. المشروع في صميم معمارية السحاب والـ Backend، وهو مجال نادر ومبهر للجان الجامعات.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="team-split-box">
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-fares-name">دور فارس (البرمجة وهندسة النظم):</span>
+                            </div>
+                            <div class="member-desc">ملعبه الأصلي 100%: قراءة وتحليل مواصفات الـ APIs وكود متحكمات الـ Backend في C#، وبناء محرك إرسال الطلبات الموزعة وأداة الـ CLI.</div>
+                        </div>
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-shnawy-name">دور الشناوي (الرياضيات والمخططات):</span>
+                            </div>
+                            <div class="member-desc">تحويل مسارات النظام إلى مخطط بياني موجه (Directed Graph)، وتطبيق خوارزميات إيجاد المسارات الحرجة وحسابات الاحتمالات التوليدية.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 6: TremorQuant -->
+            <div class="project-card" data-category="biomed">
+                <div class="card-header">
+                    <div class="header-meta">
+                        <span class="id-badge">PROJECT 06</span>
+                        <span class="category-tag tag-bio">CBIO / ENBM</span>
+                        <span class="score-badge">نسبة الجدوى: 90%</span>
+                    </div>
+                    <button class="toggle-card-btn" onclick="toggleSingleCard(this)">
+                        <span>عرض الشرح والتفاصيل</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                </div>
+
+                <h2 class="project-title">TremorQuant: تفريق الرعاش العصبي الحركي بديناميكا الفوضى</h2>
+                <div class="project-en-title">Non-Linear Dynamical Chaos Analysis of Smartphone Inertial Signals for Differential Diagnosis of Parkinsonian Tremor</div>
+
+                <div class="pitch-banner">
+                    <strong>الفكرة باختصار:</strong> تطبيق هاتف ذكي يفرق مبكراً بين مرض باركنسون (الشلل الرعاش) والرعاش الحميد عبر مستشعرات الحركة العادية، بالاعتماد على معادلات ديناميكا الفوضى غير الخطية وهندسة فضاء الطور (Phase-Space Topology).
+                </div>
+
+                <div class="tech-chips">
+                    <span class="tech-chip">Smartphone IMU</span>
+                    <span class="tech-chip">Nonlinear Dynamics</span>
+                    <span class="tech-chip">Lyapunov Exponent</span>
+                    <span class="tech-chip">RQA Analysis</span>
+                    <span class="tech-chip">PhysioNet Tremor DB</span>
+                </div>
+
+                <div class="card-details">
+                    <div class="detail-sections">
+                        
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                                1. المشكلة الواقعية ولماذا هي خطيرة؟
+                            </div>
+                            <div class="detail-box-text">
+                                في البدايات، يصعب على أطباء الأعصاب سريرياً التفريق بين مرض باركنسون والرعاش مجهول السبب العادي، لأن كلاهما يظهر بهزة يد متقاربة. الخطأ في التشخيص يؤدي لإعطاء المريض أدوية عصبية ثقيلة وخاطئة تسرع من تدهور حالته، بينما الأجهزة المتخصصة تكلف آلاف الدولارات.
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>
+                                2. أين الفجوة العلمية ولماذا تفشل الحلول الحالية؟
+                            </div>
+                            <div class="detail-box-text">
+                                التطبيقات الحالية تعتمد على تحليل التردد الخطي (FFT)؛ ولأن تردد اهتزاز المرضين متداخل جداً (4-8 هرتز)، تفشل الطرق الخطية في التفريق. لكن الرعاش هو ظاهرة بيولوجية غير خطية؛ الاختلاف الحقيقي يكمن في درجة الفوضى وهندسة فضاء الطور (Chaos & Entropy).
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                                3. الأبلكيشن الذي سنبنيه خطوة بخطوة
+                            </div>
+                            <div class="detail-box-text">
+                                <ul>
+                                    <li>تطبيق موبايل يمسكه المريض 30 ثانية في ثلاث وضعيات حركية مختلفة.</li>
+                                    <li>يجمع التطبيق بيانات مستشعر الحركة (IMU: تسارع وجايروسكوب) بتردد عالي.</li>
+                                    <li>يطبق خوارزميات ديناميكا الفوضى لإعادة بناء فضاء الطور ثلاثي الأبعاد لحركة اليد.</li>
+                                    <li>يحسب مؤشرات مصفوفات التكرار (RQA) وأسس ليابونوف ويقدم للطبيب تقريراً دقيقاً بنسبة كل مرض.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="detail-box">
+                            <div class="detail-box-title">
+                                <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                4. الابتكار الخوارزمي وسر الفوز بـ ISEF
+                            </div>
+                            <div class="detail-box-text">
+                                استخراج البصمة غير الخطية العميقة للرعاش عبر أسس ليابونوف، وتحويل هاتف ذكي عادي لأداة تشخيص عصبية تفوق دقة الفحص البصري الكلاسيكي بنسبة حساسية تتجاوز 92%، معتمدة بالكامل على بيانات PhysioNet الطبية المفتوحة.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="team-split-box">
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-fares-name">دور فارس (البرمجة وهندسة النظم):</span>
+                            </div>
+                            <div class="member-desc">بناء تطبيق الهاتف المحمول، سحب بيانات المستشعرات بتردد ثابت بدون أي تأخير، ومعالجة الإشارات وعرض التقارير الطبية.</div>
+                        </div>
+                        <div class="member-role">
+                            <div class="member-header">
+                                <span class="badge-shnawy-name">دور الشناوي (الرياضيات وديناميكا الفوضى):</span>
+                            </div>
+                            <div class="member-desc">رياضيات النظم غير الخطية، إعادة بناء فضاء الطور (Takens' Embedding)، حساب مؤشرات RQA ومعدلات ليابونوف، والتحليل الإحصائي لبيانات PhysioNet.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Master Comparison Table -->
+        <div class="table-section">
+            <h2 class="table-heading">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-blue)" stroke-width="2"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18"/></svg>
+                مصفوفة المقارنة الاستراتيجية السريعة
+            </h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>المشروع</th>
+                        <th>فئة ISEF</th>
+                        <th>ملعب فارس (البرمجة)</th>
+                        <th>ملعب الشناوي (الرياضيات)</th>
+                        <th>البيانات المرجعية</th>
+                        <th>نسبة الجدوى</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>رادار ناسا الفضائي للميثان</strong></td>
+                        <td><span class="category-tag tag-space">EAEV / SOFT</span></td>
+                        <td>معالجة صور الأقمار ونماذج الرؤية</td>
+                        <td>فيزياء الامتصاص وتدفق الغازات</td>
+                        <td>قمر NASA EMIT المفتوح</td>
+                        <td><span class="score-badge">92%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>VeriAgent Studio</strong></td>
+                        <td><span class="category-tag tag-cyber">SOFT / AI SEC</span></td>
+                        <td>C# Middleware والأنظمة المتوازية</td>
+                        <td>المنطق الصارم ونمذجة Z3 Solver</td>
+                        <td>AgentBench / WebArena</td>
+                        <td><span class="score-badge">93%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CrypTiming</strong></td>
+                        <td><span class="category-tag tag-cyber">SECU / SOFT</span></td>
+                        <td>أداة الفحص والتوقيت فائق الدقة</td>
+                        <td>إحصاء Welch's وتحويل Box-Cox</td>
+                        <td>Dudect / سيرفرات مشبوهة</td>
+                        <td><span class="score-badge">90%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>NeuroSaccade</strong></td>
+                        <td><span class="category-tag tag-bio">ENBM / CBIO</span></td>
+                        <td>واجهة التتبع ومعالجة الفيديو</td>
+                        <td>استيفاء البكسل وتصفية Kalman</td>
+                        <td>PhysioNet Eye-Tracking</td>
+                        <td><span class="score-badge">85%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>API-Snoop</strong></td>
+                        <td><span class="category-tag tag-cyber">SOFT / SECU</span></td>
+                        <td>بارسر C# وهندسة الـ APIs</td>
+                        <td>مخططات الاعتماديات ونظرية المخطط</td>
+                        <td>OWASP Juice Shop / vAPI</td>
+                        <td><span class="score-badge">92%</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>TremorQuant</strong></td>
+                        <td><span class="category-tag tag-bio">CBIO / ENBM</span></td>
+                        <td>تطبيق الموبايل وقراءة الـ IMU</td>
+                        <td>ديناميكا الفوضى وفضاء الطور RQA</td>
+                        <td>PhysioNet Tremor DB</td>
+                        <td><span class="score-badge">90%</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>حاضنة أبحاث Regeneron ISEF 2027 لفريق: فارس والشناوي • الإسكندرية، مصر</p>
+            <p style="margin-top: 6px; font-size: 0.78rem;">تصميم مريح للعين، متجاوب وخفيف • مسار الملف: <code>d:\Work\Fathallah\ISEF\ISEF_FILTERED_CANDIDATES.html</code></p>
+        </div>
+    </footer>
+
+    <!-- Scripts: Filters, Search, Accordion, Theme Toggle -->
+    <script>
+        // Toggle single card
+        function toggleSingleCard(btn) {
+            btn.classList.toggle('open');
+            const card = btn.closest('.project-card');
+            const details = card.querySelector('.card-details');
+            details.classList.toggle('open');
+            
+            const btnText = btn.querySelector('span');
+            if (details.classList.contains('open')) {
+                btnText.textContent = 'إخفاء التفاصيل';
+            } else {
+                btnText.textContent = 'عرض الشرح والتفاصيل';
+            }
+        }
+
+        // Expand / Collapse All
+        let allExpanded = false;
+        function toggleAllCards() {
+            allExpanded = !allExpanded;
+            const allDetails = document.querySelectorAll('.card-details');
+            const allButtons = document.querySelectorAll('.toggle-card-btn');
+            const toggleBtnText = document.getElementById('expandAllBtn').querySelector('span');
+
+            allDetails.forEach(detail => {
+                if (allExpanded) {
+                    detail.classList.add('open');
+                } else {
+                    detail.classList.remove('open');
+                }
+            });
+
+            allButtons.forEach(btn => {
+                const text = btn.querySelector('span');
+                if (allExpanded) {
+                    btn.classList.add('open');
+                    text.textContent = 'إخفاء التفاصيل';
+                } else {
+                    btn.classList.remove('open');
+                    text.textContent = 'عرض الشرح والتفاصيل';
+                }
+            });
+
+            toggleBtnText.textContent = allExpanded ? 'طي كل التفاصيل' : 'توسيع كل التفاصيل';
+        }
+
+        // Filtering
+        const filterButtons = document.querySelectorAll('#categoryFilter .pill');
+        const cards = document.querySelectorAll('.project-card');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+
+                const filter = button.getAttribute('data-filter');
+                cards.forEach(card => {
+                    const cardCat = card.getAttribute('data-category');
+                    if (filter === 'all' || cardCat === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Search
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Theme Toggle (Default is Light Eye-Comfort)
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            const icon = document.getElementById('themeIcon');
+            if (isDark) {
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+            } else {
+                icon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>';
+            }
+        }
+    </script>
+</body>
+</html>
