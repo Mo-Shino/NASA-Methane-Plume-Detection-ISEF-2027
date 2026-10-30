@@ -35,25 +35,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   initDropdownDismiss();
   initUploadDragDrop();
   initMapEngine();
+  initResponsiveObservers();
   await loadPassesAndBoot();
-  window.addEventListener('resize', () => {
-    if (AppState.currentPayload && AppState.currentPayload.active_spectrum) {
-      renderAllCharts(AppState.currentPayload.active_spectrum);
-    }
-    if (AppState.leafletMap) {
-      AppState.leafletMap.invalidateSize();
-    }
-  });
 });
+
+function initResponsiveObservers() {
+  let rafId = null;
+  const handleLayoutChange = () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => {
+      if (AppState.leafletMap) {
+        AppState.leafletMap.invalidateSize({ pan: false });
+      }
+      if (AppState.currentPayload && AppState.currentPayload.active_spectrum) {
+        renderAllCharts(AppState.currentPayload.active_spectrum);
+      }
+    });
+  };
+
+  window.addEventListener('resize', handleLayoutChange);
+
+  if (typeof ResizeObserver !== 'undefined') {
+    const ro = new ResizeObserver(handleLayoutChange);
+    const mapStage = document.querySelector('.leaflet-stage');
+    const mainEl = document.querySelector('.sp-main');
+    if (mapStage) ro.observe(mapStage);
+    if (mainEl) ro.observe(mainEl);
+  }
+}
 
 async function loadPassesAndBoot() {
   try {
+    const qs = new URLSearchParams(window.location.search);
+    const reqPass = qs.get('pass');
+    const reqView = qs.get('view');
+    const reqModal = qs.get('modal');
+
     const res = await fetch('/api/passes');
     const data = await res.json();
     AppState.passes = data.passes || [];
+    if (reqPass && AppState.passes.some(p => p.pass_id === reqPass)) {
+      AppState.activePassId = reqPass;
+    }
     updateConnectionBadge(data.earthdata_connected);
     renderPassFeed();
     await runAnalysis(AppState.activePassId, true);
+
+    if (reqView === 'lab') switchView('lab', document.getElementById('tabBtnLab'));
+    else if (reqView === 'dispatch') switchView('dispatch', document.getElementById('tabBtnDispatch'));
+    if (reqModal === 'upload') openUploadModal();
   } catch (err) {
     showToast('Unable to reach local SpectraPlume engine. Retrying...');
   }
@@ -103,15 +133,15 @@ function renderPassFeed() {
     const coordStr = `${Math.abs(p.center_lat).toFixed(2)}°${latDir}, ${Math.abs(p.center_lon).toFixed(2)}°${lonDir}`;
 
     return `
-      <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectOrbitalPass('${p.pass_id}')">
+      <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectOrbitalPass('${p.pass_id}')" title="${escapeHtml(p.name)} — ${escapeHtml(p.facility)}">
         <div class="pass-card-top">
-          <span class="pass-orbit-tag">ISS Orbit #${escapeHtml(p.orbit)}</span>
+          <span class="pass-orbit-tag">Orbit #${escapeHtml(p.orbit)}</span>
           <span class="status-pill ${pillClass}">${escapeHtml(p.badge_label)}</span>
         </div>
         <div class="pass-title">${escapeHtml(p.name)}</div>
         <div class="pass-facility">${escapeHtml(p.facility)}</div>
         <div class="pass-telemetry-row">
-          <span>Flux: ${fluxText}</span>
+          <span>${fluxText}</span>
           <span>${coordStr}</span>
         </div>
       </div>
@@ -516,7 +546,7 @@ function applySpectrumToUI(spec) {
   b2.textContent = spec.badge;
   document.getElementById('labClassTitle').textContent = spec.title;
   document.getElementById('labClassExplain').textContent = spec.explanation;
-  document.getElementById('labPxXY').textContent = `X = ${spec.x}, Y = ${spec.y}`;
+  document.getElementById('labPxXY').textContent = `(${spec.x}, ${spec.y})`;
   document.getElementById('labPxGPS').textContent = `${spec.lat.toFixed(4)}°, ${spec.lon.toFixed(4)}°`;
   document.getElementById('labPxAlpha').textContent = `${spec.alpha_ppm_m} ppm·m`;
   document.getElementById('labPxSnr').textContent = `${spec.snr}`;
@@ -560,15 +590,17 @@ function renderAllCharts(spec) {
 
 function setupHiDPICanvas(canvasId, cssHeight) {
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return null;
+  if (!canvas || !canvas.parentElement) return null;
   const dpr = window.devicePixelRatio || 1;
-  const cssWidth = Math.max(260, canvas.parentElement.clientWidth - 20);
-  canvas.style.width = cssWidth + 'px';
+  // Never lock canvas.style.width to a fixed pixel string — keep 100% fluid so CSS Grid shrinks cleanly!
+  canvas.style.width = '100%';
   canvas.style.height = cssHeight + 'px';
+  const measured = canvas.getBoundingClientRect().width || (canvas.parentElement.clientWidth - 18);
+  const cssWidth = Math.max(180, Math.floor(measured));
   canvas.width = Math.floor(cssWidth * dpr);
   canvas.height = Math.floor(cssHeight * dpr);
   const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return { ctx, w: cssWidth, h: cssHeight };
 }
 
@@ -828,7 +860,25 @@ function populateDispatchReport(data) {
       ? '0.0 kg/h (0.00 Tons/hr)'
       : `${kpis.flux_kg_hr.toLocaleString()} kg/h (${kpis.flux_ton_hr} ± ${kpis.flux_uncertainty_ton_hr} t/h)`;
   document.getElementById('repCI').textContent = `[${kpis.ci95_low_ton_hr}, ${kpis.ci95_high_ton_hr}] Tons/hr (95% CI)`;
-  document.getElementById('repMass').textContent = `${kpis.ime_kg} kg across ${kpis.plume_area_km2} km²`;
+  document.getElementById('repMass').textContent =
+    geography.is_zero_gas_trap
+      ? '0.0 kg (0.000 km²)'
+      : `${kpis.ime_kg} kg • L = ${Math.round(kpis.plume_length_m)} m (${kpis.plume_area_km2} km²)`;
+
+  const kinEl = document.getElementById('repKinematics');
+  if (kinEl) {
+    kinEl.textContent = geography.is_zero_gas_trap
+      ? 'Stationary Strata (0.00 m/s advection)'
+      : `U_eff = ${kpis.effective_wind_speed_m_s} m/s • Azimuth ${kpis.plume_azimuth_deg}° (${kpis.wind_alignment_pct}% wind match)`;
+  }
+
+  const climEl = document.getElementById('repClimate');
+  if (climEl) {
+    climEl.textContent = geography.is_zero_gas_trap
+      ? '0.0 tCO2e / hr (IPCC AR6)'
+      : `${kpis.co2e_ton_hr} tCO2e / hr (IPCC AR6 20-Yr)`;
+  }
+
   document.getElementById('repFalseAlarm').textContent =
     `${kpis.false_alarm_reduction_pct}% (${kpis.rejected_clutter_pixels} rock pixels rejected)`;
   document.getElementById('repLoss').textContent =

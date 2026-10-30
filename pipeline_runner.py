@@ -128,9 +128,14 @@ class SpectraPlumePipeline:
         wind_speed = float(wind_speed_override if wind_speed_override is not None else meta.get("wind_speed_m_s", 4.2))
         wind_dir = float(wind_direction_override if wind_direction_override is not None else meta.get("wind_direction_deg", 240.0))
 
-        # 2. Baseline NASA JPL Matched Filter (AMF)
+        # 2. Baseline NASA JPL Classical Matched Filter (Single-Pass AMF)
         nasa_alpha, nasa_snr = self.classical_mf.run(sub_cube, sub_wl)
         nasa_detection_mask = (nasa_snr > 2.2).astype(np.uint8)
+
+        # 2b. Iterative Background-Purified Unit Matched Filter (U-MF) + Beer-Lambert Non-Linear Saturation Correction
+        umf_alpha_lin, umf_snr, _ = self.advanced_mf.run_advanced(sub_cube, sub_wl)
+        tau_est = np.clip(np.maximum(0.0, umf_alpha_lin) / self.classical_mf.ABSORPTION_TO_PPM_M, 0.0, 0.65)
+        umf_alpha_beer_lambert = -self.classical_mf.ABSORPTION_TO_PPM_M * np.log(1.0 - tau_est)
 
         # 3. Hybrid Spatial-Spectral Neural Network + Physics-Informed HITRAN Gating
         # A. Deep Spatial-Spectral Attention U-Net Inference
@@ -193,8 +198,8 @@ class SpectraPlumePipeline:
             if np.sum(comp) >= 8:
                 ai_binary_mask |= comp.astype(np.uint8)
 
-        # F. Clean Column Enhancement Map (in ppm*m)
-        ai_enhancement_clean = np.where(ai_binary_mask > 0, np.maximum(0.0, nasa_alpha), 0.0)
+        # F. Clean Column Enhancement Map (in ppm*m) via Background-Purified Beer-Lambert U-MF
+        ai_enhancement_clean = np.where(ai_binary_mask > 0, umf_alpha_beer_lambert, 0.0)
 
         # 4. Quantitative Emission Inversion (Integrated Mass Enhancement - IME)
         flux_results = self.flux_calc.compute_flux(

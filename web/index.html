@@ -131,7 +131,7 @@
       <div class="calibration-card">
         <div class="sidebar-section-title" style="margin-bottom:2px;">
           <svg><use href="#ic-sliders"/></svg>
-          <span>Retrieval &amp; Atmospheric Controls</span>
+          <span>Retrieval Controls</span>
         </div>
 
         <!-- Custom Dropdown 1: Retrieval Algorithm -->
@@ -203,7 +203,7 @@
         <!-- AI Confidence Threshold Slider -->
         <div>
           <div class="field-label">
-            <span>AI Confidence Gate</span>
+            <span>Confidence Gate</span>
             <span class="field-mono-val" id="threshLabelVal">0.50 (Balanced)</span>
           </div>
           <input type="range" min="30" max="85" step="5" value="50" class="sp-range" id="threshSlider"
@@ -332,49 +332,49 @@
 
           <!-- Right: Live "Why This Verdict?" Spectral Fingerprint Card -->
           <div class="spectral-proof-card">
-            <div>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">
-                <span style="font-family:var(--font-mono); font-size:11.5px; font-weight:700; color:var(--sp-amber-600); text-transform:uppercase;">
-                  Why This Verdict? • Live Pixel Probe
-                </span>
-                <span class="status-pill pill-leak" id="miniProofBadge">HITRAN Doublet</span>
+            <div class="proof-card-meta">
+              <div>
+                <div class="proof-eyebrow-row">
+                  <span class="proof-eyebrow-text">Live Pixel Spectrometer</span>
+                  <span class="status-pill pill-leak" id="miniProofBadge">HITRAN Doublet</span>
+                </div>
+                <h3 class="proof-card-title" id="miniProofTitle">
+                  Confirmed Methane Gas Signature
+                </h3>
+                <p class="proof-card-explain" id="miniProofExplain">
+                  Click any pixel inside the sensor swath on the map or choose a diagnostic target below.
+                </p>
               </div>
-              <h3 style="font-family:var(--font-display); font-size:16px; font-weight:800; color:var(--sp-forest-900);" id="miniProofTitle">
-                Confirmed Methane Gas Signature
-              </h3>
-              <p style="font-size:13px; color:var(--sp-ink-secondary); margin-top:4px;" id="miniProofExplain">
-                Click any pixel inside the sensor swath on the map or choose a diagnostic target below.
-              </p>
+
+              <div>
+                <div class="preset-label">1-Click Diagnostic Pixel Targets:</div>
+                <div class="preset-chip-row">
+                  <button type="button" class="preset-chip active" onclick="selectDiagnosticPreset('primary', this)">Peak Signal</button>
+                  <button type="button" class="preset-chip" onclick="selectDiagnosticPreset('downwind', this)">Downwind</button>
+                  <button type="button" class="preset-chip" onclick="selectDiagnosticPreset('mineral', this)">Carbonate Rock</button>
+                  <button type="button" class="preset-chip" onclick="selectDiagnosticPreset('background', this)">Clean Soil</button>
+                </div>
+              </div>
+
+              <button type="button" class="sp-btn sp-btn-outline proof-lab-btn" onclick="switchView('lab', document.getElementById('tabBtnLab'))">
+                <svg><use href="#ic-spectrum"/></svg>
+                <span>Open Full 3-Stage Spectral Lab</span>
+              </button>
             </div>
 
-            <div>
-              <div style="font-size:11.5px; font-weight:700; color:var(--sp-ink-muted); margin-bottom:6px;">
-                1-Click Diagnostic Pixel Targets:
-              </div>
-              <div class="preset-chip-row">
-                <button type="button" class="preset-chip active" onclick="selectDiagnosticPreset('primary', this)">Peak Signal</button>
-                <button type="button" class="preset-chip" onclick="selectDiagnosticPreset('downwind', this)">Downwind Zone</button>
-                <button type="button" class="preset-chip" onclick="selectDiagnosticPreset('mineral', this)">Carbonate Rock</button>
-                <button type="button" class="preset-chip" onclick="selectDiagnosticPreset('background', this)">Clean Soil</button>
-              </div>
-            </div>
-
-            <div class="mini-chart-box">
-              <div style="font-family:var(--font-mono); font-size:11.5px; color:var(--sp-forest-900); font-weight:600; margin-bottom:6px;" id="miniPixelCoords">
-                Pixel (64, 64)
-              </div>
-              <canvas id="miniSpectrumCanvas"></canvas>
-              <div class="chart-legend-row">
-                <span><i class="legend-dot" style="background:#D4810B;"></i>Measured Pixel</span>
-                <span><i class="legend-dot" style="background:#1E3F2F;"></i>HITRAN CH4 (2 Dips)</span>
-                <span><i class="legend-dot" style="background:#8A7E72;"></i>Limestone (1 Dip)</span>
+            <div class="proof-card-chart">
+              <div class="mini-chart-box">
+                <div class="mini-pixel-coords" id="miniPixelCoords">
+                  Pixel (64, 64)
+                </div>
+                <canvas id="miniSpectrumCanvas"></canvas>
+                <div class="chart-legend-row">
+                  <span><i class="legend-dot" style="background:#D4810B;"></i>Measured Pixel</span>
+                  <span><i class="legend-dot" style="background:#1E3F2F;"></i>HITRAN CH4 (2 Dips)</span>
+                  <span><i class="legend-dot" style="background:#8A7E72;"></i>Limestone (1 Dip)</span>
+                </div>
               </div>
             </div>
-
-            <button type="button" class="sp-btn sp-btn-outline" style="width:100%;" onclick="switchView('lab', document.getElementById('tabBtnLab'))">
-              <svg><use href="#ic-spectrum"/></svg>
-              <span>Open Full 3-Stage Spectral Lab</span>
-            </button>
           </div>
 
         </div>
@@ -384,41 +384,41 @@
       <section class="sp-view-pane" id="view-lab">
         <div class="stage-trio-grid">
           <div class="stage-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-family:var(--font-display); font-size:14px;">1. SWIR Surface Reflectance (Click Pixel)</strong>
+            <div class="stage-card-head">
+              <strong class="stage-card-title" title="1. SWIR Surface Reflectance (Click Pixel)">1. SWIR Surface Reflectance</strong>
               <span class="status-pill pill-amber">2150–2450 nm</span>
             </div>
             <div class="stage-img-wrap" id="stageSwirWrap" onclick="handleSwirCubeClick(event)" title="Click any pixel to inspect its 40-band spectrum">
               <img id="imgStageSwir" alt="SWIR Surface Reflectance" />
               <div class="pixel-crosshair-pin" id="swirCrosshairPin"></div>
             </div>
-            <p style="font-size:12.5px; color:var(--sp-ink-secondary);">
-              Click anywhere on this hyperspectral tile to move the spectrometer probe and inspect local chemical absorption.
+            <p class="stage-card-caption">
+              Click any pixel on this hyperspectral cube to move the spectrometer probe and inspect local chemical absorption.
             </p>
           </div>
 
           <div class="stage-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-family:var(--font-display); font-size:14px;">2. NASA Classical Matched Filter (AMF)</strong>
-              <span class="status-pill pill-leak">Mineral Confounded</span>
+            <div class="stage-card-head">
+              <strong class="stage-card-title" title="2. NASA Classical Matched Filter (AMF)">2. NASA Classical AMF</strong>
+              <span class="status-pill pill-leak">Mineral Clutter</span>
             </div>
             <div class="stage-img-wrap" style="cursor:default;">
               <img id="imgStageAmf" alt="Classical Matched Filter SNR" />
             </div>
-            <p style="font-size:12.5px; color:var(--sp-ink-secondary);" id="stageAmfCaption">
-              Notice how stationary limestone and bright structures trigger spurious high-SNR false alarms.
+            <p class="stage-card-caption" id="stageAmfCaption">
+              Stationary limestone and high-albedo structures trigger spurious high-SNR false alarms.
             </p>
           </div>
 
           <div class="stage-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong style="font-family:var(--font-display); font-size:14px;">3. SpectraPlume Hybrid 3D-CNN Output</strong>
+            <div class="stage-card-head">
+              <strong class="stage-card-title" title="3. SpectraPlume Hybrid 3D-CNN Output">3. SpectraPlume 3D-CNN</strong>
               <span class="status-pill pill-safe">Zero False Alarms</span>
             </div>
             <div class="stage-img-wrap" style="cursor:default;">
               <img id="imgStageAi" alt="SpectraPlume Clean Segmented Plume" />
             </div>
-            <p style="font-size:12.5px; color:var(--sp-ink-secondary);" id="stageAiCaption">
+            <p class="stage-card-caption" id="stageAiCaption">
               Stationary carbonate rocks eliminated; true wind-advected methane plume isolated cleanly.
             </p>
           </div>
@@ -426,35 +426,35 @@
 
         <div class="lab-spectrometer-grid">
           <div class="panel-card">
-            <span class="status-pill pill-leak" id="labClassBadge" style="margin-bottom:10px;">HITRAN Doublet</span>
-            <h3 style="font-family:var(--font-display); font-size:17px; font-weight:800; margin-bottom:6px;" id="labClassTitle">
+            <span class="status-pill pill-leak" id="labClassBadge" style="margin-bottom:8px;">HITRAN Doublet</span>
+            <h3 class="panel-card-title" id="labClassTitle">
               Pixel Spectroscopic Diagnosis
             </h3>
-            <p style="font-size:13px; color:var(--sp-ink-secondary); margin-bottom:14px;" id="labClassExplain">
+            <p class="panel-card-desc" id="labClassExplain">
               Select any pixel on the SWIR reflectance cube above to inspect its 40-channel radiative signature.
             </p>
 
-            <table class="report-kv-table">
-              <tr><td>Grid Pixel (X, Y)</td><td id="labPxXY">--</td></tr>
-              <tr><td>Geographic Lat / Lon</td><td id="labPxGPS">--</td></tr>
-              <tr><td>Column Enhancement</td><td id="labPxAlpha">--</td></tr>
-              <tr><td>Matched Filter SNR</td><td id="labPxSnr">--</td></tr>
-              <tr><td>SpectraPlume AI Confidence</td><td id="labPxConf">--</td></tr>
+            <table class="report-kv-table lab-kv-table">
+              <tr><td>Grid Pixel</td><td id="labPxXY">--</td></tr>
+              <tr><td>Lat / Lon</td><td id="labPxGPS">--</td></tr>
+              <tr><td>Column Density</td><td id="labPxAlpha">--</td></tr>
+              <tr><td>Filter SNR</td><td id="labPxSnr">--</td></tr>
+              <tr><td>AI Confidence</td><td id="labPxConf">--</td></tr>
             </table>
           </div>
 
           <div class="lab-charts-card">
-            <div>
+            <div class="chart-block">
               <div class="field-label">
-                <span>Top: Instantaneous 40-Band EMIT SWIR Reflectance vs. Scene Mean Continuum μ(λ)</span>
+                <span>40-Band SWIR Reflectance vs. Scene Continuum μ(λ)</span>
                 <span class="field-mono-val">7.4 nm FWHM</span>
               </div>
               <canvas id="labReflectanceCanvas"></canvas>
             </div>
-            <div style="padding-top:10px; border-top:1px solid var(--sp-border-subtle);">
+            <div class="chart-block chart-block-divider">
               <div class="field-label">
-                <span>Bottom: Continuum-Normalized Molecular Absorption Depth vs. HITRAN 2024 CH4 &amp; CaCO3</span>
-                <span class="field-mono-val">2260 + 2315 nm Doublet</span>
+                <span>Continuum-Normalized Absorption Depth vs. HITRAN CH4 &amp; CaCO3</span>
+                <span class="field-mono-val">2260 + 2315 nm</span>
               </div>
               <canvas id="labDeficitCanvas"></canvas>
             </div>
@@ -468,14 +468,12 @@
 
           <!-- Left: Official Regulatory & Operations Dispatch Certificate -->
           <div class="panel-card">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
-              <div style="font-family:var(--font-display); font-size:18px; font-weight:800;">
-                Official Regulatory &amp; SCADA Incident Certificate
-              </div>
+            <div class="panel-card-head">
+              <h3 class="panel-card-title">Official Regulatory &amp; SCADA Certificate</h3>
               <span class="status-pill pill-leak" id="repStatusPill">Action Required</span>
             </div>
-            <p style="font-size:13px; color:var(--sp-ink-secondary);">
-              Machine-readable MRV audit record ready for national pipeline control rooms, UNEP IMEO reporting, and field repair crews.
+            <p class="panel-card-desc">
+              Machine-readable MRV audit record ready for pipeline control rooms, UNEP IMEO reporting, and field repair crews.
             </p>
 
             <table class="report-kv-table">
@@ -484,35 +482,38 @@
               <tr><td>Pinpoint Source GPS</td><td id="repCoords">--</td></tr>
               <tr><td>Quantified Mass Flux Rate</td><td id="repFlux">--</td></tr>
               <tr><td>95% Confidence Interval</td><td id="repCI">--</td></tr>
-              <tr><td>Integrated Plume Mass (IME)</td><td id="repMass">--</td></tr>
+              <tr><td>Integrated Plume Mass &amp; Scale</td><td id="repMass">--</td></tr>
+              <tr><td>Plume Kinematics &amp; U_eff</td><td id="repKinematics">--</td></tr>
+              <tr><td>20-Yr Climate Impact (GWP-84)</td><td id="repClimate">--</td></tr>
               <tr><td>Terrain Clutter Suppression</td><td id="repFalseAlarm">--</td></tr>
               <tr><td>Estimated Gas Commodity Loss</td><td id="repLoss">--</td></tr>
             </table>
 
-            <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;" class="no-print">
+            <div class="dispatch-actions-row no-print">
               <button type="button" class="sp-btn sp-btn-primary" onclick="downloadOfficialJSON()">
                 <svg><use href="#ic-report"/></svg>
-                <span>Download Official JSON Payload</span>
+                <span>Download Official JSON</span>
               </button>
               <button type="button" class="sp-btn sp-btn-outline" onclick="window.print()">
-                <span>Print / Save Official PDF Certificate</span>
+                <span>Print / Save PDF Certificate</span>
               </button>
             </div>
           </div>
 
           <!-- Right: 42-Swath NASA EMIT Validation & Display-Board Proof -->
           <div class="panel-card">
-            <div style="font-family:var(--font-display); font-size:18px; font-weight:800; margin-bottom:4px;">
-              Validated Performance Across 42 NASA EMIT Swaths
+            <div class="panel-card-head">
+              <h3 class="panel-card-title">Validated Across 42 NASA EMIT Swaths</h3>
+              <span class="status-pill pill-amber">p = 2.4 × 10⁻⁸</span>
             </div>
-            <p style="font-size:13px; color:var(--sp-ink-secondary);">
-              Paired two-tailed Student's t-test confirms statistically robust superiority (t = 8.94, p = 2.4 × 10⁻⁸) with an 85 kg/h detection threshold.
+            <p class="panel-card-desc">
+              Paired two-tailed Student's t-test confirms statistically robust superiority (t = 8.94) down to an 85 kg/h detection threshold.
             </p>
 
             <div class="bench-bar-group">
               <div>
                 <div class="bench-bar-head">
-                  <span class="bench-bar-label">Overall F1-Score (42 Verified EMIT Swaths)</span>
+                  <span class="bench-bar-label">Overall F1-Score (42 EMIT Swaths)</span>
                   <span class="bench-bar-num">0.942 (94.2%)</span>
                 </div>
                 <div class="sp-bar-track"><div class="sp-bar-fill" style="width:94.2%;"></div></div>
@@ -533,59 +534,61 @@
               </div>
               <div>
                 <div class="bench-bar-head">
-                  <span class="bench-bar-label">High-Albedo Terrain False-Alarm Reduction</span>
+                  <span class="bench-bar-label">Terrain False-Alarm Reduction</span>
                   <span class="bench-bar-num">78.4% Avg • 100% Calcite</span>
                 </div>
                 <div class="sp-bar-track"><div class="sp-bar-fill" style="width:84%;"></div></div>
               </div>
             </div>
 
-            <table class="sota-table">
-              <thead>
-                <tr>
-                  <th>Algorithm</th>
-                  <th>Precision</th>
-                  <th>Recall</th>
-                  <th>F1-Score</th>
-                  <th>Limit</th>
-                  <th>FA Reduction</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>NASA JPL AMF (Baseline)</td>
-                  <td>64.2%</td>
-                  <td>88.5%</td>
-                  <td>0.744</td>
-                  <td>350 kg/h</td>
-                  <td>0.0% (Ref)</td>
-                </tr>
-                <tr>
-                  <td>Mag1c (Frankenberg)</td>
-                  <td>71.0%</td>
-                  <td>86.2%</td>
-                  <td>0.778</td>
-                  <td>250 kg/h</td>
-                  <td>18.5%</td>
-                </tr>
-                <tr>
-                  <td>MethaNet 2D CNN</td>
-                  <td>84.3%</td>
-                  <td>89.1%</td>
-                  <td>0.866</td>
-                  <td>180 kg/h</td>
-                  <td>45.2%</td>
-                </tr>
-                <tr class="ours-row">
-                  <td>SpectraPlume (Ours)</td>
-                  <td>96.1%</td>
-                  <td>92.4%</td>
-                  <td>0.942</td>
-                  <td>85 kg/h</td>
-                  <td>78.4%</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="table-scroll-wrap">
+              <table class="sota-table">
+                <thead>
+                  <tr>
+                    <th>Algorithm</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1-Score</th>
+                    <th>Limit</th>
+                    <th>FA Reduction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>NASA JPL AMF (Baseline)</td>
+                    <td>64.2%</td>
+                    <td>88.5%</td>
+                    <td>0.744</td>
+                    <td>350 kg/h</td>
+                    <td>0.0% (Ref)</td>
+                  </tr>
+                  <tr>
+                    <td>Mag1c (Frankenberg)</td>
+                    <td>71.0%</td>
+                    <td>86.2%</td>
+                    <td>0.778</td>
+                    <td>250 kg/h</td>
+                    <td>18.5%</td>
+                  </tr>
+                  <tr>
+                    <td>MethaNet 2D CNN</td>
+                    <td>84.3%</td>
+                    <td>89.1%</td>
+                    <td>0.866</td>
+                    <td>180 kg/h</td>
+                    <td>45.2%</td>
+                  </tr>
+                  <tr class="ours-row">
+                    <td>SpectraPlume (Ours)</td>
+                    <td>96.1%</td>
+                    <td>92.4%</td>
+                    <td>0.942</td>
+                    <td>85 kg/h</td>
+                    <td>78.4%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>
@@ -597,13 +600,11 @@
   <!-- ==================== UPLOAD GRANULE MODAL ==================== -->
   <div class="sp-modal-backdrop" id="uploadModalBackdrop" onclick="if(event.target===this) closeUploadModal();">
     <div class="sp-modal-card">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-        <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800;">
-          Analyze Custom NASA EMIT Granule
-        </h3>
-        <button type="button" class="sp-btn sp-btn-outline" style="padding:5px 11px;" onclick="closeUploadModal()">Close</button>
+      <div class="modal-head-row">
+        <h3 class="modal-title">Analyze Custom NASA EMIT Granule</h3>
+        <button type="button" class="sp-btn sp-btn-outline modal-close-btn" onclick="closeUploadModal()">Close</button>
       </div>
-      <p style="font-size:13px; color:var(--sp-ink-secondary);">
+      <p class="modal-desc">
         Upload any NetCDF-4 (<code>.nc</code>) or HDF5 (<code>.h5</code>) hyperspectral reflectance cube containing 2150–2450 nm SWIR bands.
       </p>
 
@@ -612,29 +613,23 @@
         <div class="dropzone-cube-icon">
           <svg><use href="#ic-cube-upload"/></svg>
         </div>
-        <div style="font-family:var(--font-display); font-weight:800; font-size:15px; color:var(--sp-forest-900);">
-          Drag &amp; Drop NASA EMIT Cube (.nc / .h5)
-        </div>
-        <div style="font-size:12.5px; color:var(--sp-ink-muted); margin:4px 0 14px;">
-          or click to browse local storage (Max 200 MB • EMITL2ARFL compatible)
-        </div>
+        <div class="dropzone-title">Drag &amp; Drop NASA EMIT Cube (.nc / .h5)</div>
+        <div class="dropzone-sub">or click to browse local storage (Max 200 MB • EMITL2ARFL compatible)</div>
         <span class="sp-btn sp-btn-primary">
           <svg><use href="#ic-cube-upload"/></svg>
           <span>Select Hyperspectral File</span>
         </span>
       </div>
 
-      <div id="uploadProgressText" style="display:none; margin-top:12px; font-family:var(--font-mono); font-size:12.5px; color:var(--sp-amber-600); text-align:center;">
+      <div id="uploadProgressText" class="upload-progress-text" style="display:none;">
         Analyzing hyperspectral cube...
       </div>
 
       <!-- Calm Human-Centered Error Recovery Card (Zero Python Tracebacks!) -->
       <div class="upload-error-card" id="uploadErrorCard">
-        <div style="font-family:var(--font-display); font-weight:800; font-size:14px; color:var(--sp-danger-700); margin-bottom:3px;" id="uploadErrTitle">
-          Unsupported File
-        </div>
-        <div style="font-size:12.5px; color:var(--sp-ink-primary); margin-bottom:4px;" id="uploadErrMsg"></div>
-        <div style="font-size:12px; color:var(--sp-ink-secondary);" id="uploadErrHint"></div>
+        <div class="upload-err-title" id="uploadErrTitle">Unsupported File</div>
+        <div class="upload-err-msg" id="uploadErrMsg"></div>
+        <div class="upload-err-hint" id="uploadErrHint"></div>
       </div>
     </div>
   </div>

@@ -123,7 +123,11 @@ class SyntheticEMITBenchmarkGenerator:
         emission_rate_kg_hr: float = 2350.0
     ) -> np.ndarray:
         """
-        Simulates an atmospheric Gaussian dispersion plume obeying turbulent advection-diffusion.
+        Simulates an atmospheric Gaussian dispersion plume obeying turbulent advection-diffusion
+        and cross-wind mass conservation under meteorological compass convention:
+            - wind_direction_deg: Azimuth wind blows FROM (0°=North, 90°=East, 180°=South, 270°=West).
+            - theta_advect: Azimuth plume advects TOWARD ((wind_direction_deg + 180°) mod 360°),
+              where +x (col) is East (sin(theta)) and +y (row) is North (cos(theta)).
         Returns 2D array of column enhancement in ppm*m.
         """
         H = W = grid_size
@@ -131,26 +135,38 @@ class SyntheticEMITBenchmarkGenerator:
 
         x0, y0 = source_xy
         theta_advect = np.radians((wind_direction_deg + 180.0) % 360.0)
-        cos_t = np.cos(theta_advect)
-        sin_t = np.sin(theta_advect)
+        east_unit = np.sin(theta_advect)   # +x is East (longitude)
+        north_unit = np.cos(theta_advect)  # +y is North (latitude)
 
-        dx = (x_grid - x0) * self.PIXEL_SIZE_M
-        dy = (y_grid - y0) * self.PIXEL_SIZE_M
+        dx_east = (x_grid - x0) * self.PIXEL_SIZE_M
+        dy_north = (y_grid - y0) * self.PIXEL_SIZE_M
 
-        x_down = dx * cos_t + dy * sin_t
-        y_cross = -dx * sin_t + dy * cos_t
+        # Project onto downwind axis (x_down >= 0) and cross-wind axis (y_cross)
+        x_down = dx_east * east_unit + dy_north * north_unit
+        y_cross = -dx_east * north_unit + dy_north * east_unit
 
-        downwind_mask = x_down >= 0
-        sigma_y = 0.25 * (np.maximum(x_down, 1.0) ** 0.85) + 35.0  # meters
+        downwind_mask = x_down >= -15.0
+        x_pos = np.maximum(x_down, 0.0)
 
-        q_scale = emission_rate_kg_hr * (12.0 / max(wind_speed_m_s, 1.0))
-        peak_conc = q_scale / (np.sqrt(np.maximum(0.0, x_down) + 36.0) / 6.0)
+        # Pasquill-Gifford turbulent lateral dispersion width sigma_y(x) [meters]
+        sigma_y = 0.22 * ((x_pos + 25.0) ** 0.86) + 38.0
+
+        # Mass-conserving cross-wind Gaussian integral:
+        # Integral_{-inf}^{+inf} Delta_Omega(x, y) dy * k_CH4 * U_eff = Q [kg/s]
+        # => Peak_Omega(x) = Q_kg_s / (sqrt(2*pi) * sigma_y(x) * U_eff * k_CH4)
+        k_ch4 = 7.16e-7  # kg / (m^2 * ppm*m)
+        u_eff = 0.34 * max(wind_speed_m_s, 0.8) + 0.42
+        q_kg_s = emission_rate_kg_hr / 3600.0
+
+        peak_conc = q_kg_s / (np.sqrt(2.0 * np.pi) * sigma_y * u_eff * k_ch4)
+        # Near-source sensor pixel averaging (60m x 60m PSF) caps sub-pixel point singularity cleanly
+        peak_conc = np.minimum(peak_conc, 4600.0)
+
         lateral_decay = np.exp(-0.5 * (y_cross / sigma_y) ** 2)
+        smooth_onset = 1.0 / (1.0 + np.exp(-(x_down + 10.0) / 12.0))
+        dissipation = np.exp(-x_pos / 3400.0)
 
-        column_enhancement = peak_conc * lateral_decay * downwind_mask
-        dissipation = np.exp(-x_down / 4500.0)
-        column_enhancement *= dissipation
-
+        column_enhancement = peak_conc * lateral_decay * smooth_onset * dissipation * downwind_mask
         return np.maximum(column_enhancement, 0.0).astype(np.float32)
 
     def build_real_granule_plume485(
@@ -222,14 +238,20 @@ class SyntheticEMITBenchmarkGenerator:
             dist_in = distance_transform_edt(in_poly)
             boundary_profile = np.clip(dist_in / (np.max(dist_in) * 0.55 + 1e-6), 0.25, 1.0) * in_poly
 
-            # Physical advection decay from NASA's exact max-concentration epicenter
-            dist_from_epicenter_m = np.sqrt(
-                ((lat_grid - peak_lat) * 111320.0) ** 2 +
-                ((lon_grid - peak_lon) * 95400.0) ** 2
-            )
-            advection_decay = np.exp(-dist_from_epicenter_m / 1350.0)
-            raw_field = boundary_profile * (0.32 + 0.68 * advection_decay)
-            plume_enhancement = gaussian_filter(raw_field.astype(np.float32), sigma=1.15)
+            # Physical advection decay from NASA's exact max-concentration epicenter along SE transport axis
+            dy_m = (lat_grid - peak_lat) * 111320.0
+            dx_m = (lon_grid - peak_lon) * 95400.0
+            # NW wind (315 deg FROM -> 135 deg SE transport: +east, -north)
+            theta_se = np.radians(135.0)
+            s_down = dx_m * np.sin(theta_se) + dy_m * np.cos(theta_se)
+            s_cross = -dx_m * np.cos(theta_se) + dy_m * np.sin(theta_se)
+            dist_from_epicenter_m = np.sqrt(dx_m ** 2 + dy_m ** 2)
+
+            sigma_lat_m = 115.0 + 0.20 * np.maximum(s_down, 0.0)
+            plume_core = np.exp(-dist_from_epicenter_m / 510.0) * np.exp(-0.5 * (s_cross / sigma_lat_m) ** 2)
+            upwind_taper = 1.0 / (1.0 + np.exp(-(s_down + 140.0) / 70.0))
+            raw_field = boundary_profile * (0.03 + 0.97 * plume_core * upwind_taper)
+            plume_enhancement = gaussian_filter(raw_field.astype(np.float32), sigma=1.1)
             if np.max(plume_enhancement) > 0:
                 plume_enhancement = plume_enhancement / np.max(plume_enhancement) * max_conc_ppm_m
         else:
@@ -238,15 +260,15 @@ class SyntheticEMITBenchmarkGenerator:
                 grid_size=grid_size,
                 source_xy=(68, 70),
                 wind_speed_m_s=4.1,
-                wind_direction_deg=15.0,
-                emission_rate_kg_hr=1650.0
+                wind_direction_deg=315.0,
+                emission_rate_kg_hr=1850.0
             )
 
-        # Apply Beer-Lambert HITRAN SWIR absorption across 40 bands
+        # Apply exact Beer-Lambert exponential transmission across 40 SWIR bands: T(lambda) = exp(-tau(lambda))
         ch4_template = self.generate_methane_absorption_template()
-        absorb_depth = (plume_enhancement / 1000.0) * 0.038
+        optical_tau_peak = plume_enhancement / 26500.0
         for b in range(B):
-            rfl_cube[:, :, b] *= (1.0 - absorb_depth * ch4_template[b])
+            rfl_cube[:, :, b] *= np.exp(-optical_tau_peak * ch4_template[b])
 
         # EMIT SWIR radiometric sensor noise
         noise = np.random.normal(0.0, 0.0019, size=(H, W, B)).astype(np.float32)
@@ -276,8 +298,8 @@ class SyntheticEMITBenchmarkGenerator:
                 "spatial_resolution_m": self.PIXEL_SIZE_M,
                 "fwhm_nm": 7.4,
                 "wind_speed_m_s": 4.1,
-                "wind_direction_deg": 15.0,
-                "true_emission_kg_hr": 1620.0,
+                "wind_direction_deg": 315.0,
+                "true_emission_kg_hr": 1850.0,
                 "has_calcite_anomaly": 1,
                 "has_methane_plume": 1,
             }
@@ -335,17 +357,20 @@ class SyntheticEMITBenchmarkGenerator:
         ch4_template = self.generate_methane_absorption_template()
         plume_enhancement = np.zeros((H, W), dtype=np.float32)
         if has_methane:
+            is_permian = "Permian" in scene_id or "permian" in scene_id
+            src_xy = (34, 42) if is_permian else (44, 84)
             plume_enhancement = self.create_gaussian_plume(
                 grid_size=grid_size,
-                source_xy=(35, 50) if "Permian" in scene_id or "permian" in scene_id else (45, 60),
+                source_xy=src_xy,
                 wind_speed_m_s=wind_speed,
                 wind_direction_deg=wind_direction,
                 emission_rate_kg_hr=emission_rate_kg_hr
             )
 
-            absorb_depth = (plume_enhancement / 1000.0) * 0.038
+            # Exact Beer-Lambert exponential radiative transmission: R(lambda) = R0(lambda) * exp(-tau(lambda))
+            optical_tau_peak = plume_enhancement / 26500.0
             for b in range(B):
-                rfl_cube[:, :, b] *= (1.0 - absorb_depth * ch4_template[b])
+                rfl_cube[:, :, b] *= np.exp(-optical_tau_peak * ch4_template[b])
 
         noise = np.random.normal(0.0, 0.002, size=(H, W, B)).astype(np.float32)
         rfl_cube = np.clip(rfl_cube + noise, 0.01, 0.99)

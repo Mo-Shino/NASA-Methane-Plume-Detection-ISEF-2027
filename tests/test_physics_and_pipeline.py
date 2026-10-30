@@ -158,6 +158,35 @@ class TestSpectraPlumePhysics(unittest.TestCase):
         self.assertGreater(len(html_str), 5000)
         self.assertIn("Esri World Imagery", html_str)
 
+    def test_pca_rotational_invariance_and_wind_kinematics(self):
+        """Verifies PCA plume length is rotation-invariant and inferred plume azimuth aligns with wind transport."""
+        # Compare Eastward (90 deg transport -> wind FROM 270) vs Diagonal NE (45 deg transport -> wind FROM 225)
+        from src.benchmark_generator import SyntheticEMITBenchmarkGenerator
+        gen = SyntheticEMITBenchmarkGenerator()
+        p_east = gen.create_gaussian_plume(grid_size=128, source_xy=(25, 64), wind_speed_m_s=4.0, wind_direction_deg=270.0, emission_rate_kg_hr=2000.0)
+        p_diag = gen.create_gaussian_plume(grid_size=128, source_xy=(25, 25), wind_speed_m_s=4.0, wind_direction_deg=225.0, emission_rate_kg_hr=2000.0)
+
+        m_east = (p_east >= 220.0).astype(np.uint8)
+        m_diag = (p_diag >= 220.0).astype(np.uint8)
+
+        f_east = self.flux_calc.compute_flux(p_east, m_east, wind_speed_m_s=4.0, wind_direction_deg=270.0)
+        f_diag = self.flux_calc.compute_flux(p_diag, m_diag, wind_speed_m_s=4.0, wind_direction_deg=225.0)
+
+        # Azimuth accuracy: 270 FROM -> 90 deg Eastward; 225 FROM -> 45 deg North-Eastward
+        self.assertAlmostEqual(f_east["plume_azimuth_deg"], 90.0, delta=6.0)
+        self.assertAlmostEqual(f_diag["plume_azimuth_deg"], 45.0, delta=6.0)
+        self.assertGreater(f_east["wind_alignment_pct"], 98.0)
+        self.assertGreater(f_diag["wind_alignment_pct"], 98.0)
+
+        # Rotational invariance: diagonal plume length matches axis-aligned plume length within 10%
+        ratio = f_diag["plume_length_m"] / max(f_east["plume_length_m"], 1.0)
+        self.assertTrue(0.90 <= ratio <= 1.10, f"Expected rotational invariance (0.90-1.10), got ratio={ratio:.3f}")
+
+        # Exact Display-Board IME conservation equation: Q_kg_hr == (IME * U_eff / L) * 3600
+        q_check = (f_east["ime_kg"] * f_east["effective_wind_speed_m_s"] / f_east["plume_length_m"]) * 3600.0
+        self.assertAlmostEqual(f_east["flux_kg_hr"], q_check, delta=15.0)
+        self.assertAlmostEqual(f_east["co2e_ton_hr"], round(f_east["flux_ton_hr"] * 84.0, 2), delta=0.15)
+
 
 class TestSpectraPlumeWebAPI(unittest.TestCase):
     """End-to-end HTTP verification of SpectraPlume 2.0 FastAPI backend & Editorial Light frontend."""
