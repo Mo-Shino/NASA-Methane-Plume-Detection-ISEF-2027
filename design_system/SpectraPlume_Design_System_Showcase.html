@@ -1,0 +1,2694 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpectraPlume — Official UI/UX Design System & Interactive Prototype Study</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Light-First Warm Editorial Surfaces (Brand Identity & Display Board Matched) */
+      --sp-bg-canvas: #F6F3EC;
+      --sp-bg-sand: #E7DECF;
+      --sp-bg-sand-soft: #EFE9DD;
+      --sp-bg-card: #FFFFFF;
+      --sp-bg-elevated: #FCFBF8;
+      --sp-border: #D2C5BA;
+      --sp-border-subtle: #E3D9CD;
+
+      /* Deep Authority Inks & Brand Accents */
+      --sp-forest-950: #0B1711;
+      --sp-forest-900: #12231A;
+      --sp-forest-800: #1A3326;
+      --sp-forest-700: #234735;
+      --sp-ink-primary: #12231A;
+      --sp-ink-secondary: #43534A;
+      --sp-ink-muted: #6B7870;
+
+      /* SWIR Infrared Amber (Logo Signature) */
+      --sp-amber-600: #B86D07;
+      --sp-amber-500: #D4810B;
+      --sp-amber-400: #E5982A;
+      --sp-amber-100: #FEF6E9;
+      --sp-amber-border: #ECCB98;
+
+      /* Semantic Detection & Status States */
+      --sp-danger-700: #9E2A1C;
+      --sp-danger-600: #C0392B;
+      --sp-danger-bg: #FDF2F0;
+      --sp-danger-border: #EABCB5;
+
+      --sp-safe-700: #135336;
+      --sp-safe-600: #196B47;
+      --sp-safe-bg: #EDF7F2;
+      --sp-safe-border: #B7DFC9;
+
+      /* Typography */
+      --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-body: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+      /* Radii & Shadows */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 22px;
+      --shadow-card: 0 2px 10px rgba(18, 35, 26, 0.045), 0 1px 2px rgba(18, 35, 26, 0.03);
+      --shadow-float: 0 14px 34px rgba(18, 35, 26, 0.11), 0 2px 6px rgba(18, 35, 26, 0.05);
+      --focus-ring: 0 0 0 3px rgba(212, 129, 11, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: var(--sp-bg-canvas);
+      color: var(--sp-ink-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sticky Brand Header */
+    .top-showcase-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--sp-forest-900);
+      color: #F6F3EC;
+      border-bottom: 1px solid rgba(212, 129, 11, 0.28);
+      padding: 13px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: 0 6px 20px rgba(11, 23, 17, 0.16);
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-lockup svg {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+
+    .brand-wordmark {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.025em;
+      color: #FAF8F3;
+      line-height: 1.1;
+    }
+
+    .brand-tagline {
+      font-family: var(--font-display);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--sp-amber-400);
+      margin-top: 2px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: #D2DDD6;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: 999px;
+      transition: all 0.18s ease;
+    }
+
+    .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #FFFFFF;
+    }
+
+    .nav-links a.cta-jump {
+      background: var(--sp-amber-500);
+      color: #FFFFFF;
+      margin-left: 6px;
+    }
+
+    .nav-links a.cta-jump:hover {
+      background: var(--sp-amber-600);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 40px 28px 96px;
+    }
+
+    /* Hero Banner */
+    .study-hero {
+      background: linear-gradient(135deg, #FFFFFF 0%, #F7F2E7 100%);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--radius-xl);
+      padding: 42px 46px;
+      box-shadow: var(--shadow-card);
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 36px;
+      align-items: center;
+      margin-bottom: 44px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .eyebrow-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--sp-bg-sand);
+      color: var(--sp-forest-900);
+      border: 1px solid var(--sp-border);
+      padding: 5px 13px;
+      border-radius: 999px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sp-amber-500);
+    }
+
+    .study-hero h1 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--sp-forest-900);
+      margin-bottom: 14px;
+    }
+
+    .study-hero p {
+      color: var(--sp-ink-secondary);
+      font-size: 15.5px;
+      max-width: 660px;
+      margin-bottom: 22px;
+    }
+
+    .hero-principles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .principle-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      padding: 7px 13px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sp-forest-900);
+    }
+
+    .principle-chip svg {
+      width: 16px;
+      height: 16px;
+      color: var(--sp-amber-500);
+    }
+
+    .hero-brand-card {
+      background: var(--sp-forest-900);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      color: #FAF8F3;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      border: 1px solid #243D30;
+    }
+
+    .hero-logo-stage {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .hero-logo-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: #0B1711;
+      border: 1px solid rgba(212, 129, 11, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .hero-logo-box svg {
+      width: 48px;
+      height: 48px;
+    }
+
+    .hero-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-meta-item span {
+      display: block;
+      font-size: 11.5px;
+      color: #9BB0A3;
+      margin-bottom: 2px;
+    }
+
+    .hero-meta-item strong {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      color: #FFFFFF;
+    }
+
+    /* Section Headers */
+    .ds-section {
+      margin-bottom: 52px;
+      scroll-margin-top: 84px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--sp-border);
+    }
+
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sp-amber-600);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .section-head h2 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--sp-forest-900);
+    }
+
+    .section-head p {
+      font-size: 14px;
+      color: var(--sp-ink-secondary);
+      max-width: 520px;
+      text-align: right;
+    }
+
+    /* Cards & Grids */
+    .card {
+      background: var(--sp-bg-card);
+      border: 1px solid var(--sp-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--sp-forest-900);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-sub {
+      font-size: 13px;
+      color: var(--sp-ink-muted);
+      margin-bottom: 18px;
+    }
+
+    /* 01. Color Palette Grid */
+    .palette-group-label {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--sp-ink-secondary);
+      margin: 18px 0 10px;
+    }
+
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .swatch-card {
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .swatch-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-float);
+      border-color: var(--sp-amber-500);
+    }
+
+    .swatch-preview {
+      height: 82px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--sp-border-subtle);
+    }
+
+    .swatch-badge {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--sp-forest-900);
+    }
+
+    .swatch-body {
+      padding: 12px 14px;
+    }
+
+    .swatch-name {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--sp-forest-900);
+    }
+
+    .swatch-role {
+      font-size: 12.5px;
+      color: var(--sp-ink-muted);
+      margin-top: 2px;
+    }
+
+    /* 02. Typography Studio */
+    .type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .type-specimen-row {
+      padding: 15px 0;
+      border-bottom: 1px solid var(--sp-border-subtle);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .type-specimen-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .type-token {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--sp-amber-600);
+      white-space: nowrap;
+    }
+
+    /* 03. Icon System */
+    .icon-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 18px;
+      background: var(--sp-bg-sand-soft);
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--sp-border);
+    }
+
+    .segmented-control {
+      display: inline-flex;
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--sp-ink-secondary);
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .seg-btn.active {
+      background: var(--sp-forest-900);
+      color: #FFFFFF;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 12px;
+    }
+
+    .icon-cell {
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+      transition: all 0.16s ease;
+    }
+
+    .icon-cell:hover {
+      border-color: var(--sp-amber-500);
+      background: #FFFCF7;
+      transform: translateY(-2px);
+    }
+
+    .icon-stage {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--sp-forest-900);
+      transition: all 0.16s ease;
+    }
+
+    .icon-grid.mode-amber .icon-stage {
+      color: var(--sp-amber-500);
+    }
+
+    .icon-grid.mode-duotone .icon-stage {
+      background: rgba(212, 129, 11, 0.13);
+      color: var(--sp-forest-900);
+      border: 1px solid rgba(212, 129, 11, 0.28);
+    }
+
+    .icon-stage svg {
+      width: 24px;
+      height: 24px;
+      transition: width 0.15s ease, height 0.15s ease;
+    }
+
+    .icon-grid.sz-18 .icon-stage svg { width: 18px; height: 18px; }
+    .icon-grid.sz-24 .icon-stage svg { width: 24px; height: 24px; }
+    .icon-grid.sz-30 .icon-stage svg { width: 30px; height: 30px; }
+
+    .icon-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--sp-ink-secondary);
+    }
+
+    /* 04. Interactive UI Controls Kit */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .sp-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      text-decoration: none;
+    }
+
+    .sp-btn svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    .sp-btn:focus-visible {
+      outline: none;
+      box-shadow: var(--focus-ring);
+    }
+
+    .sp-btn-primary {
+      background: var(--sp-forest-900);
+      color: #FAF8F3;
+    }
+    .sp-btn-primary svg { color: var(--sp-amber-400); }
+    .sp-btn-primary:hover { background: var(--sp-forest-800); transform: translateY(-1px); }
+
+    .sp-btn-amber {
+      background: var(--sp-amber-500);
+      color: #FFFFFF;
+    }
+    .sp-btn-amber:hover { background: var(--sp-amber-600); transform: translateY(-1px); }
+
+    .sp-btn-outline {
+      background: #FFFFFF;
+      border-color: var(--sp-border);
+      color: var(--sp-forest-900);
+    }
+    .sp-btn-outline:hover {
+      background: var(--sp-bg-sand-soft);
+      border-color: #B7A798;
+    }
+
+    .sp-btn-ghost {
+      background: var(--sp-bg-sand-soft);
+      color: var(--sp-forest-900);
+    }
+    .sp-btn-ghost:hover { background: var(--sp-bg-sand); }
+
+    .sp-btn-danger {
+      background: var(--sp-danger-600);
+      color: #FFFFFF;
+    }
+    .sp-btn-danger:hover { background: var(--sp-danger-700); }
+
+    /* Custom Rich Dropdown */
+    .field-label {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--sp-forest-900);
+      margin-bottom: 6px;
+    }
+
+    .sp-dropdown {
+      position: relative;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .sp-dropdown-trigger {
+      width: 100%;
+      background: #FFFFFF;
+      border: 1.5px solid var(--sp-border);
+      border-radius: 11px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--sp-forest-900);
+      transition: all 0.16s ease;
+    }
+
+    .sp-dropdown-trigger:hover {
+      border-color: #B4A392;
+    }
+
+    .sp-dropdown.open .sp-dropdown-trigger {
+      border-color: var(--sp-amber-500);
+      box-shadow: var(--focus-ring);
+    }
+
+    .dd-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+    }
+
+    .dd-left svg {
+      width: 18px;
+      height: 18px;
+      color: var(--sp-amber-500);
+    }
+
+    .dd-chevron {
+      width: 17px;
+      height: 17px;
+      color: var(--sp-ink-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .sp-dropdown.open .dd-chevron {
+      transform: rotate(180deg);
+      color: var(--sp-forest-900);
+    }
+
+    .sp-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-float);
+      padding: 6px;
+      z-index: 40;
+      display: none;
+    }
+
+    .sp-dropdown.open .sp-dropdown-menu {
+      display: block;
+    }
+
+    .sp-dropdown-option {
+      padding: 9px 11px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+
+    .sp-dropdown-option:hover {
+      background: var(--sp-bg-canvas);
+    }
+
+    .sp-dropdown-option.selected {
+      background: var(--sp-amber-100);
+    }
+
+    .opt-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--sp-forest-900);
+    }
+
+    .opt-sub {
+      font-size: 12px;
+      color: var(--sp-ink-muted);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-display);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .pill-leak {
+      background: var(--sp-danger-bg);
+      color: var(--sp-danger-600);
+      border: 1px solid var(--sp-danger-border);
+    }
+
+    .pill-amber {
+      background: var(--sp-amber-100);
+      color: var(--sp-amber-600);
+      border: 1px solid var(--sp-amber-border);
+    }
+
+    .pill-safe {
+      background: var(--sp-safe-bg);
+      color: var(--sp-safe-600);
+      border: 1px solid var(--sp-safe-border);
+    }
+
+    /* Checkboxes & Switches */
+    .check-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sp-check-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 13px;
+      border: 1px solid var(--sp-border-subtle);
+      border-radius: 10px;
+      background: var(--sp-bg-elevated);
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .sp-check-row:hover {
+      border-color: var(--sp-border);
+    }
+
+    .sp-check-left {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .sp-checkbox {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 1.75px solid #ABA093;
+      background: #FFFFFF;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .sp-checkbox svg {
+      width: 13px;
+      height: 13px;
+      color: #FFFFFF;
+      opacity: 0;
+      transform: scale(0.7);
+      transition: all 0.15s ease;
+    }
+
+    .sp-check-row.checked .sp-checkbox {
+      background: var(--sp-forest-900);
+      border-color: var(--sp-forest-900);
+    }
+
+    .sp-check-row.checked.amber-variant .sp-checkbox {
+      background: var(--sp-amber-500);
+      border-color: var(--sp-amber-500);
+    }
+
+    .sp-check-row.checked .sp-checkbox svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Pill Toggle Switch */
+    .sp-switch {
+      width: 42px;
+      height: 24px;
+      border-radius: 999px;
+      background: #CFC5B9;
+      padding: 3px;
+      transition: background 0.18s ease;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .sp-switch-knob {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: transform 0.18s ease;
+    }
+
+    .sp-check-row.checked .sp-switch {
+      background: var(--sp-forest-900);
+    }
+
+    .sp-check-row.checked .sp-switch-knob {
+      transform: translateX(18px);
+    }
+
+    /* Display-Board Dual-Tone Progress Bars & Sliders */
+    .bar-item {
+      margin-bottom: 16px;
+    }
+
+    .bar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .bar-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--sp-forest-900);
+    }
+
+    .bar-val {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--sp-amber-600);
+    }
+
+    .sp-bar-track {
+      height: 11px;
+      background: var(--sp-bg-sand);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sp-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--sp-forest-900) 0%, var(--sp-forest-700) 84%, var(--sp-amber-500) 84%, var(--sp-amber-500) 100%);
+    }
+
+    /* Custom Range Slider */
+    .slider-block {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--sp-border-subtle);
+    }
+
+    .sp-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(to right, var(--sp-amber-500) 0%, var(--sp-amber-500) 45%, var(--sp-bg-sand) 45%, var(--sp-bg-sand) 100%);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .sp-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--sp-forest-900);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(18, 35, 26, 0.3);
+      cursor: pointer;
+    }
+
+    /* File Upload Dropzone */
+    .sp-dropzone {
+      border: 2px dashed #C5B7A6;
+      background: #FAF8F3;
+      border-radius: var(--radius-lg);
+      padding: 28px 22px;
+      text-align: center;
+      transition: all 0.18s ease;
+      cursor: pointer;
+    }
+
+    .sp-dropzone:hover, .sp-dropzone.dragover {
+      border-color: var(--sp-amber-500);
+      background: var(--sp-amber-100);
+    }
+
+    .dropzone-icon-wrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      color: var(--sp-forest-900);
+      box-shadow: var(--shadow-card);
+    }
+
+    .dropzone-icon-wrap svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .format-chips {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 12px 0 16px;
+      flex-wrap: wrap;
+    }
+
+    .fmt-chip {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      color: var(--sp-ink-secondary);
+      padding: 2px 9px;
+      border-radius: 6px;
+    }
+
+    .upload-status-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--sp-safe-bg);
+      border: 1px solid var(--sp-safe-border);
+      color: var(--sp-safe-700);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* 05. Alerts, Leak Notifications & False-Alarm Visual Proof */
+    .alerts-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .verdict-banner {
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px solid var(--sp-border);
+    }
+
+    .verdict-leak {
+      background: var(--sp-danger-bg);
+      border-color: var(--sp-danger-border);
+      border-left: 5px solid var(--sp-danger-600);
+    }
+
+    .verdict-false-alarm {
+      background: var(--sp-safe-bg);
+      border-color: var(--sp-safe-border);
+      border-left: 5px solid var(--sp-safe-600);
+    }
+
+    .verdict-error-clean {
+      background: #FFFFFF;
+      border-color: var(--sp-amber-border);
+      border-left: 5px solid var(--sp-amber-500);
+    }
+
+    .verdict-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .verdict-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .verdict-leak .verdict-icon-box {
+      background: rgba(192, 57, 43, 0.13);
+      color: var(--sp-danger-600);
+    }
+
+    .verdict-false-alarm .verdict-icon-box {
+      background: rgba(25, 107, 71, 0.13);
+      color: var(--sp-safe-600);
+    }
+
+    .verdict-error-clean .verdict-icon-box {
+      background: rgba(212, 129, 11, 0.14);
+      color: var(--sp-amber-600);
+    }
+
+    .verdict-icon-box svg {
+      width: 23px;
+      height: 23px;
+    }
+
+    .verdict-title {
+      font-family: var(--font-display);
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--sp-forest-900);
+      margin-bottom: 4px;
+    }
+
+    .verdict-desc {
+      font-size: 14px;
+      color: var(--sp-ink-secondary);
+      max-width: 780px;
+    }
+
+    .false-alarm-proof-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .proof-mini-card {
+      background: #FFFFFF;
+      border: 1px solid var(--sp-safe-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .proof-mini-card strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 12.5px;
+      color: var(--sp-forest-900);
+      margin-bottom: 3px;
+    }
+
+    .proof-mini-card span {
+      font-size: 12.5px;
+      color: var(--sp-ink-secondary);
+    }
+
+    /* 06. LIVE INTERACTIVE NEW MISSION CONSOLE MOCKUP */
+    .console-shell {
+      background: var(--sp-bg-canvas);
+      border: 2px solid var(--sp-forest-900);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: 0 22px 50px rgba(18, 35, 26, 0.14);
+    }
+
+    .console-topbar {
+      background: var(--sp-forest-900);
+      color: #FAF8F3;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .console-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.07);
+      padding: 4px;
+      border-radius: 11px;
+      gap: 4px;
+    }
+
+    .console-tab {
+      border: none;
+      background: transparent;
+      color: #C7D3CC;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.15s ease;
+    }
+
+    .console-tab svg { width: 16px; height: 16px; }
+    .console-tab.active {
+      background: #FAF8F3;
+      color: var(--sp-forest-900);
+    }
+
+    .console-body {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      min-height: 640px;
+    }
+
+    /* Left Orbital Scan Feed (Replaces "Select an Error Dropdown"!) */
+    .orbital-feed-sidebar {
+      background: #EFE9DD;
+      border-right: 1px solid var(--sp-border);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feed-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .feed-header h4 {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--sp-forest-900);
+    }
+
+    .pass-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--sp-border);
+      border-radius: 13px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      position: relative;
+    }
+
+    .pass-card:hover {
+      border-color: #B4A290;
+      transform: translateX(2px);
+    }
+
+    .pass-card.active {
+      border-color: var(--sp-forest-900);
+      box-shadow: 0 4px 14px rgba(18, 35, 26, 0.1);
+      background: #FFFEFB;
+    }
+
+    .pass-card.active::before {
+      content: "";
+      position: absolute;
+      left: -1.5px;
+      top: 12px;
+      bottom: 12px;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: var(--sp-amber-500);
+    }
+
+    .pass-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .pass-orbit-id {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--sp-ink-muted);
+    }
+
+    .pass-name {
+      font-family: var(--font-display);
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--sp-forest-900);
+      margin-bottom: 3px;
+    }
+
+    .pass-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--sp-ink-secondary);
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--sp-border-subtle);
+    }
+
+    /* Main Workspace inside Mockup */
+    .console-workspace {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--sp-bg-canvas);
+    }
+
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      border-radius: 13px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .kpi-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sp-ink-muted);
+      margin-bottom: 6px;
+    }
+
+    .kpi-label svg {
+      width: 16px;
+      height: 16px;
+      color: var(--sp-amber-500);
+    }
+
+    .kpi-num {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--sp-forest-900);
+      line-height: 1.15;
+    }
+
+    .kpi-foot {
+      font-size: 12px;
+      color: var(--sp-ink-secondary);
+      margin-top: 4px;
+    }
+
+    /* Map + Spectral Proof Split */
+    .map-and-proof {
+      display: grid;
+      grid-template-columns: 1.45fr 0.85fr;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .map-stage-card {
+      background: #17271E;
+      border: 1px solid var(--sp-border);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 14px;
+    }
+
+    .map-floating-bar {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .map-coord-pill {
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--sp-forest-900);
+      padding: 6px 12px;
+      border-radius: 9px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    }
+
+    .map-svg-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-legend-footer {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.94);
+      padding: 8px 13px;
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--sp-forest-900);
+      font-weight: 600;
+    }
+
+    .gradient-scale {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .gradient-bar {
+      width: 96px;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #FDE047, #F59E0B, #D4810B, #B91C1C);
+    }
+
+    .proof-side-card {
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* Toast Notification */
+    .copy-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--sp-forest-900);
+      color: #FFFFFF;
+      padding: 11px 18px;
+      border-radius: 11px;
+      font-family: var(--font-display);
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: var(--shadow-float);
+      border-left: 4px solid var(--sp-amber-500);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 200;
+    }
+
+    .copy-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1024px) {
+      .study-hero, .type-grid, .controls-grid, .console-body, .map-and-proof {
+        grid-template-columns: 1fr;
+      }
+      .kpi-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .false-alarm-proof-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Reusable SVG Sprite Library (SpectraLine 1.75px Unified Vector Icons — ZERO EMOJIS) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <!-- Official SpectraPlume Vector Mark (from spectraplume_logo.svg) -->
+    <symbol id="sp-logo-mark" viewBox="48 20 212 230">
+      <path fill="#DA831A" d="M149.79 245.451C149.72 241.487 149.7 237.527 149.72 233.563C149.79 222.686 149.66 211.813 149.7 200.937C149.72 195.734 149.9 190.514 149.8 185.312C149.77 183.575 149.55 181.968 149.01 180.312C145.88 170.865 137.89 166.22 129.6 161.817C125.58 159.684 121.5 157.665 117.47 155.544L116.99 155.285C115.03 154.223 113.07 153.176 111.13 152.094C101.73 146.862 92.24 141.796 82.86 136.536C74.86 132.049 68.27 126.995 62.76 119.558C52.46 105.637 51.4399 87.726 55.8199 71.589C58.8199 60.549 66.9 47.461 75.45 40.322C76.64 39.323 77.84 38.32 79.05 37.342C83.87 33.46 89.49 30.423 95.3 28.338C104.13 25.176 111.13 23.987 120.19 24.034C127.1 24.07 134.02 24.091 140.94 24.091C149.75 24.092 158.57 23.991 167.38 24.155C173.75 24.273 180.12 24.139 186.5 24.172C193.02 24.206 199.55 24.138 206.06 24.237L206.94 24.253C214.48 24.422 221.62 26.131 228.3 29.694C235.16 33.357 241.89 39.617 245.96 46.271C252.52 56.969 253.97 64.025 253.98 76.625C253.99 88.562 253.93 100.5 253.97 112.437C253.99 118.621 254.07 124.817 253.99 131C253.94 135.071 253.64 139.157 252.73 143.125L251.95 146.176C250.6 150.994 248.52 155.736 245.94 160.024C242.91 165.072 239.76 168.693 235.39 172.639C229.92 177.57 223.45 181.37 216.4 183.552C209.2 185.782 202.34 186.757 194.81 186.2L194.79 245.532L149.79 245.451Z"/>
+      <path fill="#0E241A" d="M173.31 61.564C183.52 61.575 190.3 61.536 197.56 61.667C202.7 61.799 207.31 63.92 210.38 68.125C212.41 70.91 213.33 73.761 213.36 77.187C213.37 87.421 213.48 117.795 213.38 126.063C213.35 128.262 213.28 130.352 212.7 132.483C210.27 141.335 202.83 146.955 193.69 146.946C189.09 146.941 185.18 145.18 181.19 143.002C167.24 135.44 139.44 120.362 109.38 104.109C106.78 102.667 104.31 100.821 102.5 98.436C97.6801 92.062 97.6 84.823 100.54 77.639C102.76 72.22 107.2 67.81 112.43 65.218C120.31 61.306 124.85 61.584 133.62 61.573L173.31 61.564Z"/>
+      <path fill="#F1F0E5" d="M179.94 77.403C185.86 77.528 188.52 78.63 190.91 81.053C194.72 84.925 194.64 89.213 194.67 110.125C194.66 111.195 194.66 112.316 194.46 113.373C193.26 119.75 188.41 123.824 181.94 123.848C178.73 123.86 175.74 121.863 173.01 120.342C163.07 114.8 150.1 107.8 142.62 103.755C139.9 102.239 137.54 100.499 136.25 97.562C133.8 91.99 135.18 85.687 139.69 81.62C142.91 78.716 146.46 77.5 150.75 77.445L179.94 77.403Z"/>
+      <path fill="#DA831A" d="M52.8199 139.306C64.5601 146.003 86.8199 158.726 98.02 165.182C102.4 167.662 106.52 170.609 109.92 174.337C117.81 182.994 122.53 192.497 122.73 204.375C122.8 215.56 122.82 225.252 122.74 245.489L52.85 245.458L52.8199 139.306Z"/>
+    </symbol>
+
+    <!-- 20 Bespoke SpectraLine 1.75px Geometric Icons -->
+    <symbol id="ic-orbit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3.2"/>
+      <path d="M4.9 4.9l3.2 3.2M15.9 15.9l3.2 3.2"/>
+      <ellipse cx="12" cy="12" rx="10" ry="4.3" transform="rotate(-35 12 12)"/>
+    </symbol>
+    <symbol id="ic-plume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="5" cy="19" r="2"/>
+      <path d="M6.8 17.2C9.5 13 13.5 10.5 20 9"/>
+      <path d="M6.5 17.5C11 16 15.5 14.5 21 14"/>
+      <path d="M6.2 16.8C8.2 11.2 11.5 6.8 17 4"/>
+    </symbol>
+    <symbol id="ic-shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2.5l7.5 3.2v5.8c0 5-3.2 8.7-7.5 10-4.3-1.3-7.5-5-7.5-10V5.7L12 2.5z"/>
+      <path d="M8.8 12.2l2.2 2.2 4.4-4.5"/>
+    </symbol>
+    <symbol id="ic-mineral" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 3 20 8.5 17.5 19.5 6.5 19.5 4 8.5 12 3"/>
+      <path d="M12 3v8.5M4 8.5l8 3 8-3M6.5 19.5l5.5-8 5.5 8"/>
+    </symbol>
+    <symbol id="ic-beacon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="2.5"/>
+      <path d="M7.8 7.8a6 6 0 0 1 8.4 0M16.2 16.2a6 6 0 0 1-8.4 0"/>
+      <path d="M4.9 4.9a10 10 0 0 1 14.2 0M19.1 19.1a10 10 0 0 1-14.2 0"/>
+    </symbol>
+    <symbol id="ic-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 8h11.5a2.5 2.5 0 1 0-2.3-3.5"/>
+      <path d="M3 12h15.5a2.5 2.5 0 1 1-2.3 3.5"/>
+      <path d="M3 16h8.5a2.2 2.2 0 1 1-2 3"/>
+    </symbol>
+    <symbol id="ic-spectrum" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2.5 7h3l2.2 6.5L10 7h2.2l2.8 11 2.8-11h3.7"/>
+      <line x1="2.5" y1="20" x2="21.5" y2="20" stroke-dasharray="2 2.5"/>
+    </symbol>
+    <symbol id="ic-cube-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 14.5V8.2L12 3 3 8.2v7.6L12 21l4.2-2.4"/>
+      <path d="M3.3 8.4L12 13.4l8.7-5"/>
+      <path d="M12 13.4V21"/>
+      <path d="M19 21v-5.5M16.5 18l2.5-2.5 2.5 2.5"/>
+    </symbol>
+    <symbol id="ic-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="4" y1="6" x2="20" y2="6"/>
+      <circle cx="9" cy="6" r="2.2" fill="var(--sp-bg-card)"/>
+      <line x1="4" y1="12" x2="20" y2="12"/>
+      <circle cx="15" cy="12" r="2.2" fill="var(--sp-bg-card)"/>
+      <line x1="4" y1="18" x2="20" y2="18"/>
+      <circle cx="11" cy="18" r="2.2" fill="var(--sp-bg-card)"/>
+    </symbol>
+    <symbol id="ic-crosshair" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="7.5"/>
+      <circle cx="12" cy="12" r="2"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+    </symbol>
+    <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 3 21 8 12 13 3 8 12 3"/>
+      <path d="M3 12.5l9 5 9-5"/>
+      <path d="M3 17l9 5 9-5"/>
+    </symbol>
+    <symbol id="ic-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.2 18.5a9 9 0 1 1 15.6 0"/>
+      <path d="M12 14l4.2-4.2"/>
+      <circle cx="12" cy="14" r="1.6"/>
+    </symbol>
+    <symbol id="ic-loss" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 7l6 6 4-4 8 8"/>
+      <path d="M15 17h6v-6"/>
+    </symbol>
+    <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.8"/>
+      <path d="M12 7.2V12l3.4 2"/>
+    </symbol>
+    <symbol id="ic-report" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8L14 3z"/>
+      <path d="M14 3v5h5"/>
+      <path d="M8.5 13h7M8.5 16.5h4.5"/>
+    </symbol>
+    <symbol id="ic-compare" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2.5"/>
+      <line x1="12" y1="2" x2="12" y2="22"/>
+      <path d="M7.5 10L5.5 12l2 2M16.5 10l2 2-2 2"/>
+    </symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4.5 12.5 9.5 17.5 19.5 6.5"/>
+    </symbol>
+    <symbol id="ic-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"/>
+    </symbol>
+    <symbol id="ic-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 21s7-5.8 7-11.5A7 7 0 0 0 5 9.5C5 15.2 12 21 12 21z"/>
+      <circle cx="12" cy="9.5" r="2.3"/>
+    </symbol>
+    <symbol id="ic-alert-tri" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10.4 4.2L2.7 17.5A1.8 1.8 0 0 0 4.3 20h15.4a1.8 1.8 0 0 0 1.6-2.5L13.6 4.2a1.8 1.8 0 0 0-3.2 0z"/>
+      <line x1="12" y1="9.5" x2="12" y2="13.5"/>
+      <circle cx="12" cy="16.8" r="0.7" fill="currentColor"/>
+    </symbol>
+  </svg>
+
+  <!-- Sticky Navigation -->
+  <header class="top-showcase-nav">
+    <a href="#" class="brand-lockup">
+      <svg><use href="#sp-logo-mark"/></svg>
+      <div>
+        <div class="brand-wordmark">SpectraPlume</div>
+        <div class="brand-tagline">UI / UX Design System &amp; Architecture Study</div>
+      </div>
+    </a>
+    <nav class="nav-links">
+      <a href="#sec-colors">01. Colors</a>
+      <a href="#sec-type">02. Typography</a>
+      <a href="#sec-icons">03. Vector Icons</a>
+      <a href="#sec-controls">04. Controls &amp; Upload</a>
+      <a href="#sec-alerts">05. Alerts &amp; False Alarms</a>
+      <a href="#sec-prototype" class="cta-jump">06. Live App Preview</a>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- HERO SECTION -->
+    <section class="study-hero">
+      <div>
+        <div class="eyebrow-pill">
+          <span class="eyebrow-dot"></span>
+          Regeneron ISEF 2027 • Product Design Transformation
+        </div>
+        <h1>Editorial Light Science.<br/>Zero Jargon Confusion. Zero Emojis.</h1>
+        <p>
+          A complete visual and experiential redesign of <strong>SpectraPlume</strong> built directly from your official
+          Brand Identity and 100×70 cm Display Board: warm alabaster surfaces in the background, deep orbital forest
+          and SWIR infrared amber for high-contrast precision, custom geometric SVG icons, and an unmistakable visual distinction between
+          <strong>real methane leaks</strong> and <strong>intercepted mineral false alarms</strong>.
+        </p>
+        <div class="hero-principles">
+          <div class="principle-chip"><svg><use href="#ic-shield-check"/></svg> 0% AI Emojis — 100% Unified SVG</div>
+          <div class="principle-chip"><svg><use href="#ic-layers"/></svg> Warm Alabaster Light Canvas</div>
+          <div class="principle-chip"><svg><use href="#ic-orbit"/></svg> Live Pass Feed (No "Select Error" Dropdown)</div>
+          <div class="principle-chip"><svg><use href="#ic-spectrum"/></svg> 5-Second Visual False-Alarm Proof</div>
+        </div>
+      </div>
+
+      <div class="hero-brand-card">
+        <div class="hero-logo-stage">
+          <div class="hero-logo-box">
+            <svg><use href="#sp-logo-mark"/></svg>
+          </div>
+          <div>
+            <div class="brand-wordmark" style="font-size: 24px;">SpectraPlume</div>
+            <div class="brand-tagline">Autonomous Satellite Methane Intelligence</div>
+          </div>
+        </div>
+        <div style="font-size: 13px; color: #C5D3CB; line-height: 1.55;">
+          Harmonized across physical booth poster, interactive web console, GIS satellite overlays, and regulatory incident exports.
+        </div>
+        <div class="hero-meta-grid">
+          <div class="hero-meta-item">
+            <span>Primary Ink</span>
+            <strong>#12231A</strong>
+          </div>
+          <div class="hero-meta-item">
+            <span>Plume Signal</span>
+            <strong style="color:#E5982A;">#D4810B</strong>
+          </div>
+          <div class="hero-meta-item">
+            <span>Light Canvas</span>
+            <strong style="color:#E7DECF;">#F6F3EC</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 01: COLOR SYSTEM -->
+    <section id="sec-colors" class="ds-section">
+      <div class="section-head">
+        <div>
+          <div class="section-num">Section 01 • Brand Palette</div>
+          <h2>Light-First Editorial Color Architecture</h2>
+        </div>
+        <p>Click any color card to copy its HEX token. Light warm surfaces carry the layout; deep forest and amber anchor data and actions.</p>
+      </div>
+
+      <div class="palette-group-label">A. Light Backgrounds &amp; Editorial Surfaces (الخلفيات الفاتحة المريحة للعين)</div>
+      <div class="swatch-grid">
+        <div class="swatch-card" onclick="copyHex('#F6F3EC', 'Warm Alabaster Canvas')">
+          <div class="swatch-preview" style="background:#F6F3EC;"><span class="swatch-badge">#F6F3EC</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">Warm Alabaster</div>
+            <div class="swatch-role">Main application background canvas</div>
+          </div>
+        </div>
+        <div class="swatch-card" onclick="copyHex('#FFFFFF', 'Pure Ivory Card')">
+          <div class="swatch-preview" style="background:#FFFFFF;"><span class="swatch-badge">#FFFFFF</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">Crisp Card White</div>
+            <div class="swatch-role">Elevated KPI cards, dropdowns &amp; panels</div>
+          </div>
+        </div>
+        <div class="swatch-card" onclick="copyHex('#E7DECF', 'Sandstone Cream')">
+          <div class="swatch-preview" style="background:#E7DECF;"><span class="swatch-badge">#E7DECF</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">Sandstone Cream</div>
+            <div class="swatch-role">Sidebar rail, bar tracks &amp; subtle wells</div>
+          </div>
+        </div>
+        <div class="swatch-card" onclick="copyHex('#D2C5BA', 'Warm Travertine Border')">
+          <div class="swatch-preview" style="background:#D2C5BA;"><span class="swatch-badge">#D2C5BA</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">Travertine Stone</div>
+            <div class="swatch-role">Architectural borders, dividers &amp; frames</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette-group-label">B. Deep Authority Inks &amp; Detection Semantics (الألوان الداكنة للنصوص والأزرار وحالات الرصد)</div>
+      <div class="swatch-grid">
+        <div class="swatch-card" onclick="copyHex('#12231A', 'Deep Orbital Forest')">
+          <div class="swatch-preview" style="background:#12231A;"><span class="swatch-badge">#12231A</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">Deep Orbital Forest</div>
+            <div class="swatch-role">Primary typography, top bar &amp; main buttons (13.8:1 AAA)</div>
+          </div>
+        </div>
+        <div class="swatch-card" onclick="copyHex('#D4810B', 'SWIR Infrared Amber')">
+          <div class="swatch-preview" style="background:#D4810B;"><span class="swatch-badge">#D4810B</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">SWIR Plume Amber</div>
+            <div class="swatch-role">Logo signature, active sliders, plume contours &amp; CTAs</div>
+          </div>
+        </div>
+        <div class="swatch-card" onclick="copyHex('#C0392B', 'Super-Emitter Terracotta')">
+          <div class="swatch-preview" style="background:#C0392B;"><span class="swatch-badge">#C0392B</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">Super-Emitter Crimson</div>
+            <div class="swatch-role">Confirmed high-flux gas leak alert (&gt;100 kg/h)</div>
+          </div>
+        </div>
+        <div class="swatch-card" onclick="copyHex('#196B47', 'Verified Sage Emerald')">
+          <div class="swatch-preview" style="background:#196B47;"><span class="swatch-badge">#196B47</span></div>
+          <div class="swatch-body">
+            <div class="swatch-name">Mineral Shield Emerald</div>
+            <div class="swatch-role">False-alarm intercepted &amp; clean zero-gas terrain</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 02: TYPOGRAPHY -->
+    <section id="sec-type" class="ds-section">
+      <div class="section-head">
+        <div>
+          <div class="section-num">Section 02 • Typography</div>
+          <h2>Three-Tier Scientific Typography System</h2>
+        </div>
+        <p>Geometric clarity for headings, effortless legibility for explanations, and aligned tabular numerals for satellite physics.</p>
+      </div>
+
+      <div class="type-grid">
+        <div class="card">
+          <div class="card-title">Display &amp; Editorial Hierarchy</div>
+          <div class="card-sub"><strong>Plus Jakarta Sans</strong> (Headings/UI) + <strong>Inter</strong> (Explanatory Copy)</div>
+
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-display); font-size:28px; font-weight:800; letter-spacing:-0.025em;">
+              Autonomous Methane Intelligence
+            </div>
+            <span class="type-token">H1 • 28px / 800</span>
+          </div>
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-display); font-size:20px; font-weight:700; letter-spacing:-0.015em;">
+              Orbital Swath Verification &amp; Flux Rate
+            </div>
+            <span class="type-token">H2 • 20px / 700</span>
+          </div>
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-body); font-size:15px; color:var(--sp-ink-secondary);">
+              SpectraPlume isolates the 2.3 µm methane absorption doublet while rejecting stationary limestone mountains.
+            </div>
+            <span class="type-token">Body • 15px / 400</span>
+          </div>
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-display); font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--sp-ink-muted);">
+              ISS EMIT HYPERSPECTRAL TELEMETRY • MINIMUM 12PX FLOOR
+            </div>
+            <span class="type-token">Label • 12px / 700</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Tabular Telemetry &amp; Coordinates</div>
+          <div class="card-sub"><strong>JetBrains Mono</strong> (<code>tabular-nums</code>) keeps live numbers rock-steady</div>
+
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-mono); font-size:30px; font-weight:700; color:var(--sp-forest-900);">
+              1,620 <span style="font-size:15px; color:var(--sp-amber-600);">kg/h ± 110</span>
+            </div>
+            <span class="type-token">KPI • 30px / 700</span>
+          </div>
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-mono); font-size:16px; font-weight:600; color:var(--sp-forest-900);">
+              31.1279° N, 35.2028° E • Orbit #2222205
+            </div>
+            <span class="type-token">Geo • 16px / 600</span>
+          </div>
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-mono); font-size:14px; font-weight:600; color:var(--sp-safe-600);">
+              F1 = 0.942  |  Precision = 96.1%  |  Recall = 92.4%
+            </div>
+            <span class="type-token">Stats • 14px / 600</span>
+          </div>
+          <div class="type-specimen-row">
+            <div style="font-family:var(--font-mono); font-size:13px; color:var(--sp-ink-secondary);">
+              CH4 Doublet: 2260.0 nm + 2315.0 nm   vs  CaCO3: 2335.0 nm
+            </div>
+            <span class="type-token">Spec • 13px / 500</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 03: UNIFIED SVG ICON LIBRARY -->
+    <section id="sec-icons" class="ds-section">
+      <div class="section-head">
+        <div>
+          <div class="section-num">Section 03 • SpectraLine Vector Iconography</div>
+          <h2>Unified 1.75px Geometric SVG Icon Set (Zero Emojis)</h2>
+        </div>
+        <p>Every action, status badge, map pin, and scientific metric uses one cohesive vector stroke language.</p>
+      </div>
+
+      <div class="icon-toolbar">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-family:var(--font-display); font-size:12.5px; font-weight:700;">Color Treatment:</span>
+          <div class="segmented-control" id="iconModeCtrl">
+            <button class="seg-btn active" onclick="setIconMode('duotone', this)">Duotone Badge</button>
+            <button class="seg-btn" onclick="setIconMode('forest', this)">Forest Ink</button>
+            <button class="seg-btn" onclick="setIconMode('amber', this)">Amber Signal</button>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-family:var(--font-display); font-size:12.5px; font-weight:700;">Scale Test:</span>
+          <div class="segmented-control" id="iconSizeCtrl">
+            <button class="seg-btn" onclick="setIconSize('sz-18', this)">18 px</button>
+            <button class="seg-btn active" onclick="setIconSize('sz-24', this)">24 px</button>
+            <button class="seg-btn" onclick="setIconSize('sz-30', this)">30 px</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="icon-grid mode-duotone sz-24" id="iconShowcaseGrid">
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-orbit"/></svg></div><span class="icon-label">orbit-sensor</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-plume"/></svg></div><span class="icon-label">gas-plume</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-shield-check"/></svg></div><span class="icon-label">false-alarm-shield</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-mineral"/></svg></div><span class="icon-label">calcite-mineral</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-beacon"/></svg></div><span class="icon-label">leak-beacon</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-wind"/></svg></div><span class="icon-label">wind-vector</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-spectrum"/></svg></div><span class="icon-label">spectral-doublet</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-cube-upload"/></svg></div><span class="icon-label">granule-upload</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-sliders"/></svg></div><span class="icon-label">ai-calibration</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-crosshair"/></svg></div><span class="icon-label">epicenter-gps</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-layers"/></svg></div><span class="icon-label">map-layers</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-gauge"/></svg></div><span class="icon-label">flux-rate</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-loss"/></svg></div><span class="icon-label">economic-loss</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-clock"/></svg></div><span class="icon-label">latency-ms</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-report"/></svg></div><span class="icon-label">dispatch-report</span></div>
+        <div class="icon-cell"><div class="icon-stage"><svg><use href="#ic-compare"/></svg></div><span class="icon-label">split-compare</span></div>
+      </div>
+    </section>
+
+    <!-- SECTION 04: INTERACTIVE UI CONTROLS & UPLOAD -->
+    <section id="sec-controls" class="ds-section">
+      <div class="section-head">
+        <div>
+          <div class="section-num">Section 04 • Form Controls &amp; Interactive Widgets</div>
+          <h2>Buttons, Rich Dropdowns, Checkboxes, Bars &amp; Upload Zone</h2>
+        </div>
+        <p>Every element below is live — click dropdowns, toggle checkboxes, drag sliders, and test the NetCDF dropzone.</p>
+      </div>
+
+      <div class="controls-grid">
+
+        <!-- Card A: Buttons & Custom Rich Dropdowns -->
+        <div class="card">
+          <div class="card-title"><svg width="18" height="18"><use href="#ic-sliders"/></svg> Button Hierarchy &amp; Custom Dropdowns</div>
+          <div class="card-sub">Crisp tactile buttons and rich status-aware dropdown menus</div>
+
+          <div class="btn-row">
+            <button class="sp-btn sp-btn-primary"><svg><use href="#ic-orbit"/></svg> Run Orbital Scan</button>
+            <button class="sp-btn sp-btn-amber"><svg><use href="#ic-report"/></svg> Export Dispatch JSON</button>
+            <button class="sp-btn sp-btn-outline"><svg><use href="#ic-layers"/></svg> Compare Layers</button>
+            <button class="sp-btn sp-btn-ghost">Reset View</button>
+          </div>
+
+          <!-- Custom Dropdown 1 -->
+          <label class="field-label" style="margin-top:18px;">Spectroscopic Retrieval Mode</label>
+          <div class="sp-dropdown" id="ddRetrieval">
+            <button type="button" class="sp-dropdown-trigger" onclick="toggleDropdown('ddRetrieval')">
+              <span class="dd-left">
+                <svg><use href="#ic-spectrum"/></svg>
+                <span id="ddRetrievalText">SpectraPlume Hybrid 3D-CNN + HITRAN Gate</span>
+              </span>
+              <svg class="dd-chevron"><use href="#ic-chevron"/></svg>
+            </button>
+            <div class="sp-dropdown-menu">
+              <div class="sp-dropdown-option selected" onclick="selectDropdown('ddRetrieval', 'SpectraPlume Hybrid 3D-CNN + HITRAN Gate', this)">
+                <div>
+                  <div class="opt-title">SpectraPlume Hybrid 3D-CNN + HITRAN Gate</div>
+                  <div class="opt-sub">Eliminates limestone &amp; bright roof false alarms (F1 = 0.942)</div>
+                </div>
+                <span class="status-pill pill-safe">Recommended</span>
+              </div>
+              <div class="sp-dropdown-option" onclick="selectDropdown('ddRetrieval', 'NASA JPL Classical Matched Filter (AMF)', this)">
+                <div>
+                  <div class="opt-title">NASA JPL Classical Matched Filter (AMF)</div>
+                  <div class="opt-sub">Raw linear covariance baseline (triggers mineral false positives)</div>
+                </div>
+                <span class="status-pill pill-amber">Baseline</span>
+              </div>
+              <div class="sp-dropdown-option" onclick="selectDropdown('ddRetrieval', 'Mag1c Sparsity Matched Filter', this)">
+                <div>
+                  <div class="opt-title">Mag1c Sparsity Matched Filter</div>
+                  <div class="opt-sub">Iterative L1-regularized retrieval</div>
+                </div>
+                <span class="status-pill pill-amber">Reference</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom Dropdown 2 -->
+          <label class="field-label">Wind Field Source (Atmospheric Coupling)</label>
+          <div class="sp-dropdown" id="ddWind">
+            <button type="button" class="sp-dropdown-trigger" onclick="toggleDropdown('ddWind')">
+              <span class="dd-left">
+                <svg><use href="#ic-wind"/></svg>
+                <span id="ddWindText">ECMWF ERA5 10m Reanalysis (Auto-Synced)</span>
+              </span>
+              <svg class="dd-chevron"><use href="#ic-chevron"/></svg>
+            </button>
+            <div class="sp-dropdown-menu">
+              <div class="sp-dropdown-option selected" onclick="selectDropdown('ddWind', 'ECMWF ERA5 10m Reanalysis (Auto-Synced)', this)">
+                <div>
+                  <div class="opt-title">ECMWF ERA5 10m Reanalysis (Auto-Synced)</div>
+                  <div class="opt-sub">Coupled with WRF LES boundary-layer scaling (U_eff = 0.35 U_10)</div>
+                </div>
+                <span class="status-pill pill-safe">Live Sync</span>
+              </div>
+              <div class="sp-dropdown-option" onclick="selectDropdown('ddWind', 'Manual Field Anemometer Override', this)">
+                <div>
+                  <div class="opt-title">Manual Field Anemometer Override</div>
+                  <div class="opt-sub">Specify custom wind speed &amp; azimuth for scenario testing</div>
+                </div>
+                <span class="status-pill pill-amber">Custom</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card B: Checkboxes, Switches -->
+        <div class="card">
+          <div class="card-title"><svg width="18" height="18"><use href="#ic-shield-check"/></svg> Custom Checkboxes &amp; Toggle Switches</div>
+          <div class="card-sub">Click any row below to test active/inactive states</div>
+
+          <div class="check-stack">
+            <div class="sp-check-row checked" onclick="this.classList.toggle('checked')">
+              <div class="sp-check-left">
+                <span class="sp-checkbox"><svg><use href="#ic-check"/></svg></span>
+                <div>
+                  <div style="font-weight:700; font-size:13.5px;">Carbonate &amp; Limestone Suppression Gate</div>
+                  <div style="font-size:12px; color:var(--sp-ink-muted);">Rejects single-dip 2335 nm CaCO3 mineral reflections</div>
+                </div>
+              </div>
+              <span class="status-pill pill-safe">Active</span>
+            </div>
+
+            <div class="sp-check-row checked amber-variant" onclick="this.classList.toggle('checked')">
+              <div class="sp-check-left">
+                <span class="sp-checkbox"><svg><use href="#ic-check"/></svg></span>
+                <div>
+                  <div style="font-weight:700; font-size:13.5px;">Overlay Georeferenced Plume Contours (ppm·m)</div>
+                  <div style="font-size:12px; color:var(--sp-ink-muted);">Renders smooth SWIR dispersion isolines over satellite imagery</div>
+                </div>
+              </div>
+              <span class="status-pill pill-amber">SWIR Layer</span>
+            </div>
+
+            <div class="sp-check-row checked" onclick="this.classList.toggle('checked')">
+              <div class="sp-check-left">
+                <div>
+                  <div style="font-weight:700; font-size:13.5px;">Show Wind Direction Streamlines on Map</div>
+                  <div style="font-size:12px; color:var(--sp-ink-muted);">Displays 10m wind azimuth &amp; plume transport axis</div>
+                </div>
+              </div>
+              <div class="sp-switch"><div class="sp-switch-knob"></div></div>
+            </div>
+
+            <div class="sp-check-row" onclick="this.classList.toggle('checked')">
+              <div class="sp-check-left">
+                <div>
+                  <div style="font-weight:700; font-size:13.5px;">Reveal Rejected NASA False-Alarm Echoes</div>
+                  <div style="font-size:12px; color:var(--sp-ink-muted);">Highlights stationary rock noise blocked by SpectraPlume</div>
+                </div>
+              </div>
+              <div class="sp-switch"><div class="sp-switch-knob"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card C: Display-Board Progress Bars & Interactive Sliders -->
+        <div class="card">
+          <div class="card-title"><svg width="18" height="18"><use href="#ic-gauge"/></svg> Display-Board Metric Bars &amp; Calibration Sliders</div>
+          <div class="card-sub">Matched directly to the dual-tone Forest + Amber bars on your 100×70 cm poster</div>
+
+          <div class="bar-item">
+            <div class="bar-header">
+              <span class="bar-title">Detection Precision (42 NASA EMIT Swaths)</span>
+              <span class="bar-val">96.1%</span>
+            </div>
+            <div class="sp-bar-track"><div class="sp-bar-fill" style="width:96.1%;"></div></div>
+          </div>
+
+          <div class="bar-item">
+            <div class="bar-header">
+              <span class="bar-title">Plume Recall Sensitivity (85 kg/h Limit)</span>
+              <span class="bar-val">92.4%</span>
+            </div>
+            <div class="sp-bar-track"><div class="sp-bar-fill" style="width:92.4%;"></div></div>
+          </div>
+
+          <div class="bar-item" style="margin-bottom:0;">
+            <div class="bar-header">
+              <span class="bar-title">Terrain False-Alarm Suppression</span>
+              <span class="bar-val">78.4% Avg • 100% Calcite</span>
+            </div>
+            <div class="sp-bar-track"><div class="sp-bar-fill" style="width:86%;"></div></div>
+          </div>
+
+          <div class="slider-block">
+            <div class="bar-header">
+              <span class="field-label" style="margin:0;">AI Confidence Gating Threshold</span>
+              <span class="bar-val" id="threshValLabel">0.50 (Balanced)</span>
+            </div>
+            <input type="range" min="30" max="85" value="50" class="sp-range" id="threshSlider" oninput="updateSlider(this, 'threshValLabel')" />
+          </div>
+        </div>
+
+        <!-- Card D: Hyperspectral NetCDF Upload Dropzone -->
+        <div class="card">
+          <div class="card-title"><svg width="18" height="18"><use href="#ic-cube-upload"/></svg> NASA EMIT Granule Upload Dropzone</div>
+          <div class="card-sub">Drag &amp; drop or click below to test valid `.nc` upload vs. graceful invalid-file error handling</div>
+
+          <input type="file" id="ncFileInput" style="display:none;" onchange="handleFilePicked(this)" />
+          <div class="sp-dropzone" id="dropzoneBox"
+               onclick="document.getElementById('ncFileInput').click()"
+               ondragover="event.preventDefault(); this.classList.add('dragover');"
+               ondragleave="this.classList.remove('dragover');"
+               ondrop="event.preventDefault(); this.classList.remove('dragover'); simulateUpload(true);">
+            <div class="dropzone-icon-wrap">
+              <svg><use href="#ic-cube-upload"/></svg>
+            </div>
+            <div style="font-family:var(--font-display); font-weight:800; font-size:15.5px; color:var(--sp-forest-900);">
+              Drop NASA EMIT Hyperspectral Cube (.nc)
+            </div>
+            <div style="font-size:13px; color:var(--sp-ink-muted); margin-top:3px;">
+              Supports L2A Surface Reflectance (285-band or 40-band SWIR sub-cubes)
+            </div>
+            <div class="format-chips">
+              <span class="fmt-chip">.nc / NetCDF-4</span>
+              <span class="fmt-chip">.h5 / HDF5</span>
+              <span class="fmt-chip">EMITL2ARFL</span>
+              <span class="fmt-chip">Max 200 MB</span>
+            </div>
+            <div style="display:flex; justify-content:center; gap:8px;" onclick="event.stopPropagation();">
+              <button class="sp-btn sp-btn-primary" style="padding:8px 14px; font-size:12.5px;" onclick="simulateUpload(true)">
+                <svg><use href="#ic-cube-upload"/></svg> Simulate Valid .nc Upload
+              </button>
+              <button class="sp-btn sp-btn-outline" style="padding:8px 14px; font-size:12.5px;" onclick="simulateUpload(false)">
+                Simulate Corrupt File Error
+              </button>
+            </div>
+          </div>
+
+          <div class="upload-status-box" id="uploadFeedbackBox"></div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 05: ALERTS, GAS LEAKS, FALSE ALARMS & GRACEFUL ERRORS -->
+    <section id="sec-alerts" class="ds-section">
+      <div class="section-head">
+        <div>
+          <div class="section-num">Section 05 • Diagnostic Notifications &amp; Error UX</div>
+          <h2>Gas Leak Alerts, False-Alarm Proof &amp; Human-Friendly Errors</h2>
+        </div>
+        <p>Clear visual storytelling: anyone instantly distinguishes an active gas emergency from a rejected limestone rock echo.</p>
+      </div>
+
+      <div class="alerts-stack">
+
+        <!-- 1. Confirmed Super-Emitter Gas Leak -->
+        <div class="verdict-banner verdict-leak">
+          <div class="verdict-left">
+            <div class="verdict-icon-box"><svg><use href="#ic-beacon"/></svg></div>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <span class="status-pill pill-leak">Confirmed Super-Emitter</span>
+                <span style="font-family:var(--font-mono); font-size:12px; color:var(--sp-danger-700);">Orbit #2222205 • 99.4% AI Confidence</span>
+              </div>
+              <div class="verdict-title">Active Methane Plume Detected — Dead Sea / Levant Basin</div>
+              <div class="verdict-desc">
+                Point-source emission quantified at <strong>1,620 ± 110 kg/h</strong> (exceeds 85 kg/h threshold by <strong>19×</strong>).
+                Verified by dual HITRAN absorption dips (2260 nm &amp; 2315 nm) and downwind conical dispersion across 2.4 km.
+              </div>
+            </div>
+          </div>
+          <button class="sp-btn sp-btn-danger" style="flex-shrink:0;">
+            <svg><use href="#ic-report"/></svg> Dispatch Alert
+          </button>
+        </div>
+
+        <!-- 2. Intercepted False Alarm & HOW IT LOOKS FAKE -->
+        <div class="verdict-banner verdict-false-alarm" style="flex-direction:column;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; width:100%; gap:16px; flex-wrap:wrap;">
+            <div class="verdict-left">
+              <div class="verdict-icon-box"><svg><use href="#ic-shield-check"/></svg></div>
+              <div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                  <span class="status-pill pill-safe">False Alarm Intercepted &amp; Suppressed</span>
+                  <span style="font-family:var(--font-mono); font-size:12px; color:var(--sp-safe-700);">243 NASA False Pixels → 0 AI Pixels (100% Rejection)</span>
+                </div>
+                <div class="verdict-title">Zero Methane Gas — Stationary Limestone / Calcite Mountain (Sinai, Egypt)</div>
+                <div class="verdict-desc">
+                  Traditional linear filters mistook bright carbonate rock reflections for a massive leak. SpectraPlume automatically proved this is a <strong>mineral false alarm</strong> using three independent physical checks:
+                </div>
+              </div>
+            </div>
+            <span class="status-pill pill-safe" style="padding:7px 13px; font-size:12.5px;">0.00 kg/h Gas • Safe</span>
+          </div>
+
+          <div class="false-alarm-proof-grid">
+            <div class="proof-mini-card">
+              <strong>1. Spectral Fingerprint Check</strong>
+              <span>Real methane has <b>two dips</b> (2260 + 2315 nm). This surface shows only <b>one broad dip</b> at 2335 nm (CaCO3 limestone).</span>
+            </div>
+            <div class="proof-mini-card">
+              <strong>2. Wind &amp; Shape Geometry Check</strong>
+              <span>Real gas forms a <b>directional wind cone</b> from a pipe/valve. Here, pixels cling rigidly to <b>stationary rock ridges</b> ignoring the 5.1 m/s wind.</span>
+            </div>
+            <div class="proof-mini-card">
+              <strong>3. Economic Impact Prevented</strong>
+              <span>Prevented an unnecessary field emergency crew dispatch while maintaining 92.4% sensitivity to real leaks.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Clean Human-Centered File / System Error (No Python Tracebacks!) -->
+        <div class="verdict-banner verdict-error-clean">
+          <div class="verdict-left">
+            <div class="verdict-icon-box"><svg><use href="#ic-alert-tri"/></svg></div>
+            <div>
+              <div class="verdict-title">Unsupported Spectral Band Range in Uploaded File</div>
+              <div class="verdict-desc">
+                The uploaded file <code>sentinel_rgb_preview.tif</code> contains only 3 visible RGB channels (450–670 nm).
+                Methane detection requires short-wave infrared bands between <strong>2150 nm and 2450 nm</strong> (NASA EMIT L2A `.nc`).
+              </div>
+            </div>
+          </div>
+          <button class="sp-btn sp-btn-outline" style="flex-shrink:0;" onclick="copyHex('Loaded Orbit #2222205', 'Fallback Recovery')">
+            Load Sample EMIT Granule
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 06: FULL INTERACTIVE PROTOTYPE OF THE NEW APP LAYOUT -->
+    <section id="sec-prototype" class="ds-section">
+      <div class="section-head">
+        <div>
+          <div class="section-num">Section 06 • Live Interactive Application Architecture</div>
+          <h2>New SpectraPlume Mission Console — Interactive Working Preview</h2>
+        </div>
+        <p>Click between the 4 Orbital Passes on the left and switch the Map Layers on top of the map to test the exact new UX!</p>
+      </div>
+
+      <div class="console-shell">
+        <!-- App Top Header -->
+        <div class="console-topbar">
+          <div class="brand-lockup">
+            <svg><use href="#sp-logo-mark"/></svg>
+            <div>
+              <div class="brand-wordmark" style="font-size:18px;">SpectraPlume</div>
+              <div class="brand-tagline" style="font-size:9.5px;">NASA EMIT Orbital Methane Intelligence</div>
+            </div>
+          </div>
+
+          <div class="console-tabs">
+            <button class="console-tab active"><svg><use href="#ic-map-pin"/></svg> Live Radar &amp; Map</button>
+            <button class="console-tab" onclick="copyHex('Tab 2: Interactive Pixel Spectrometer & HITRAN Curve Lab', 'Navigation Preview')"><svg><use href="#ic-spectrum"/></svg> Spectral Proof Lab</button>
+            <button class="console-tab" onclick="copyHex('Tab 3: Regulatory JSON/PDF Dispatch & 42-Swath Benchmarks', 'Navigation Preview')"><svg><use href="#ic-report"/></svg> Dispatch &amp; Benchmarks</button>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="status-pill pill-safe" style="background:rgba(25,107,71,0.25); color:#A7F3D0; border-color:rgba(167,243,208,0.3);">
+              ISS EMIT • Ready
+            </span>
+          </div>
+        </div>
+
+        <!-- App Main Body -->
+        <div class="console-body">
+          <!-- Left Rail: Live Orbital Pass Feed (Replaces "Select an Error" Dropdown!) -->
+          <aside class="orbital-feed-sidebar">
+            <div class="feed-header">
+              <h4>Orbital Scan Feed</h4>
+              <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--sp-ink-muted);">4 Passes</span>
+            </div>
+
+            <div class="pass-card active" onclick="selectPass('deadsea', this)">
+              <div class="pass-top">
+                <span class="pass-orbit-id">ISS Orbit #2222205</span>
+                <span class="status-pill pill-leak">Super-Emitter</span>
+              </div>
+              <div class="pass-name">Dead Sea / Levant Basin</div>
+              <div style="font-size:12.5px; color:var(--sp-ink-muted);">NASA Plume Complex #485</div>
+              <div class="pass-meta">
+                <span>Flux: <strong>1,620 kg/h</strong></span>
+                <span>31.13°N, 35.20°E</span>
+              </div>
+            </div>
+
+            <div class="pass-card" onclick="selectPass('suez', this)">
+              <div class="pass-top">
+                <span class="pass-orbit-id">ISS Orbit #2224108</span>
+                <span class="status-pill pill-leak">Offshore Leak</span>
+              </div>
+              <div class="pass-name">Gulf of Suez Corridor</div>
+              <div style="font-size:12.5px; color:var(--sp-ink-muted);">Ras Gharib Marine Platform, Egypt</div>
+              <div class="pass-meta">
+                <span>Flux: <strong>1,820 kg/h</strong></span>
+                <span>28.25°N, 33.21°E</span>
+              </div>
+            </div>
+
+            <div class="pass-card" onclick="selectPass('permian', this)">
+              <div class="pass-top">
+                <span class="pass-orbit-id">ISS Orbit #2221904</span>
+                <span class="status-pill pill-leak">Critical Leak</span>
+              </div>
+              <div class="pass-name">Permian Basin Station</div>
+              <div style="font-size:12.5px; color:var(--sp-ink-muted);">Midstream Compressor, Texas USA</div>
+              <div class="pass-meta">
+                <span>Flux: <strong>2,350 kg/h</strong></span>
+                <span>31.85°N, 102.32°W</span>
+              </div>
+            </div>
+
+            <div class="pass-card" onclick="selectPass('sinai', this)">
+              <div class="pass-top">
+                <span class="pass-orbit-id">ISS Orbit #2223012</span>
+                <span class="status-pill pill-safe">False Alarm Blocked</span>
+              </div>
+              <div class="pass-name">Sinai Carbonate Ridge</div>
+              <div style="font-size:12.5px; color:var(--sp-ink-muted);">Limestone Mountain Trap, Egypt</div>
+              <div class="pass-meta">
+                <span style="color:var(--sp-safe-600);">Flux: <strong>0 kg/h (Rock)</strong></span>
+                <span>28.52°N, 33.91°E</span>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Right Main Console Workspace -->
+          <div class="console-workspace">
+            <!-- Dynamic Verdict Strip -->
+            <div class="verdict-banner verdict-leak" id="mockVerdictBanner" style="padding:14px 18px;">
+              <div class="verdict-left">
+                <div class="verdict-icon-box" id="mockVerdictIcon"><svg><use href="#ic-beacon"/></svg></div>
+                <div>
+                  <div class="verdict-title" id="mockVerdictTitle" style="font-size:15.5px;">
+                    Confirmed Super-Emitter Methane Plume — Dead Sea / Levant (Orbit #2222205)
+                  </div>
+                  <div class="verdict-desc" id="mockVerdictDesc" style="font-size:13.5px;">
+                    Authentic NASA LP DAAC Plume Complex 485 isolated cleanly; neighboring carbonate escarpment echoes automatically suppressed.
+                  </div>
+                </div>
+              </div>
+              <span class="status-pill pill-leak" id="mockVerdictPill">Action Required</span>
+            </div>
+
+            <!-- 4 Clean KPI Cards -->
+            <div class="kpi-strip">
+              <div class="kpi-card">
+                <div class="kpi-label"><span>Emission Flux Rate</span><svg><use href="#ic-gauge"/></svg></div>
+                <div class="kpi-num" id="kpiFlux">1,620 kg/h</div>
+                <div class="kpi-foot" id="kpiFluxSub">1.62 ± 0.11 Tons/hr (95% CI)</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label"><span>Integrated Plume Mass</span><svg><use href="#ic-plume"/></svg></div>
+                <div class="kpi-num" id="kpiMass">618 kg</div>
+                <div class="kpi-foot" id="kpiArea">Footprint: 1.48 km²</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label"><span>False-Alarm Rejection</span><svg><use href="#ic-shield-check"/></svg></div>
+                <div class="kpi-num" id="kpiReject" style="color:var(--sp-safe-600);">91.2%</div>
+                <div class="kpi-foot" id="kpiRejectSub">Adjacent carbonate ridge filtered</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label"><span>Wasted Gas Valuation</span><svg><use href="#ic-loss"/></svg></div>
+                <div class="kpi-num" id="kpiCost">$6,998/d</div>
+                <div class="kpi-foot" id="kpiWind">Wind: 4.1 m/s @ 15° NNE</div>
+              </div>
+            </div>
+
+            <!-- Interactive Map + Visual Fingerprint Proof -->
+            <div class="map-and-proof">
+              <div class="map-stage-card">
+                <!-- Interactive SVG Satellite Terrain + Plume + False-Alarm Layer -->
+                <svg class="map-svg-canvas" viewBox="0 0 620 380" preserveAspectRatio="xMidYMid slice">
+                  <defs>
+                    <radialGradient id="plumeCoreGrad" cx="30%" cy="65%" r="65%">
+                      <stop offset="0%" stop-color="#B91C1C" stop-opacity="0.92"/>
+                      <stop offset="40%" stop-color="#D4810B" stop-opacity="0.82"/>
+                      <stop offset="78%" stop-color="#F59E0B" stop-opacity="0.40"/>
+                      <stop offset="100%" stop-color="#FDE047" stop-opacity="0"/>
+                    </radialGradient>
+                    <pattern id="gridPat" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                    </pattern>
+                  </defs>
+                  <!-- Simulated Earth Satellite Arid/Coastal Terrain -->
+                  <rect width="620" height="380" fill="#1D2B22"/>
+                  <path d="M0 290 Q 150 240 310 275 T 620 230 L 620 380 L 0 380 Z" fill="#26362B"/>
+                  <path d="M90 0 Q 210 110 180 230 T 340 380 L 620 380 L 620 0 Z" fill="#2D3D30" opacity="0.65"/>
+                  <!-- Topographic Ridge Isolines -->
+                  <path d="M360 55 C 420 40, 510 75, 535 135 C 555 190, 475 215, 415 190 C 355 165, 320 95, 360 55 Z" fill="none" stroke="#6E7C68" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.55"/>
+                  <rect width="620" height="380" fill="url(#gridPat)"/>
+
+                  <!-- Swath Bounding Box -->
+                  <rect x="44" y="42" width="532" height="292" fill="none" stroke="rgba(231,222,207,0.35)" stroke-width="1.4" stroke-dasharray="6 5" rx="6"/>
+
+                  <!-- FALSE ALARM MINERAL NOISE PATCHES (Visible when NASA Filter layer or Compare is active) -->
+                  <g id="svgFalseAlarmNoise" style="display:none;">
+                    <polygon points="385,78 438,68 486,95 504,142 456,174 398,154 374,114" fill="rgba(168, 85, 247, 0.36)" stroke="#C084FC" stroke-width="1.8" stroke-dasharray="4 3"/>
+                    <rect x="415" y="95" width="16" height="16" fill="#E879F9" opacity="0.7"/>
+                    <rect x="442" y="108" width="22" height="14" fill="#C084FC" opacity="0.75"/>
+                    <rect x="398" y="122" width="18" height="18" fill="#E879F9" opacity="0.65"/>
+                    <rect x="466" y="128" width="15" height="19" fill="#A855F7" opacity="0.75"/>
+                    <text x="442" y="60" fill="#F3E8FF" font-family="JetBrains Mono" font-size="11" text-anchor="middle">NASA Raw Noise: Stationary Limestone Ridge</text>
+                  </g>
+
+                  <!-- TRUE METHANE PLUME DISPERSION CONE -->
+                  <g id="svgTruePlume">
+                    <path d="M 185 248 C 195 200, 245 135, 342 98 C 374 86, 392 114, 368 144 C 318 202, 238 244, 185 248 Z" fill="url(#plumeCoreGrad)"/>
+                    <path d="M 185 248 C 198 208, 242 152, 326 116 C 348 107, 360 126, 340 148 C 296 196, 232 238, 185 248 Z" fill="none" stroke="#FDE047" stroke-width="1.3" opacity="0.75"/>
+                    <!-- Epicenter Pinpoint Crosshair -->
+                    <circle cx="185" cy="248" r="15" fill="none" stroke="#EF4444" stroke-width="1.8" opacity="0.8"/>
+                    <circle cx="185" cy="248" r="5.5" fill="#EF4444" stroke="#FFFFFF" stroke-width="2"/>
+                  </g>
+
+                  <!-- CLEAN VERIFIED SHIELD PIN (Shown on Sinai False-Alarm Scene under SpectraPlume AI) -->
+                  <g id="svgCleanShield" style="display:none;">
+                    <circle cx="438" cy="126" r="28" fill="rgba(25, 107, 71, 0.28)" stroke="#34D399" stroke-width="2"/>
+                    <circle cx="438" cy="126" r="8" fill="#10B981" stroke="#FFFFFF" stroke-width="2"/>
+                    <text x="438" y="172" fill="#A7F3D0" font-family="Plus Jakarta Sans" font-weight="700" font-size="12" text-anchor="middle">Verified Limestone • 0.00 kg/h Gas</text>
+                  </g>
+                </svg>
+
+                <!-- Floating Map Controls -->
+                <div class="map-floating-bar">
+                  <div class="map-coord-pill" id="mockMapCoord">
+                    <svg width="15" height="15"><use href="#ic-crosshair"/></svg>
+                    <span>31.1279° N, 35.2028° E</span>
+                  </div>
+
+                  <div class="segmented-control" style="box-shadow: 0 4px 14px rgba(0,0,0,0.2);">
+                    <button class="seg-btn active" id="layerBtnAI" onclick="setMapLayer('ai')">SpectraPlume AI</button>
+                    <button class="seg-btn" id="layerBtnNASA" onclick="setMapLayer('nasa')">NASA Raw Filter</button>
+                    <button class="seg-btn" id="layerBtnBoth" onclick="setMapLayer('both')">Compare Both</button>
+                  </div>
+                </div>
+
+                <!-- Map Legend Footer -->
+                <div class="map-legend-footer">
+                  <span id="mapLayerCaption">Showing: Clean AI-Segmented Plume (0 Mineral False Alarms)</span>
+                  <div class="gradient-scale">
+                    <span>150</span>
+                    <div class="gradient-bar"></div>
+                    <span>3,000+ ppm·m</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Proof Card: Instant 2-Dip vs 1-Dip Visual Explanation -->
+              <div class="proof-side-card">
+                <div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                    <span class="section-num" style="margin:0;">Why This Verdict?</span>
+                    <span class="status-pill pill-safe" id="proofBadge">HITRAN Doublet Match</span>
+                  </div>
+                  <div style="font-family:var(--font-display); font-weight:800; font-size:16px; color:var(--sp-forest-900);" id="proofTitle">
+                    Methane 2-Dip Signature Confirmed
+                  </div>
+                  <p style="font-size:13px; color:var(--sp-ink-secondary); margin-top:4px;" id="proofText">
+                    Measured pixel spectrum exhibits both the secondary <strong>2260 nm</strong> and primary <strong>2315 nm</strong> absorption dips of CH4 gas.
+                  </p>
+                </div>
+
+                <!-- Clean Inline SVG Spectral Curve Comparison -->
+                <div style="background:var(--sp-bg-canvas); border:1px solid var(--sp-border-subtle); border-radius:12px; padding:12px;">
+                  <svg viewBox="0 0 300 135" width="100%" height="135">
+                    <!-- Wavelength Guide Lines -->
+                    <line x1="110" y1="12" x2="110" y2="112" stroke="#D4810B" stroke-dasharray="3 3" stroke-width="1.2"/>
+                    <line x1="185" y1="12" x2="185" y2="112" stroke="#C0392B" stroke-dasharray="3 3" stroke-width="1.2"/>
+                    <line x1="222" y1="12" x2="222" y2="112" stroke="#6B7870" stroke-dasharray="2 3" stroke-width="1.1"/>
+
+                    <text x="110" y="126" font-family="JetBrains Mono" font-size="9.5" fill="#B86D07" text-anchor="middle">2260nm</text>
+                    <text x="185" y="126" font-family="JetBrains Mono" font-size="9.5" fill="#C0392B" text-anchor="middle">2315nm</text>
+                    <text x="234" y="126" font-family="JetBrains Mono" font-size="9.5" fill="#53625A" text-anchor="middle">2335nm</text>
+
+                    <!-- Reference Limestone Single-Dip Curve (Dashed) -->
+                    <path id="curveCalciteRef" d="M 18 32 Q 140 32 188 36 Q 222 92 252 36 L 286 34" fill="none" stroke="#8C968E" stroke-width="1.8" stroke-dasharray="4 3"/>
+
+                    <!-- Active Measured Pixel Curve -->
+                    <path id="curveMeasured" d="M 18 30 L 84 31 Q 110 74 134 32 L 156 32 Q 185 104 212 33 L 286 32" fill="none" stroke="#12231A" stroke-width="2.8" stroke-linecap="round"/>
+                  </svg>
+                  <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--sp-ink-muted); margin-top:4px;">
+                    <span><strong style="color:#12231A;">━━</strong> Measured Target Spectrum</span>
+                    <span><strong>┅┅</strong> Reference Mineral (CaCO3)</span>
+                  </div>
+                </div>
+
+                <div style="background:var(--sp-bg-sand-soft); border-radius:10px; padding:10px 12px; font-size:12.5px; color:var(--sp-forest-900);" id="proofFooterNote">
+                  <strong>Judge Takeaway:</strong> Try clicking <em>Sinai Carbonate Ridge</em> on the left to see how the curve shifts to a single 2335 nm limestone dip!
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Element -->
+  <div class="copy-toast" id="copyToast">Copied token</div>
+
+  <script>
+    function showToast(msg) {
+      const t = document.getElementById('copyToast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function copyHex(hex, label) {
+      if (navigator.clipboard && hex.startsWith('#')) {
+        navigator.clipboard.writeText(hex).catch(() => {});
+        showToast(label + ' (' + hex + ') copied to clipboard');
+      } else {
+        showToast(label + ': ' + hex);
+      }
+    }
+
+    function setIconMode(mode, btn) {
+      const grid = document.getElementById('iconShowcaseGrid');
+      grid.classList.remove('mode-duotone', 'mode-forest', 'mode-amber');
+      grid.classList.add('mode-' + mode);
+      document.querySelectorAll('#iconModeCtrl .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function setIconSize(szClass, btn) {
+      const grid = document.getElementById('iconShowcaseGrid');
+      grid.classList.remove('sz-18', 'sz-24', 'sz-30');
+      grid.classList.add(szClass);
+      document.querySelectorAll('#iconSizeCtrl .seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function toggleDropdown(id) {
+      const el = document.getElementById(id);
+      const isOpen = el.classList.contains('open');
+      document.querySelectorAll('.sp-dropdown').forEach(d => d.classList.remove('open'));
+      if (!isOpen) el.classList.add('open');
+    }
+
+    function selectDropdown(id, text, optEl) {
+      const container = document.getElementById(id);
+      container.querySelectorAll('.sp-dropdown-option').forEach(o => o.classList.remove('selected'));
+      optEl.classList.add('selected');
+      document.getElementById(id + 'Text').textContent = text;
+      container.classList.remove('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.sp-dropdown')) {
+        document.querySelectorAll('.sp-dropdown').forEach(d => d.classList.remove('open'));
+      }
+    });
+
+    function updateSlider(slider, labelId) {
+      const val = (parseInt(slider.value, 10) / 100).toFixed(2);
+      const pct = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+      slider.style.background = `linear-gradient(to right, var(--sp-amber-500) 0%, var(--sp-amber-500) ${pct}%, var(--sp-bg-sand) ${pct}%, var(--sp-bg-sand) 100%)`;
+      let mode = 'Balanced';
+      if (val < 0.42) mode = 'High Sensitivity';
+      else if (val > 0.68) mode = 'Strict Core Only';
+      document.getElementById(labelId).textContent = `${val} (${mode})`;
+    }
+
+    function handleFilePicked(input) {
+      if (!input.files || !input.files[0]) return;
+      const name = input.files[0].name;
+      const valid = name.endsWith('.nc') || name.endsWith('.nc4') || name.endsWith('.h5');
+      simulateUpload(valid, name);
+    }
+
+    function simulateUpload(isValid, customName) {
+      const box = document.getElementById('uploadFeedbackBox');
+      box.style.display = 'flex';
+      if (isValid) {
+        const fname = customName || 'EMIT_L2A_RFL_001_20220810T064957_2222205.nc';
+        box.style.background = 'var(--sp-safe-bg)';
+        box.style.borderColor = 'var(--sp-safe-border)';
+        box.style.color = 'var(--sp-safe-700)';
+        box.innerHTML = `<span>Verified Granule: <code>${fname}</code> (40 SWIR bands ready)</span><span>100% Ready</span>`;
+      } else {
+        const fname = customName || 'drone_rgb_photo.jpg';
+        box.style.background = 'var(--sp-danger-bg)';
+        box.style.borderColor = 'var(--sp-danger-border)';
+        box.style.color = 'var(--sp-danger-700)';
+        box.innerHTML = `<span>Invalid format (<code>${fname}</code>) — Please upload a NetCDF (.nc / .h5) hyperspectral cube.</span><span>Rejected</span>`;
+      }
+    }
+
+    /* Interactive Mission Console State */
+    let currentPassKey = 'deadsea';
+    let currentLayerMode = 'ai';
+
+    const PASS_DATA = {
+      deadsea: {
+        isLeak: true,
+        title: 'Confirmed Super-Emitter Methane Plume — Dead Sea / Levant (Orbit #2222205)',
+        desc: 'Authentic NASA LP DAAC Plume Complex 485 isolated cleanly; neighboring carbonate escarpment echoes automatically suppressed.',
+        pill: 'Action Required',
+        flux: '1,620 kg/h',
+        fluxSub: '1.62 ± 0.11 Tons/hr (95% CI)',
+        mass: '618 kg',
+        area: 'Footprint: 1.48 km²',
+        reject: '91.2%',
+        rejectSub: 'Adjacent carbonate ridge filtered',
+        cost: '$6,998/d',
+        wind: 'Wind: 4.1 m/s @ 15° NNE',
+        coord: '31.1279° N, 35.2028° E',
+        proofBadge: 'HITRAN Doublet Match',
+        proofTitle: 'Methane 2-Dip Signature Confirmed',
+        proofText: 'Measured pixel spectrum exhibits both the secondary 2260 nm and primary 2315 nm absorption dips of CH4 gas.',
+        curve: 'M 18 30 L 84 31 Q 110 74 134 32 L 156 32 Q 185 104 212 33 L 286 32'
+      },
+      suez: {
+        isLeak: true,
+        title: 'Confirmed Offshore Gas Venting — Gulf of Suez Corridor (Ras Gharib, Egypt)',
+        desc: 'Marine flare stack uncombusted methane plume advancing 2.9 km NW across low-albedo water.',
+        pill: 'Offshore Alert',
+        flux: '1,820 kg/h',
+        fluxSub: '1.82 ± 0.14 Tons/hr (95% CI)',
+        mass: '742 kg',
+        area: 'Footprint: 1.76 km²',
+        reject: '96.4%',
+        rejectSub: 'Coastal glint & sun-angle filtered',
+        cost: '$7,862/d',
+        wind: 'Wind: 3.8 m/s @ 330° NW',
+        coord: '28.2540° N, 33.2080° E',
+        proofBadge: 'HITRAN Doublet Match',
+        proofTitle: 'High-Contrast Marine CH4 Doublet',
+        proofText: 'Strong 2315 nm core absorption paired with 2260 nm shoulder confirms pure hydrocarbon venting.',
+        curve: 'M 18 32 L 84 32 Q 110 79 134 33 L 156 33 Q 185 109 212 34 L 286 33'
+      },
+      permian: {
+        isLeak: true,
+        title: 'Critical Super-Emitter Rupture — Permian Basin Compressor (Texas, USA)',
+        desc: 'High-pressure midstream compressor release exceeding 2.3 Tons/hr; nearby caliche soil false positives eliminated.',
+        pill: 'Critical Priority',
+        flux: '2,350 kg/h',
+        fluxSub: '2.35 ± 0.17 Tons/hr (95% CI)',
+        mass: '985 kg',
+        area: 'Footprint: 2.31 km²',
+        reject: '88.7%',
+        rejectSub: 'Arid caliche basin clutter suppressed',
+        cost: '$10,152/d',
+        wind: 'Wind: 4.2 m/s @ 240° WSW',
+        coord: '31.8540° N, 102.3210° W',
+        proofBadge: 'HITRAN Doublet Match',
+        proofTitle: 'Deep Super-Emitter Optical Depth',
+        proofText: 'Maximum absorption depth (>3.8% SWIR deficit) locked onto 2260 nm + 2315 nm HITRAN lines.',
+        curve: 'M 18 29 L 84 30 Q 110 85 134 31 L 156 31 Q 185 114 212 32 L 286 31'
+      },
+      sinai: {
+        isLeak: false,
+        title: 'False Alarm Intercepted & Blocked — Sinai Carbonate Mountain (Zero Gas)',
+        desc: 'NASA Classical Filter flagged 243 rock pixels here! SpectraPlume proved it is stationary CaCO3 limestone (0.00 kg/h methane).',
+        pill: '100% Suppressed',
+        flux: '0 kg/h',
+        fluxSub: '0.00 Tons/hr (Verified Clean)',
+        mass: '0 kg',
+        area: '243 Rock Pixels Rejected',
+        reject: '100.0%',
+        rejectSub: '243 / 243 false NASA pixels blocked',
+        cost: '$0 / day',
+        wind: 'Wind: 5.1 m/s @ 310° NW',
+        coord: '28.5210° N, 33.9120° E',
+        proofBadge: 'Mineral Confounder Rejected',
+        proofTitle: 'Single-Dip Limestone Rock (Not Gas!)',
+        proofText: 'Zero absorption at 2260 nm! Only a single broad carbonate vibrational dip at 2335 nm — alert automatically cancelled.',
+        curve: 'M 18 32 L 155 33 Q 190 35 222 96 Q 248 36 286 33'
+      }
+    };
+
+    function selectPass(key, cardEl) {
+      currentPassKey = key;
+      document.querySelectorAll('.pass-card').forEach(c => c.classList.remove('active'));
+      cardEl.classList.add('active');
+      renderConsoleState();
+    }
+
+    function setMapLayer(mode) {
+      currentLayerMode = mode;
+      document.getElementById('layerBtnAI').classList.toggle('active', mode === 'ai');
+      document.getElementById('layerBtnNASA').classList.toggle('active', mode === 'nasa');
+      document.getElementById('layerBtnBoth').classList.toggle('active', mode === 'both');
+      renderConsoleState();
+    }
+
+    function renderConsoleState() {
+      const d = PASS_DATA[currentPassKey];
+      const banner = document.getElementById('mockVerdictBanner');
+      const pill = document.getElementById('mockVerdictPill');
+      const iconBox = document.getElementById('mockVerdictIcon');
+
+      banner.className = 'verdict-banner ' + (d.isLeak ? 'verdict-leak' : 'verdict-false-alarm');
+      pill.className = 'status-pill ' + (d.isLeak ? 'pill-leak' : 'pill-safe');
+      pill.textContent = d.pill;
+      iconBox.innerHTML = d.isLeak
+        ? '<svg><use href="#ic-beacon"/></svg>'
+        : '<svg><use href="#ic-shield-check"/></svg>';
+
+      document.getElementById('mockVerdictTitle').textContent = d.title;
+      document.getElementById('mockVerdictDesc').textContent = d.desc;
+      document.getElementById('kpiFlux').textContent = d.flux;
+      document.getElementById('kpiFluxSub').textContent = d.fluxSub;
+      document.getElementById('kpiMass').textContent = d.mass;
+      document.getElementById('kpiArea').textContent = d.area;
+      document.getElementById('kpiReject').textContent = d.reject;
+      document.getElementById('kpiRejectSub').textContent = d.rejectSub;
+      document.getElementById('kpiCost').textContent = d.cost;
+      document.getElementById('kpiWind').textContent = d.wind;
+      document.querySelector('#mockMapCoord span').textContent = d.coord;
+
+      const pBadge = document.getElementById('proofBadge');
+      pBadge.className = 'status-pill ' + (d.isLeak ? 'pill-amber' : 'pill-safe');
+      pBadge.textContent = d.proofBadge;
+      document.getElementById('proofTitle').textContent = d.proofTitle;
+      document.getElementById('proofText').innerHTML = d.proofText;
+      const curveEl = document.getElementById('curveMeasured');
+      curveEl.setAttribute('d', d.curve);
+      curveEl.setAttribute('stroke', d.isLeak ? '#D4810B' : '#196B47');
+
+      /* Map SVG Layers */
+      const plumeG = document.getElementById('svgTruePlume');
+      const noiseG = document.getElementById('svgFalseAlarmNoise');
+      const cleanG = document.getElementById('svgCleanShield');
+      const cap = document.getElementById('mapLayerCaption');
+
+      if (d.isLeak) {
+        plumeG.style.display = 'block';
+        cleanG.style.display = 'none';
+        noiseG.style.display = (currentLayerMode === 'nasa' || currentLayerMode === 'both') ? 'block' : 'none';
+        cap.textContent = currentLayerMode === 'ai'
+          ? 'Showing: SpectraPlume AI Clean Plume (Adjacent Rock Noise Filtered)'
+          : 'Showing: True Plume + Raw NASA Mineral Clutter (Purple)';
+      } else {
+        plumeG.style.display = 'none';
+        if (currentLayerMode === 'ai') {
+          noiseG.style.display = 'none';
+          cleanG.style.display = 'block';
+          cap.textContent = 'SpectraPlume AI Verdict: 0 Gas — Stationary Limestone Verified';
+        } else if (currentLayerMode === 'nasa') {
+          noiseG.style.display = 'block';
+          cleanG.style.display = 'none';
+          cap.textContent = 'Traditional NASA Filter: 243 False-Positive Pixels Over Limestone Ridge!';
+        } else {
+          noiseG.style.display = 'block';
+          cleanG.style.display = 'block';
+          cap.textContent = 'Comparison: Purple = 243 NASA False Rock Pixels | Green = SpectraPlume Rejection';
+        }
+      }
+    }
+
+    renderConsoleState();
+  </script>
+</body>
+</html>

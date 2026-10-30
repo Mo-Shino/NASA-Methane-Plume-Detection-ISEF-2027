@@ -1,6 +1,6 @@
 """
 test_physics_and_pipeline.py
-Automated Scientific & Portability Verification Suite for SpectraPlume.
+Automated Scientific, Portability & Full-Stack Web Verification Suite for SpectraPlume 2.0.
 
 Tests:
     1. Molecular Matched Filter & HITRAN 2.3 um Doublet Absorption.
@@ -10,18 +10,29 @@ Tests:
     5. Hydrodynamic IME Flux Calculation & Gaussian Error Propagation.
     6. Working-Directory Independence & Self-Bootstrapping Portability.
     7. Interactive Satellite GIS Visualizer Map Generation.
+    8. SpectraPlume 2.0 FastAPI + Editorial Web Frontend Zero-Emoji & Asset Audit.
+    9. Live REST API Analysis Across All 4 Orbital Passes (Leaks + False-Alarm Proof).
+   10. Live 40-Band Pixel Spectroscopy via Both (x, y) Cube and (lat, lon) Map Clicks.
+   11. Custom NetCDF4 Upload Validation & Calm Human-Readable Error Recovery.
+   12. Regulatory & SCADA JSON Dispatch Report Export.
 
 Author: SpectraPlume Research Team (ISEF 2027)
 Category: Earth & Environmental Sciences (EAEV - Atmospheric Science)
 """
 
 import os
+import re
+import socket
 import sys
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 
 import numpy as np
+import requests
+import uvicorn
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -31,6 +42,7 @@ from src.matched_filter import ClassicalMatchedFilter
 from src.flux_calculator import IMEFluxCalculator
 from src.gis_visualizer import SatelliteGISVisualizer
 from pipeline_runner import SpectraPlumePipeline
+import server as spectraplume_server
 
 
 class TestSpectraPlumePhysics(unittest.TestCase):
@@ -145,6 +157,198 @@ class TestSpectraPlumePhysics(unittest.TestCase):
         self.assertIsInstance(html_str, str)
         self.assertGreater(len(html_str), 5000)
         self.assertIn("Esri World Imagery", html_str)
+
+
+class TestSpectraPlumeWebAPI(unittest.TestCase):
+    """End-to-end HTTP verification of SpectraPlume 2.0 FastAPI backend & Editorial Light frontend."""
+
+    @classmethod
+    def setUpClass(cls):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(("127.0.0.1", 0))
+            cls.port = s.getsockname()[1]
+
+        cls.base_url = f"http://127.0.0.1:{cls.port}"
+        config = uvicorn.Config(
+            spectraplume_server.app,
+            host="127.0.0.1",
+            port=cls.port,
+            log_level="warning",
+        )
+        cls.uvicorn_server = uvicorn.Server(config)
+        cls.server_thread = threading.Thread(target=cls.uvicorn_server.run, daemon=True)
+        cls.server_thread.start()
+
+        # Wait until live HTTP server responds
+        ready = False
+        for _ in range(40):
+            try:
+                r = requests.get(f"{cls.base_url}/api/health", timeout=1.0)
+                if r.status_code == 200:
+                    ready = True
+                    break
+            except Exception:
+                time.sleep(0.15)
+        if not ready:
+            raise RuntimeError("Ephemeral SpectraPlume 2.0 FastAPI test server failed to start.")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.uvicorn_server.should_exit = True
+        cls.server_thread.join(timeout=5.0)
+
+    def test_web_frontend_assets_and_zero_emoji_policy(self):
+        """Verifies index.html, CSS, JS, and SVG logo load cleanly with official brand palette and 0 emojis."""
+        emoji_re = re.compile(r"[\U0001F300-\U0001FAFF\u2600-\u27BF]")
+        allowed_math_arrows = set("→←↑↓↔×±°·•—–−≤≥✓✕")
+
+        r_html = requests.get(f"{self.base_url}/", timeout=5.0)
+        self.assertEqual(r_html.status_code, 200)
+        self.assertIn("SpectraPlume", r_html.text)
+        self.assertIn("ic-orbit", r_html.text)
+
+        r_css = requests.get(f"{self.base_url}/static/css/spectraplume.css", timeout=5.0)
+        self.assertEqual(r_css.status_code, 200)
+        self.assertIn("#F6F3EC", r_css.text)
+        self.assertIn("#12231A", r_css.text)
+        self.assertIn("#D4810B", r_css.text)
+
+        r_js = requests.get(f"{self.base_url}/static/js/app.js", timeout=5.0)
+        self.assertEqual(r_js.status_code, 200)
+        self.assertIn("/api/analyze", r_js.text)
+
+        r_logo = requests.get(f"{self.base_url}/api/logo.svg", timeout=5.0)
+        self.assertEqual(r_logo.status_code, 200)
+        self.assertIn("<svg", r_logo.text)
+
+        for label, content in (("index.html", r_html.text), ("spectraplume.css", r_css.text), ("app.js", r_js.text)):
+            found = [ch for ch in emoji_re.findall(content) if ch not in allowed_math_arrows]
+            self.assertEqual(found, [], f"Emoji characters detected in {label}: {found}")
+
+    def test_health_and_orbital_passes_catalog(self):
+        """Verifies /api/health and /api/passes expose all 4 calibrated NASA EMIT orbital swaths."""
+        r_health = requests.get(f"{self.base_url}/api/health", timeout=5.0).json()
+        self.assertEqual(r_health["status"], "ok")
+        self.assertTrue(r_health["weights_loaded"])
+
+        r_passes = requests.get(f"{self.base_url}/api/passes", timeout=10.0).json()
+        pass_ids = [p["pass_id"] for p in r_passes["passes"]]
+        for expected in ("deadsea", "suez", "permian", "sinai"):
+            self.assertIn(expected, pass_ids)
+
+    def test_analyze_confirmed_leaks_and_false_alarm_proof(self):
+        """Verifies /api/analyze across super-emitter passes and Sinai carbonate false-alarm rejection."""
+        for leak_id in ("deadsea", "suez", "permian"):
+            resp = requests.post(
+                f"{self.base_url}/api/analyze",
+                json={"pass_id": leak_id, "mask_threshold": 0.50},
+                timeout=15.0,
+            )
+            self.assertEqual(resp.status_code, 200)
+            data = resp.json()
+            self.assertEqual(data["verdict"]["state"], "confirmed_leak")
+            self.assertGreater(data["kpis"]["flux_ton_hr"], 0.15)
+            self.assertTrue(data["visuals"]["map_ai_overlay"].startswith("data:image/png;base64,"))
+            self.assertTrue(data["visuals"]["map_nasa_overlay"].startswith("data:image/png;base64,"))
+
+        sinai_resp = requests.post(
+            f"{self.base_url}/api/analyze",
+            json={"pass_id": "sinai", "mask_threshold": 0.50},
+            timeout=15.0,
+        )
+        self.assertEqual(sinai_resp.status_code, 200)
+        sdata = sinai_resp.json()
+        self.assertEqual(sdata["verdict"]["state"], "false_alarm_blocked")
+        self.assertEqual(sdata["kpis"]["flux_ton_hr"], 0.0)
+        self.assertEqual(sdata["kpis"]["ai_plume_pixels"], 0)
+        self.assertEqual(sdata["kpis"]["false_alarm_reduction_pct"], 100.0)
+        self.assertEqual(len(sdata["verdict"]["proof_cards"]), 3)
+
+    def test_live_40_band_pixel_spectroscopy_xy_and_latlon(self):
+        """Verifies /api/pixel-spectrum returns 40-band SWIR signatures for both (x,y) and (lat,lon) clicks."""
+        deadsea_data = requests.post(
+            f"{self.base_url}/api/analyze",
+            json={"pass_id": "deadsea", "mask_threshold": 0.50},
+            timeout=15.0,
+        ).json()
+        core_px = deadsea_data["presets"]["primary"]
+
+        r_xy = requests.get(
+            f"{self.base_url}/api/pixel-spectrum",
+            params={"pass_id": "deadsea", "x": core_px["x"], "y": core_px["y"]},
+            timeout=5.0,
+        )
+        self.assertEqual(r_xy.status_code, 200)
+        spec_xy = r_xy.json()
+        self.assertEqual(len(spec_xy["wavelengths"]), 40)
+        self.assertEqual(len(spec_xy["pixel_reflectance"]), 40)
+        self.assertEqual(spec_xy["classification_type"], "methane_plume")
+
+        sinai_data = requests.post(
+            f"{self.base_url}/api/analyze",
+            json={"pass_id": "sinai", "mask_threshold": 0.50},
+            timeout=15.0,
+        ).json()
+        calc_spec = sinai_data["active_spectrum"]
+        r_ll = requests.get(
+            f"{self.base_url}/api/pixel-spectrum",
+            params={"pass_id": "sinai", "lat": calc_spec["lat"], "lon": calc_spec["lon"]},
+            timeout=5.0,
+        )
+        self.assertEqual(r_ll.status_code, 200)
+        spec_ll = r_ll.json()
+        self.assertEqual(len(spec_ll["wavelengths"]), 40)
+        self.assertEqual(spec_ll["classification_type"], "mineral_false_alarm")
+        self.assertLess(spec_ll["ai_confidence_pct"], 30.0)
+
+    def test_upload_validation_and_human_friendly_error_recovery(self):
+        """Verifies /api/upload rejects invalid files cleanly without tracebacks and accepts valid .nc granules."""
+        # 1. Invalid extension (.jpg) -> structured calm error card
+        r_bad_ext = requests.post(
+            f"{self.base_url}/api/upload",
+            files={"file": ("photo.jpg", b"not-a-netcdf", "image/jpeg")},
+            timeout=5.0,
+        )
+        self.assertEqual(r_bad_ext.status_code, 400)
+        err_ext = r_bad_ext.json()
+        self.assertIn("Unsupported File Format", err_ext["error_title"])
+        self.assertNotIn("Traceback", str(err_ext))
+
+        # 2. Corrupt .nc payload (>512 bytes) -> structured calm error card
+        r_corrupt = requests.post(
+            f"{self.base_url}/api/upload",
+            files={"file": ("broken_granule.nc", b"X" * 1024, "application/octet-stream")},
+            timeout=5.0,
+        )
+        self.assertEqual(r_corrupt.status_code, 400)
+        err_corrupt = r_corrupt.json()
+        self.assertIn("Missing Hyperspectral", err_corrupt["error_title"])
+        self.assertNotIn("Traceback", str(err_corrupt))
+
+        # 3. Valid NASA EMIT .nc granule -> accepted, registered, and analyzable
+        valid_nc = PROJECT_ROOT / "data" / "benchmark_scenes" / "EMIT_GulfOfSuez_FlareLeak_28N33E.nc"
+        with open(valid_nc, "rb") as fh:
+            r_ok = requests.post(
+                f"{self.base_url}/api/upload",
+                files={"file": ("Custom_Suez_Test.nc", fh.read(), "application/x-netcdf")},
+                timeout=15.0,
+            )
+        self.assertEqual(r_ok.status_code, 200)
+        up_json = r_ok.json()
+        self.assertEqual(up_json["verdict"]["state"], "confirmed_leak")
+        custom_id = up_json["pass_info"]["pass_id"]
+        self.assertTrue(custom_id.startswith("custom_"))
+
+        r_passes = requests.get(f"{self.base_url}/api/passes", timeout=10.0).json()
+        self.assertIn(custom_id, [p["pass_id"] for p in r_passes["passes"]])
+
+    def test_regulatory_report_export(self):
+        """Verifies /api/report/{pass_id} generates an official SCADA/EPA JSON certificate."""
+        r_rep = requests.get(f"{self.base_url}/api/report/deadsea", timeout=10.0)
+        self.assertEqual(r_rep.status_code, 200)
+        payload = r_rep.json()
+        self.assertEqual(payload["emission_quantification"]["status"], "CONFIRMED_SUPER_EMITTER")
+        self.assertGreater(payload["emission_quantification"]["mass_flux_tons_per_hour"], 0.15)
 
 
 if __name__ == "__main__":
