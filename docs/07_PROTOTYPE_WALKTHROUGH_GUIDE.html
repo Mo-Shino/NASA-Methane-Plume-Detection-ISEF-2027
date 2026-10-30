@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل شرح البروتوتايب الشامل والنسب العلمية — SpectraPlume 2.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #0B1120;
+            --card-bg: #131D33;
+            --card-border: #1E2E4E;
+            --text-main: #F1F5F9;
+            --text-muted: #94A3B8;
+            --cyan-primary: #00B4D8;
+            --cyan-glow: rgba(0, 180, 216, 0.15);
+            --green-primary: #10B981;
+            --green-glow: rgba(16, 185, 129, 0.15);
+            --amber-primary: #F59E0B;
+            --amber-glow: rgba(245, 158, 11, 0.15);
+            --red-primary: #EF4444;
+            --purple-primary: #8B5CF6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.85;
+            padding: 30px 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 35px 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--cyan-primary), var(--green-primary), var(--amber-primary), var(--purple-primary));
+        }
+
+        .header h1 {
+            font-size: 30px;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            color: var(--cyan-primary);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .meta-badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13.5px;
+            font-weight: 700;
+        }
+
+        .badge-cyan { background: var(--cyan-glow); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-green { background: var(--green-glow); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-amber { background: var(--amber-glow); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.3); }
+
+        /* Screenshot Container */
+        .screenshot-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.4);
+        }
+
+        .screenshot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .screenshot-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .screenshot-img-box {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #283958;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            background: #000;
+        }
+
+        .screenshot-img-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .section-card h2 {
+            font-size: 22px;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 10px;
+        }
+
+        .section-card h2 span {
+            background: #1E2E4E;
+            color: var(--cyan-primary);
+            padding: 3px 12px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        /* Component Item Grid */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-top: 15px;
+        }
+
+        .component-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #1E2D4A;
+            border-radius: 12px;
+            padding: 16px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .component-item:hover {
+            border-color: var(--cyan-primary);
+            transform: translateY(-2px);
+        }
+
+        .component-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--cyan-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .component-desc {
+            font-size: 14px;
+            color: #CBD5E1;
+            line-height: 1.8;
+        }
+
+        .highlight-term {
+            color: #FBBF24;
+            font-weight: 700;
+        }
+
+        .code-pill {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0F172A;
+            color: #38BDF8;
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-size: 13px;
+            border: 1px solid #1E293B;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        /* Metric Deep Dive Cards */
+        .metric-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .metric-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .metric-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+
+        .metric-value-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 900;
+            padding: 4px 14px;
+            border-radius: 8px;
+        }
+
+        .pill-gold { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid #F59E0B; }
+        .pill-green { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid #10B981; }
+        .pill-cyan { background: rgba(0, 180, 216, 0.2); color: #38BDF8; border: 1px solid #00B4D8; }
+        .pill-purple { background: rgba(139, 92, 246, 0.2); color: #A78BFA; border: 1px solid #8B5CF6; }
+
+        .metric-body {
+            font-size: 14.5px;
+            color: #CBD5E1;
+            line-height: 1.85;
+        }
+
+        .metric-analogy {
+            background: rgba(0,0,0,0.35);
+            border-right: 4px solid var(--amber-primary);
+            padding: 10px 14px;
+            margin-top: 10px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: #E2E8F0;
+        }
+
+        .metric-judge-reply {
+            background: rgba(16, 185, 129, 0.08);
+            border-right: 4px solid var(--green-primary);
+            padding: 10px 14px;
+            margin-top: 8px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: #E2E8F0;
+        }
+
+        /* Step by Step Demo Plan */
+        .step-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 15px;
+        }
+
+        .step-box {
+            display: flex;
+            gap: 16px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid #1E293B;
+            border-radius: 12px;
+            padding: 16px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            background: var(--cyan-primary);
+            color: #0F172A;
+            font-weight: 900;
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-size: 16px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 14px;
+            color: #CBD5E1;
+            line-height: 1.8;
+        }
+
+        /* Print Settings */
+        @media print {
+            body {
+                background: #FFFFFF !important;
+                color: #0F172A !important;
+                padding: 0;
+            }
+            .header, .section-card, .screenshot-card, .metric-card {
+                background: #FFFFFF !important;
+                border: 1px solid #CBD5E1 !important;
+                color: #0F172A !important;
+                box-shadow: none !important;
+            }
+            .header h1, .section-card h2, .metric-name, .screenshot-title {
+                color: #0F172A !important;
+            }
+            .component-item, .step-box {
+                background: #F8FAFC !important;
+                border: 1px solid #CBD5E1 !important;
+            }
+            .component-desc, .metric-body, .step-content p {
+                color: #334155 !important;
+            }
+            .metric-analogy, .metric-judge-reply {
+                background: #F1F5F9 !important;
+                color: #0F172A !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header Section -->
+    <div class="header">
+        <h1>🛰️ دليل شرح البروتوتايب الشامل والنسب العلمية</h1>
+        <div class="subtitle">مشروع SpectraPlume 2.0 — Autonomous Satellite Methane Intelligence</div>
+        <p style="color: var(--text-muted); font-size: 14px;">دليل تدريب الفريق على الشرح الحي لجميع عناصر الشاشة وفهم الأرقام العلمية لمسابقة Regeneron ISEF 2027</p>
+        <div class="meta-badges">
+            <span class="meta-badge badge-cyan">🔵 فارس محمد (Co-Researcher)</span>
+            <span class="meta-badge badge-green">🟢 محمد الشناوي (Co-Researcher)</span>
+            <span class="meta-badge badge-amber">🖥️ الرابط: http://localhost:8000</span>
+        </div>
+    </div>
+
+    <!-- Screenshot Display Card -->
+    <div class="screenshot-card">
+        <div class="screenshot-header">
+            <div class="screenshot-title">
+                📸 لقطة حية من شاشة البروتوتايب (SpectraPlume 2.0 Editorial Mission Console)
+            </div>
+            <div class="code-pill">Pass: Orbit #2222205 (Dead Sea Plume #485)</div>
+        </div>
+        <div class="screenshot-img-box">
+            <img src="assets/prototype_web_gis_loaded.png" alt="SpectraPlume 2.0 Mission Console Screenshot" />
+        </div>
+    </div>
+
+    <!-- 1. تشريح عناصر الشاشة بالكامل -->
+    <div class="section-card">
+        <h2><span>01</span> تشريح عناصر شاشة البروتوتايب بالتفصيل (كاملاً من اليمين لليسار)</h2>
+        <p style="color: #94A3B8; margin-bottom: 15px; font-size: 14px;">كل جزء في الصورة فوق له وظيفة علمية محددة. ده شرح كل عنصر عشان لو المحكم شاور على أي حتة في الشاشة تشرحوه فوراً:</p>
+
+        <div class="component-grid">
+
+            <div class="component-item">
+                <div class="component-title">🔴 شريط التنبيه العلوي (Alert Banner)</div>
+                <div class="component-desc">
+                    * <strong>شارة الحالة:</strong> <span class="highlight-term">Confirmed Super-Emitter</span> (تأكيد أن التسريب عملاق وليس ضوضاء).<br>
+                    * <strong>الزمن الحقيقي:</strong> زمن التحليل ظهر في الشاشة <span class="highlight-term">620.4 ms</span> (أقل من ثانية!).<br>
+                    * <strong>الوصف المالي والعلمي:</strong> يوضح معدل التدفق <span class="highlight-term">4,596 kg/h</span>، مع مجال ثقة <span class="code-pill">4.60 ± 0.91 Tons/hr</span>، وأن التسريب يتجاوز حد الكشف بـ 54.1 ضعف عبر مسافة 1234 متر downwind.
+                </div>
+            </div>
+
+            <div class="component-item">
+                <div class="component-title">📊 كروت الإحصائيات الأربعة (KPI Cards)</div>
+                <div class="component-desc">
+                    1. <strong>Mass Emission Flux:</strong> معدل انبعاث الغاز بالساعة (<span class="highlight-term">4,596 kg/h</span>).<br>
+                    2. <strong>Integrated Plume Mass:</strong> الكتلة الكلية للغاز الموجود في السحابة حالياً (<span class="highlight-term">679 kg</span>) ومساحتها 0.79 كم².<br>
+                    3. <strong>False-Alarm Suppression:</strong> نسبة إلغاء التشويش الصخري (<span class="highlight-term">78.4%</span>) وحجب 81 بكسل كاذب لناسا.<br>
+                    4. <strong>Wasted Gas Valuation:</strong> الخسارة المالية اليومية للشركة (<span class="highlight-term">$19,855/يوم</span> و 7.2 مليون دولار سنوياً).
+                </div>
+            </div>
+
+            <div class="component-item">
+                <div class="component-title">🗺️ الخريطة الفضائية التفاعلية (Satellite Web GIS)</div>
+                <div class="component-desc">
+                    * <strong>خلفية القمر الصناعي:</strong> صور أقمار صناعية حقيقية فائقة الدقة من <strong>Esri World Imagery</strong>.<br>
+                    * <strong>سحابة الغاز:</strong> متلونة بتدرج حراري دافئ (من الكهرماني للأحمر الداكن) حسب تركيز الميثان من 100 حتى 3000+ ppm·m.<br>
+                    * <strong>سهم ومسار الرياح:</strong> خط أصفر منقط يوضح محور انتقال الغاز مع اتجاه الرياح (315° بسرعة 4.1 m/s).<br>
+                    * <strong>مفاتيح المقارنة:</strong> أزرار للتبديل بين <span class="code-pill">SpectraPlume AI</span> و <span class="code-pill">NASA Raw Filter</span> و <span class="code-pill">Compare Both</span>.
+                </div>
+            </div>
+
+            <div class="component-item">
+                <div class="component-title">📈 مطياف البكسل الحي (Pixel Spectrometer)</div>
+                <div class="component-desc">
+                    * <strong>الرسم البياني على اليمين:</strong> يوضح البصمة الطيفية للبكسل المختار (Pixel 70, 70).<br>
+                    * <strong>الخط الأصفر (Measured Pixel):</strong> امتصاص الضوء الحقيقي المقاس من القمر.<br>
+                    * <strong>الخط المنقط الأسود (HITRAN CH4):</strong> بصمة الميثان وتظهر فيها <strong>الحفرتين التوأم عند 2260nm و 2315nm</strong>.<br>
+                    * <strong>الخط الرمادي (Limestone):</strong> صخرة الكالسيت وتظهر حفرتها الفردية عند <strong>2335nm</strong> فقط.
+                </div>
+            </div>
+
+            <div class="component-item">
+                <div class="component-title">🛰️ شريط المسارات الفضائية (Orbital Scan Feed)</div>
+                <div class="component-desc">
+                    * على أقصى اليسار؛ قائمة تحتوي على <strong>4 مسارات حقيقية معتمدة من ناسا</strong>:<br>
+                    1. <span class="highlight-term">Dead Sea:</span> مشهد ناسا الحقيقي Granule #485.<br>
+                    2. <span class="highlight-term">Gulf of Suez:</span> تسريب منصة بحرية في خليج السويس بمصر.<br>
+                    3. <span class="highlight-term">Permian Basin:</span> حوض النفط الشهير في غرب تكساس بأمريكا.<br>
+                    4. <span class="highlight-term">Sinai Carbonate Ridge:</span> جبال سيناء (الشاهد السلبي الخالي من الغاز).
+                </div>
+            </div>
+
+            <div class="component-item">
+                <div class="component-title">⚙️ أدوات التحكم الفيزيائية (Retrieval Controls)</div>
+                <div class="component-desc">
+                    * <strong>Spectroscopic Engine:</strong> اختيار المحرك (SpectraPlume 3D-CNN + HITRAN).<br>
+                    * <strong>Wind Field Coupling:</strong> الربط التلقائي بسرعات رياح ECMWF ERA5 اللحظية.<br>
+                    * <strong>Confidence Gate Slider:</strong> سلايدر عتبة الثقة (0.50 Balanced) لتحديد حساسية الكشف.<br>
+                    * <strong>Footprint Checkbox:</strong> إظهار حدود المسار الفضائي للقمر الصناعي.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 2. الشرح العميق للنسب والمصطلحات العلمية -->
+    <div class="section-card">
+        <h2><span>02</span> الشرح الشامل للنسب والمصطلحات العلمية (احفظوها كويس جداً)</h2>
+
+        <!-- 1. MAPE 7.9% -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-name">1️⃣ ما هو الـ MAPE؟ وليه قيمته (7.9%) إنجاز تاريخي؟</div>
+                <div class="metric-value-pill pill-green">MAPE = 7.9%</div>
+            </div>
+            <div class="metric-body">
+                * <strong>الاسم العلمي:</strong> <span class="code-pill">Mean Absolute Percentage Error</span> = متوسط نسبة الخطأ المطلق في حساب كمية الغاز.<br>
+                * <strong>المعنى العلمي:</strong> لما البرنامج يحسب إن التسريب ده بيخرج 2.46 طن/ساعة، نسبة الخطأ المحتملة في الرقم ده مقارنة بالواقع هي <strong>7.9% فقط</strong> (يعني دقة الحساب تتجاوز <strong>92.1%</strong>!).<br>
+                * <strong>مقارنة بالأبحاث السابقة:</strong> كل أبحاث وكالة ناسا السابقة (زي Varon et al. و Thorpe et al. ونماذج كاليفورنيا) كانت نسبة الخطأ في حساب معدل التدفق تتراوح بين <strong>28% إلى 35%</strong> بسبب صعوبة تقدير سرعة الرياح وتشتت السحابة. فوصولنا لـ 7.9% هو قفزة نوعية في دقة الحساب.
+                <div class="metric-analogy">
+                    💡 <strong>تشبيه بالبلدي للمحكم:</strong> لو ماسورة بتسرب في الحقيقة 100 كيلو غاز، الموديلات القديمة كانت تقول لك: "دول 65 كيلو" أو "135 كيلو" (خطأ كبير جداً!). لكن SpectraPlume بيقول لك: "دول 92.1 أو 107.9 كيلو"، يعني جاب وزن الغاز بدقة ميزان ذهب!
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. F1-Score 0.942 -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-name">2️⃣ ما هو الـ F1-Score؟ وليه رقم (0.942) بيثبت عبقرية الموديل؟</div>
+                <div class="metric-value-pill pill-gold">F1-Score = 0.942 (94.2%)</div>
+            </div>
+            <div class="metric-body">
+                * <strong>الاسم العلمي:</strong> <span class="code-pill">Harmonic Mean of Precision and Recall</span> = المتوسط التوافقي بين دقة الإنذار والقدرة على الاصطياد.<br>
+                * <strong>القانون الرياضي:</strong> \( F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}} \)<br>
+                * <strong>ليه بنحتاجه؟:</strong> في الذكاء الاصطناعي، سهل جداً تعمل برنامج مبيفوتش أي تسريب (Recall 100%) لكن بيضرب إنذارات كاذبة على كل حجر في الصحراء! أو برنامج مبيديش إنذارات كاذبة خالص (Precision 100%) لكن مبيشوفش غير التسريبات العملاقة وبيفوت الباقي! الـ F1-Score هو الميزان العادل اللي بيقيس هل الموديل متزن وشاطر في الاتنين معاً؟<br>
+                * <strong>التقييم العالمي:</strong> أي موديل يتجاوز 0.90 في معالجة الصور الفضائية يُعتبر موديل عالمي (State-of-the-Art). ونموذجنا حقق <strong>0.942</strong> عبر 42 مسار حقيقي لناسا.
+            </div>
+        </div>
+
+        <!-- 3. Precision 96.1% -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-name">3️⃣ ما هو الـ Precision (96.1%)؟ [دقة الإنذار]</div>
+                <div class="metric-value-pill pill-cyan">Precision = 96.1%</div>
+            </div>
+            <div class="metric-body">
+                * <strong>القانون الرياضي:</strong> \( \text{Precision} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Positives}} \)<br>
+                * <strong>المعنى الحرفي:</strong> لما السيستم يضرب جرس إنذار ويقول: "في سحابة ميثان هنا!".. نسبة إنه يكون صح كام؟ <strong>96.1% صح!</strong><br>
+                * <strong>أهميتها للشركات والحكومات:</strong> الإنذارات الكاذبة بتكلف شركات البترول ملايين الدولارات عشان بيبعتوا طيارات وفرق صيانة في الصحراء يكتشفوا إن مفيش حاجة ودي كانت مجرد صخرة بتلمع! لما نسبة الدقة تكون 96.1%، مهندس الصيانة بيتحرك وهو واثق تماماً إن في تسريب حقيقي.
+            </div>
+        </div>
+
+        <!-- 4. Recall 92.4% -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-name">4️⃣ ما هو الـ Recall (92.4%)؟ [حساسية واصطياد التسريبات]</div>
+                <div class="metric-value-pill pill-purple">Recall = 92.4%</div>
+            </div>
+            <div class="metric-body">
+                * <strong>القانون الرياضي:</strong> \( \text{Recall} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}} \)<br>
+                * <strong>المعنى الحرفي:</strong> من بين كل 100 تسريب حقيقي طالعين في الصحراء، السيستم قدر يصطاد منهم كام؟ <strong>اصطاد 92.4 تسريب!</strong><br>
+                * <strong>أهميتها البيئية والمناخية:</strong> بتضمن إن مفيش تسريب كبير يقدر يستخبى أو يهرب من عيون القمر الصناعي، وبكده بنحمي الغلاف الجوي من الانبعاثات الخفية.
+            </div>
+        </div>
+
+        <!-- 5. 85 kg/h Detection Threshold -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-name">5️⃣ ما هو حد الكشف (85 kg/h)؟ وليه هو رقم جبار؟</div>
+                <div class="metric-value-pill pill-green">Sensitivity = 85 kg/h</div>
+            </div>
+            <div class="metric-body">
+                * <strong>الاسم العلمي:</strong> <span class="code-pill">Minimum Detection Threshold</span> = أصغر كمية تسريب يقدر القمر يحس بيها ويكتشفها.<br>
+                * <strong>المقارنة بالأقمار والأنظمة الأخرى:</strong><br>
+                  - قمر Sentinel-2 و Landsat: حد الكشف عندهم يتراوح بين <strong>1000 إلى 2000 kg/h</strong> (عميان عن التسريبات المتوسطة والصغيرة!).<br>
+                  - خوارزمية ناسا الكلاسيكية (JPL AMF على قمر EMIT): حد الكشف عندها بين <strong>150 إلى 250 kg/h</strong>.<br>
+                  - <strong>خوارزمية SpectraPlume:</strong> نزلت بحد الكشف إلى <strong>85 kg/h فقط</strong> (عند سرعة رياح 3 m/s)!<br>
+                * <strong>الأثر الواقعي:</strong> بنقدر نكتشف الشرخ والتسريب في أول ساعة من حدوثه وهو لسه صغير (85 كجم)، قبل ما يتسع ويتحول لكارثة سوبر-إميتر بآلاف الكيلوجرامات.
+            </div>
+        </div>
+
+        <!-- 6. Paired t-test p = 2.4 x 10^-8 -->
+        <div class="metric-card">
+            <div class="metric-card-header">
+                <div class="metric-name">6️⃣ اختبار الـ Paired t-test وقيمة الـ p-value (\(2.4 \times 10^{-8}\))</div>
+                <div class="metric-value-pill pill-gold">p = 2.4 × 10⁻⁸ (t = 8.94)</div>
+            </div>
+            <div class="metric-body">
+                * <strong>يعني إيه Paired t-test؟:</strong> مقارنة إحصائية رأس برأس؛ شغلنا خوارزمية ناسا الرسمية وشغلنا SpectraPlume على نفس الـ 42 مسار تصوير وقارنا الفرق في الأخطاء لكل مشهد.<br>
+                * <strong>معنى الـ p-value:</strong> في علم الإحصاء، لو \( p < 0.05 \) النتيجة معتمدة. لما تطلع \( 2.4 \times 10^{-8} \) (يعني 0.000000024)، ده معناه إن احتمالية أن يكون تفوقنا على ناسا بالصدفة هي <strong>1 في الـ 40 مليون!</strong> يعني تفوق رياضي مؤكد بنسبة <strong>99.99999%</strong>.
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 3. سيناريو الديمو العملي أمام المحكم -->
+    <div class="section-card">
+        <h2><span>03</span> السيناريو العملي لشرح البروتوتايب أمام المحكم (خطوة بخطوة في 90 ثانية)</h2>
+        <p style="color: #94A3B8; margin-bottom: 15px; font-size: 14px;">لما توصلوا في الاسكربت عند المشهد الرابع، هتعملوا الخطوات دي بالظبط على اللابتوب بالماوس:</p>
+
+        <div class="step-timeline">
+
+            <div class="step-box">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h4>الخطوة الأولى: توجيه الشاشة والافتتاحية</h4>
+                    <p>فارس يوجه شاشة اللابتوب للمحكم ويقول: <em>"وعملياً قدام حضرتك على الشاشة ده تطبيق SpectraPlume 2.0 وهو متصل ومحلل مشهد حقيقي لناسا فوق الشرق الأوسط (Orbit #2222205)..."</em></p>
+                </div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h4>الخطوة الثانية: الإشارة للشريط العلوي والأرقام</h4>
+                    <p>فارس يشاور بالماوس على كروت الإحصائيات: <em>"شايف حضرتك؟ السيستم طلع إن معدل التسريب 4,596 kg/h (حوالي 2.46 لـ 4.6 طن بالساعة)، والخسارة المالية اليومية للشركة 19,855 دولار كل يوم، والتحليل ده خلص في 435 ملي ثانية فقط!"</em></p>
+                </div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h4>الخطوة الثالثة: الخريطة الفضائية ومسار الرياح</h4>
+                    <p>الشناوي يكمل ويشاور على الخريطة: <em>"وهنا على صور الأقمار الصناعية (Esri Satellite) عملنا إسقاط للسحابة بالـ GPS مع خط سهم الرياح اللحظية اللي جبناها من منظومة ERA5 عشان نحدد مسار انتشار الغاز بدقة."</em></p>
+                </div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h4>الخطوة الرابعة: الضربة القاضية على المطياف (HITRAN Doublet)</h4>
+                    <p>فارس يضغط بالماوس على زرار <strong>Peak Signal</strong> في اليمين، والشناوي يقول: <em>"وبضغطة واحدة على المطياف هنا؛ بص حضرتك على المنحنى الأسود: دي الحفرتين التوأم بتوع هارفارد HITRAN عند 2260 و 2315 نانومتر، متطابقين تماماً مع قياس القمر.. وده الدليل القاطع إن ده غاز ميثان مش صخور حجر جيري!"</em></p>
+                </div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-num">5</div>
+                <div class="step-content">
+                    <h4>الخطوة الخامسة: إثبات فخ جبال سيناء</h4>
+                    <p>الشناوي يضغط بالماوس في القائمة على <strong>Sinai Carbonate Ridge</strong>: <em>"ولما بنشغل نفس البرنامج على جبال سيناء اللي مفهاش غاز، خوارزمية ناسا بتطلع 243 إنذار كاذب، بينما برنامجنا مطلع النتيجة صفر والإنذار مقفول تماماً بنجاح 100%!"</em></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
