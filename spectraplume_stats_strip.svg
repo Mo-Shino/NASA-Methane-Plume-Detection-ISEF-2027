@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" fill="none">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap');
+      .stat-card { fill: #FFFFFF; stroke: #E6DDCE; stroke-width: 1.5; filter: drop-shadow(0 4px 14px rgba(18, 35, 26, 0.05)); }
+      .pill-bg { fill: #F4EFE6; }
+      .pill-text { font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 11px; font-weight: 700; fill: #D4810B; letter-spacing: 1px; text-transform: uppercase; }
+      .hero-num { font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 48px; font-weight: 700; fill: #12231A; letter-spacing: -1px; }
+      .hero-unit { font-family: 'Space Grotesk', system-ui, sans-serif; font-size: 22px; font-weight: 600; fill: #D4810B; }
+      .stat-title { font-family: 'Inter', system-ui, sans-serif; font-size: 15px; font-weight: 700; fill: #12231A; }
+      .metric-badge { fill: #12231A; }
+      .badge-text { font-family: 'Inter', system-ui, sans-serif; font-size: 11px; font-weight: 600; fill: #E7DECF; }
+      .desc-text { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; line-height: 1.45; fill: #4A5568; font-weight: 400; }
+      .accent-bar { fill: #D4810B; }
+    </style>
+  </defs>
+
+  <!-- ================= CARD 1: F1-SCORE ================= -->
+  <g transform="translate(15, 10)">
+    <rect class="stat-card" width="374" height="280" rx="16"/>
+    <rect class="accent-bar" x="24" y="20" width="40" height="4" rx="2"/>
+    
+    <!-- Top Pill -->
+    <rect class="pill-bg" x="24" y="34" width="140" height="24" rx="12"/>
+    <text class="pill-text" x="34" y="50">NASA BENCHMARK</text>
+    
+    <!-- Hero Metric -->
+    <text class="hero-num" x="24" y="108">0.942</text>
+    <text class="hero-unit" x="170" y="104">F1</text>
+    
+    <!-- Title -->
+    <text class="stat-title" x="24" y="138">Plume Detection Accuracy</text>
+    
+    <!-- Badges Row -->
+    <rect class="metric-badge" x="24" y="152" width="108" height="22" rx="6"/>
+    <text class="badge-text" x="33" y="167">96.1% Precision</text>
+    
+    <rect class="metric-badge" x="140" y="152" width="98" height="22" rx="6"/>
+    <text class="badge-text" x="150" y="167">92.4% Recall</text>
+
+    <!-- Description -->
+    <text class="desc-text" x="24" y="204">
+      <tspan x="24" dy="0">Validated across 42 verified NASA EMIT</tspan>
+      <tspan x="24" dy="17">swaths, outperforming classical 2D</tspan>
+      <tspan x="24" dy="17">spectral matched filter baselines.</tspan>
+    </text>
+  </g>
+
+  <!-- ================= CARD 2: DETECTION THRESHOLD ================= -->
+  <g transform="translate(413, 10)">
+    <rect class="stat-card" width="374" height="280" rx="16"/>
+    <rect class="accent-bar" x="24" y="20" width="40" height="4" rx="2"/>
+    
+    <!-- Top Pill -->
+    <rect class="pill-bg" x="24" y="34" width="148" height="24" rx="12"/>
+    <text class="pill-text" x="34" y="50">SENSITIVITY LIMIT</text>
+    
+    <!-- Hero Metric -->
+    <text class="hero-num" x="24" y="108">85</text>
+    <text class="hero-unit" x="90" y="104">kg/h</text>
+    
+    <!-- Title -->
+    <text class="stat-title" x="24" y="138">Threshold &amp; Terrain Immunity</text>
+    
+    <!-- Badges Row -->
+    <rect class="metric-badge" x="24" y="152" width="140" height="22" rx="6"/>
+    <text class="badge-text" x="33" y="167">-78.4% False Alarms</text>
+    
+    <rect class="metric-badge" x="172" y="152" width="88" height="22" rx="6"/>
+    <text class="badge-text" x="182" y="167">@ 3 m/s Wind</text>
+
+    <!-- Description -->
+    <text class="desc-text" x="24" y="204">
+      <tspan x="24" dy="0">3D Spatial-Spectral attention eliminates</tspan>
+      <tspan x="24" dy="17">false positives over bright desert sand,</tspan>
+      <tspan x="24" dy="17">caliche soil, and urban metal rooftops.</tspan>
+    </text>
+  </g>
+
+  <!-- ================= CARD 3: PROCESSING LATENCY ================= -->
+  <g transform="translate(811, 10)">
+    <rect class="stat-card" width="374" height="280" rx="16"/>
+    <rect class="accent-bar" x="24" y="20" width="40" height="4" rx="2"/>
+    
+    <!-- Top Pill -->
+    <rect class="pill-bg" x="24" y="34" width="142" height="24" rx="12"/>
+    <text class="pill-text" x="34" y="50">REAL-TIME PIPELINE</text>
+    
+    <!-- Hero Metric -->
+    <text class="hero-num" x="24" y="108">&lt; 12</text>
+    <text class="hero-unit" x="126" y="104">min</text>
+    
+    <!-- Title -->
+    <text class="stat-title" x="24" y="138">Rapid End-to-End Latency</text>
+    
+    <!-- Badges Row -->
+    <rect class="metric-badge" x="24" y="152" width="126" height="22" rx="6"/>
+    <text class="badge-text" x="33" y="167">1,200 km² per Tile</text>
+    
+    <rect class="metric-badge" x="158" y="152" width="102" height="22" rx="6"/>
+    <text class="badge-text" x="168" y="167">Automated CI/CD</text>
+
+    <!-- Description -->
+    <text class="desc-text" x="24" y="204">
+      <tspan x="24" dy="0">Autonomous ingestion from raw NASA L1B</tspan>
+      <tspan x="24" dy="17">cubes to atmospheric filtering, CNN mask,</tspan>
+      <tspan x="24" dy="17">and vector GeoJSON alert dispatch.</tspan>
+    </text>
+  </g>
+</svg>
