@@ -90,6 +90,20 @@ class SyntheticEMITBenchmarkGenerator:
     WAVELENGTH_MAX = 2450.0  # nm
     NUM_BANDS = 40
     PIXEL_SIZE_M = 60.0  # EMIT spatial resolution
+    PHYSICS_SCHEMA_VERSION = "2.1"
+
+    @classmethod
+    def _is_current_schema(cls, nc_path: str) -> bool:
+        """Returns True only if nc_path exists and matches PHYSICS_SCHEMA_VERSION."""
+        if not os.path.exists(nc_path) or os.path.getsize(nc_path) < 50_000:
+            return False
+        for engine in ("netcdf4", "h5netcdf", "scipy"):
+            try:
+                with xr.open_dataset(nc_path, engine=engine) as ds:
+                    return str(ds.attrs.get("physics_schema_version", "")) == cls.PHYSICS_SCHEMA_VERSION
+            except Exception:
+                continue
+        return False
 
     def __init__(self, output_dir: Optional[str] = None):
         self.output_dir = str(Path(output_dir) if output_dir else DEFAULT_SCENES_DIR)
@@ -302,6 +316,7 @@ class SyntheticEMITBenchmarkGenerator:
                 "true_emission_kg_hr": 1850.0,
                 "has_calcite_anomaly": 1,
                 "has_methane_plume": 1,
+                "physics_schema_version": self.PHYSICS_SCHEMA_VERSION,
             }
         )
 
@@ -408,6 +423,7 @@ class SyntheticEMITBenchmarkGenerator:
                 "true_emission_kg_hr": float(emission_rate_kg_hr if has_methane else 0.0),
                 "has_calcite_anomaly": int(1 if has_calcite_false_alarm else 0),
                 "has_methane_plume": int(1 if has_methane else 0),
+                "physics_schema_version": self.PHYSICS_SCHEMA_VERSION,
             }
         )
 
@@ -421,14 +437,14 @@ class SyntheticEMITBenchmarkGenerator:
 
         # Scene 0: Authentic NASA EMIT Orbit 2222205 Plume Complex 485 (Dead Sea / Levant)
         p485 = os.path.join(self.output_dir, "EMIT_DeadSea_RealGranule_Plume485.nc")
-        if force or not os.path.exists(p485):
+        if force or not self._is_current_schema(p485):
             scenes["dead_sea_485"] = self.build_real_granule_plume485()
         else:
             scenes["dead_sea_485"] = p485
 
         # Scene 1: Permian Basin Super-Emitter (Real Plume Leak + Carbonate Ridge)
         p_perm = os.path.join(self.output_dir, "EMIT_Permian_SuperEmitter_31N102W.nc")
-        if force or not os.path.exists(p_perm):
+        if force or not self._is_current_schema(p_perm):
             scenes["permian"] = self.build_scene(
                 scene_id="EMIT_Permian_SuperEmitter_31N102W",
                 title="Permian Basin Compressor Station Super-Emitter (Texas, USA)",
@@ -445,7 +461,7 @@ class SyntheticEMITBenchmarkGenerator:
 
         # Scene 2: Calcite Mountain False-Alarm Testbed (NO Methane, pure mineral trap)
         p_sinai = os.path.join(self.output_dir, "EMIT_Sinai_Calcite_FalseAlarm_Testbed.nc")
-        if force or not os.path.exists(p_sinai):
+        if force or not self._is_current_schema(p_sinai):
             scenes["calcite_trap"] = self.build_scene(
                 scene_id="EMIT_Sinai_Calcite_FalseAlarm_Testbed",
                 title="Arid Carbonate Mountain - Zero Gas Baseline (Sinai Peninsula, Egypt)",
@@ -462,7 +478,7 @@ class SyntheticEMITBenchmarkGenerator:
 
         # Scene 3: Gulf of Suez Oil & Gas Corridor (Egypt Regional Impact)
         p_suez = os.path.join(self.output_dir, "EMIT_GulfOfSuez_FlareLeak_28N33E.nc")
-        if force or not os.path.exists(p_suez):
+        if force or not self._is_current_schema(p_suez):
             scenes["gulf_suez"] = self.build_scene(
                 scene_id="EMIT_GulfOfSuez_FlareLeak_28N33E",
                 title="Gulf of Suez Offshore Energy Corridor (Ras Gharib, Egypt)",
