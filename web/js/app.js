@@ -285,8 +285,9 @@ function renderHotspotMarkersOnMap() {
 
 async function selectLiveHotspot(granuleUr, flyToTarget = true) {
   setMapLoading(true, `Quantifying Live NASA Granule ${granuleUr} + ERA5 Wind...`);
+  let res;
   try {
-    const res = await fetch('/api/nasa/analyze-plume', {
+    res = await fetch('/api/nasa/analyze-plume', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -297,6 +298,13 @@ async function selectLiveHotspot(granuleUr, flyToTarget = true) {
         wind_direction: AppState.windMode === 'custom' ? AppState.customWindDir : null,
       }),
     });
+  } catch (_) {
+    setMapLoading(false);
+    showToast('Local Python server stopped — double-click run_demo.bat (or run python run_demo.py) to reconnect.');
+    return;
+  }
+
+  try {
     const payload = await res.json();
     setMapLoading(false);
     if (!res.ok) {
@@ -315,7 +323,7 @@ async function selectLiveHotspot(granuleUr, flyToTarget = true) {
     applyPayloadToUI(payload, flyToTarget);
   } catch (_) {
     setMapLoading(false);
-    showToast('Network error while contacting NASA LP DAAC.');
+    showToast('Unexpected response while quantifying NASA granule.');
   }
 }
 
@@ -354,10 +362,16 @@ async function scanTypedCoordinates() {
   await scanCoordinatesOnNASA(lat, lon);
 }
 
-async function scanCoordinatesOnNASA(lat, lon) {
+function normalizeLon(rawLon) {
+  return ((((Number(rawLon) + 180.0) % 360.0) + 360.0) % 360.0) - 180.0;
+}
+
+async function scanCoordinatesOnNASA(lat, rawLon) {
+  const lon = normalizeLon(rawLon);
   setMapLoading(true, `Scanning Live NASA ISS EMIT Swath at (${lat.toFixed(3)}°, ${lon.toFixed(3)}°)...`);
+  let res;
   try {
-    const res = await fetch('/api/nasa/scan-point', {
+    res = await fetch('/api/nasa/scan-point', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -369,6 +383,14 @@ async function scanCoordinatesOnNASA(lat, lon) {
         wind_direction: AppState.windMode === 'custom' ? AppState.customWindDir : null,
       }),
     });
+  } catch (_) {
+    setMapLoading(false);
+    if (AppState.scanMapMode) toggleScanMapMode();
+    showToast('Local Python server stopped — double-click run_demo.bat (or run python run_demo.py) to reconnect.');
+    return;
+  }
+
+  try {
     const payload = await res.json();
     setMapLoading(false);
 
@@ -378,14 +400,19 @@ async function scanCoordinatesOnNASA(lat, lon) {
     }
 
     if (!res.ok) {
-      showToast(`${payload.error_title || 'NASA Scan'}: ${payload.error_message || 'No overpass at this coordinate.'}`);
+      const errTitle = payload.error_title || 'NASA Scan';
+      const rawDetail = Array.isArray(payload.detail)
+        ? (payload.detail[0] && payload.detail[0].msg)
+        : payload.detail;
+      const errMsg = payload.error_message || rawDetail || 'No overpass at this coordinate.';
+      showToast(`${errTitle}: ${errMsg}`);
       if (AppState.leafletMap && typeof window.L !== 'undefined') {
         window.L.popup()
-          .setLatLng([lat, lon])
+          .setLatLng([lat, rawLon])
           .setContent(
-            `<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:230px;color:#12231A;">
-              <div style="font-weight:800;color:#D4810B;margin-bottom:3px;">${escapeHtml(payload.error_title || 'No Overpass')}</div>
-              <div style="font-size:12px;">${escapeHtml(payload.error_message || '')}</div>
+            `<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:240px;color:#12231A;">
+              <div style="font-weight:800;color:#D4810B;margin-bottom:3px;">${escapeHtml(errTitle)}</div>
+              <div style="font-size:12px;">${escapeHtml(String(errMsg))}</div>
             </div>`
           )
           .openOn(AppState.leafletMap);
@@ -397,7 +424,7 @@ async function scanCoordinatesOnNASA(lat, lon) {
     AppState.currentPayload = payload;
 
     // Add scanned sector to top of Live NASA Feed with full temporal metadata
-    const existingIdx = AppState.liveScannedItems.findIndex(s => s.pass_id === payload.pass_info.pass_id);
+    const existingIdx = AppState.liveScannedItems.findIndex(s => s.pass_info ? false : s.pass_id === payload.pass_info.pass_id);
     const scanCard = {
       pass_id: payload.pass_info.pass_id,
       orbit: payload.pass_info.orbit,
@@ -426,7 +453,8 @@ async function scanCoordinatesOnNASA(lat, lon) {
     showToast(`Scanned NASA Swath ${payload.pass_info.daac_granule} (Captured ${payload.pass_info.utc_time}).`);
   } catch (_) {
     setMapLoading(false);
-    showToast('Connection error while scanning NASA LP DAAC archive.');
+    if (AppState.scanMapMode) toggleScanMapMode();
+    showToast('Unexpected response while scanning NASA LP DAAC archive.');
   }
 }
 
@@ -812,25 +840,27 @@ function initMapEngine() {
   //   4. Right-click anywhere on the map offers a 1-click "Scan This Location on NASA (2026 Archive)" context popup!
   map.on('click', async (e) => {
     const { lat, lng } = e.latlng;
+    const lon = normalizeLon(lng);
     if (AppState.scanMapMode) {
       await scanCoordinatesOnNASA(lat, lng);
       return;
     }
     if (AppState.currentPayload) {
       const b = AppState.currentPayload.geography.swath_bounds;
-      if (lat >= b[0][0] && lat <= b[1][0] && lng >= b[0][1] && lng <= b[1][1]) {
-        await fetchPixelSpectrum({ lat, lon: lng });
+      if (lat >= b[0][0] && lat <= b[1][0] && lon >= b[0][1] && lon <= b[1][1]) {
+        await fetchPixelSpectrum({ lat, lon });
       }
     }
   });
 
   map.on('contextmenu', (e) => {
     const { lat, lng } = e.latlng;
+    const lon = normalizeLon(lng);
     L.popup()
       .setLatLng([lat, lng])
       .setContent(`
         <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:205px;color:#12231A;">
-          <div style="font-weight:800;font-size:12.5px;margin-bottom:4px;">GPS (${lat.toFixed(4)}°, ${lng.toFixed(4)}°)</div>
+          <div style="font-weight:800;font-size:12.5px;margin-bottom:4px;">GPS (${lat.toFixed(4)}°, ${lon.toFixed(4)}°)</div>
           <div style="font-size:11.5px;color:#526058;margin-bottom:7px;">Query latest 2025–2026 NASA ISS EMIT orbital swath over this coordinate:</div>
           <button type="button" onclick="scanCoordinatesOnNASA(${lat.toFixed(5)}, ${lng.toFixed(5)})"
             style="width:100%;background:#12231A;color:#FAF8F3;border:none;border-radius:6px;padding:6px 10px;font-weight:700;font-size:11.5px;cursor:pointer;">

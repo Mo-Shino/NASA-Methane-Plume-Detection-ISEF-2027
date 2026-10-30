@@ -276,17 +276,25 @@ class NASALiveRadarEngine:
             "mode": "authenticated_lpdaac_live" if not expired else "token_expired",
         }
 
-    def _http_get_bytes(self, url: str, auth: bool = False, timeout: float = 20.0) -> bytes:
-        headers = {"User-Agent": "SpectraPlume-ISEF2027/2.0"}
+    def _http_get_bytes(self, url: str, auth: bool = False, timeout: float = 25.0) -> bytes:
+        headers = {"User-Agent": "SpectraPlume-ISEF2027/2.3"}
         if auth:
             tok = self.get_token()
             if not tok:
                 raise RuntimeError("NASA Earthdata token (.env.local / .env EARTHDATA_TOKEN) is not configured.")
             headers["Authorization"] = f"Bearer {tok}"
 
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.read()
+        last_err: Optional[Exception] = None
+        for attempt in range(2):
+            try:
+                req = urllib.request.Request(url, headers=headers)
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    return resp.read()
+            except Exception as err:
+                last_err = err
+                if attempt == 0:
+                    time.sleep(0.4)
+        raise last_err if last_err else RuntimeError("HTTP request to NASA failed.")
 
     # =========================================================================
     # 1. LIVE GLOBAL / REGIONAL RED-DOT HOTSPOT RADAR (NASA CMR EMITL2BCH4PLM)
@@ -916,13 +924,15 @@ class NASALiveRadarEngine:
     def scan_coordinates_live(self, lat: float, lon: float) -> Dict[str, Any]:
         """
         Scans ANY user-clicked (lat, lon) on Earth against NASA's live satellite archive:
-            1. Checks ISS orbital inclination (±51.6°).
+            1. Normalizes wrapped world-map longitudes into [-180°, +180°] and checks ISS orbital inclination (±51.6°).
             2. Checks if a cataloged EMITL2BCH4PLM super-emitter exists within ~6 km.
             3. Otherwise downloads/caches the most recent 2026/2025 EMITL2BCH4ENH orbital swath
                covering (lat, lon), crops the exact 128x128 (7.7 x 7.7 km) real NASA pixel sector,
                discriminates genuine coherent plumes vs. urban/mineral clutter, couples ERA5 wind,
                and returns a ready-to-analyze pass record!
         """
+        lon = ((((float(lon) + 180.0) % 360.0) + 360.0) % 360.0) - 180.0
+        lat = float(lat)
         if abs(lat) > 52.0:
             raise ValueError(
                 f"Coordinates ({lat:.3f}°, {lon:.3f}°) lie outside the International Space Station "
@@ -1010,7 +1020,7 @@ class NASALiveRadarEngine:
                     "Copy the '.env.local' file into the project root folder on this computer "
                     "(all 1,686 confirmed red-dot plumes already work without a token!)."
                 )
-            raw_swath = self._http_get_bytes(tif_url, auth=True, timeout=35.0)
+            raw_swath = self._http_get_bytes(tif_url, auth=True, timeout=75.0)
             swath_file.write_bytes(raw_swath)
 
         arr_north, lon0, lat0_north, dx, dy = self._parse_geotiff_bytes(raw_swath)
