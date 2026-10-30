@@ -198,6 +198,8 @@ class TestSpectraPlumeWebAPI(unittest.TestCase):
             cls.port = s.getsockname()[1]
 
         cls.base_url = f"http://127.0.0.1:{cls.port}"
+        # Pre-warm singleton pipeline so /api/health does not block on cold-start
+        spectraplume_server.get_pipeline()
         config = uvicorn.Config(
             spectraplume_server.app,
             host="127.0.0.1",
@@ -210,14 +212,14 @@ class TestSpectraPlumeWebAPI(unittest.TestCase):
 
         # Wait until live HTTP server responds
         ready = False
-        for _ in range(40):
+        for _ in range(100):
             try:
-                r = requests.get(f"{cls.base_url}/api/health", timeout=1.0)
+                r = requests.get(f"{cls.base_url}/api/health", timeout=5.0)
                 if r.status_code == 200:
                     ready = True
                     break
             except Exception:
-                time.sleep(0.15)
+                time.sleep(0.20)
         if not ready:
             raise RuntimeError("Ephemeral SpectraPlume 2.0 FastAPI test server failed to start.")
 
