@@ -2,15 +2,26 @@
 data_loader.py
 NASA EMIT L2A Surface Reflectance & Methane Absorption Data Ingestion Pipeline.
 
-Author: Fares & Shnawy (ISEF 2027)
+Author: SpectraPlume Research Team (ISEF 2027)
+Category: Earth & Environmental Sciences (EAEV - Atmospheric Science)
 Dataset: NASA EMIT (Earth Surface Mineral Dust Source Investigation) onboard ISS
-Product: EMIT_L2A_RFL (Estimated Surface Reflectance)
+Products:
+    - EMITL2ARFL: Estimated Surface Reflectance (380 - 2500 nm, 285 channels)
+    - EMITL2BCH4PLM: Official NASA JPL Estimated Methane Plume Complexes
+    - EMITL2BCH4ENH: NASA JPL Estimated Methane Column Enhancements
 """
 
 import os
 import numpy as np
 import xarray as xr
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, List
+
+# Ensure SSL certificates work smoothly across Windows environments
+try:
+    import truststore
+    truststore.inject_into_ssl()
+except ImportError:
+    pass
 
 try:
     import earthaccess
@@ -20,7 +31,7 @@ except ImportError:
 
 class EMITDataLoader:
     """
-    Handles downloading, caching, and preprocessing of NASA EMIT hyperspectral data.
+    Handles downloading, querying, caching, and preprocessing of NASA EMIT hyperspectral data.
     EMIT covers 380 - 2500 nm with 285 bands. Methane absorption focuses on 2150 - 2450 nm.
     """
 
@@ -35,7 +46,7 @@ class EMITDataLoader:
         """Authenticate with NASA Earthdata Login via earthaccess library."""
         if earthaccess is None:
             raise ImportError("Please install 'earthaccess' via pip: pip install earthaccess")
-        
+
         if username and password:
             auth = earthaccess.login(strategy="interactive", username=username, password=password)
         else:
@@ -45,21 +56,27 @@ class EMITDataLoader:
     def search_emit_granules(
         self,
         bbox: Tuple[float, float, float, float],
-        start_date: str = "2023-01-01",
-        end_date: str = "2024-12-31"
-    ):
+        start_date: str = "2022-08-01",
+        end_date: str = "2024-12-31",
+        product: str = "EMITL2ARFL",
+        count: int = 10
+    ) -> List[Any]:
         """
-        Search for EMIT L2A Reflectance granules over a geographic bounding box.
-        bbox format: (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
+        Search for EMIT granules over a geographic bounding box.
+        
+        Args:
+            bbox: (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
+            product: 'EMITL2ARFL' (reflectance) or 'EMITL2BCH4PLM' (plumes)
+            count: maximum number of records to return
         """
         if earthaccess is None:
             raise ImportError("earthaccess not installed")
-        
+
         results = earthaccess.search_data(
-            short_name="EMIT_L2A_RFL",
+            short_name=product,
             bounding_box=bbox,
             temporal=(start_date, end_date),
-            count=10
+            count=count
         )
         return results
 
@@ -69,6 +86,7 @@ class EMITDataLoader:
         - Reflectance cube: shape (lines, samples, bands)
         - Wavelength array: shape (bands,)
         - Latitude & Longitude arrays
+        - Full NetCDF instrument attributes
         """
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File not found: {filepath}")
@@ -77,7 +95,7 @@ class EMITDataLoader:
 
         # Extract wavelengths
         wavelengths = ds["wavelengths"].values if "wavelengths" in ds else None
-        
+
         # Extract reflectance (handling scale factors and nodata)
         reflectance = ds["reflectance"].values
         reflectance = np.where(reflectance < -0.01, np.nan, reflectance)
@@ -102,14 +120,23 @@ class EMITDataLoader:
         """
         Filters spectral bands to the primary methane SWIR absorption window (2150 - 2450 nm).
         Returns:
-            sub_cube: reflectance in the methane window
-            sub_wavelengths: wavelengths in the methane window
+            sub_cube: reflectance in the methane window (H, W, B_sub)
+            sub_wavelengths: wavelengths in the methane window (B_sub,)
             band_indices: indices of selected bands in original cube
         """
+        if wavelengths is None or len(wavelengths) == 0:
+            # Fallback for synthetic / standardized 40-band sub-cubes
+            num_bands = reflectance.shape[-1]
+            sub_wl = np.linspace(self.METHANE_MIN_WAVELENGTH, self.METHANE_MAX_WAVELENGTH, num_bands)
+            return reflectance, sub_wl, np.arange(num_bands)
+
         indices = np.where(
             (wavelengths >= self.METHANE_MIN_WAVELENGTH) & 
             (wavelengths <= self.METHANE_MAX_WAVELENGTH)
         )[0]
+
+        if len(indices) == 0:
+            indices = np.arange(min(40, reflectance.shape[-1]))
 
         sub_cube = reflectance[:, :, indices]
         sub_wavelengths = wavelengths[indices]

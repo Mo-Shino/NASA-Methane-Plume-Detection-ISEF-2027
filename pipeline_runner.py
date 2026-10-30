@@ -204,6 +204,10 @@ class SpectraPlumePipeline:
                 "processing_time_ms": elapsed_ms
             },
             "rgb_composite": rgb_norm,
+            "sub_cube": sub_cube,
+            "wavelengths": sub_wl,
+            "lat_grid": lat_grid,
+            "lon_grid": lon_grid,
             "nasa_baseline_alpha": nasa_alpha,
             "nasa_baseline_snr": nasa_snr,
             "nasa_detection_mask": nasa_detection_mask,
