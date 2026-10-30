@@ -54,46 +54,150 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 REGION_SCOPES: Dict[str, Dict[str, Any]] = {
     "egypt": {
         "label": "Egypt Territorial Radar",
-        "bbox": (24.7, 22.0, 36.9, 31.8),  # (min_lon, min_lat, max_lon, max_lat)
-        "center": [28.6, 30.8],
+        "bbox": (24.7, 22.0, 36.9, 31.8),  # (min_lon, min_lat, max_lon, max_lat) + Taba-Rafah border clip
+        "center": [27.4, 30.6],
         "zoom": 6,
-        "limit": 100,
+        "limit": 120,
     },
     "mena": {
         "label": "Middle East & North Africa",
         "bbox": (24.0, 18.0, 61.0, 38.0),
         "center": [28.8, 39.5],
         "zoom": 5,
-        "limit": 200,
+        "limit": 500,
     },
     "global": {
         "label": "Global ISS Orbital Belt",
         "bbox": None,
         "center": [26.0, 18.0],
         "zoom": 2,
-        "limit": 220,
+        "limit": 240,
     },
 }
 
 
+def _is_inside_egypt(lat: float, lon: float) -> bool:
+    """
+    Exact polygon clip along Egypt's Taba–Rafah northeastern border and Gulf of Aqaba
+    so Levant/Palestine/Jordan plumes are not mixed into the Egypt territorial filter.
+    """
+    if not (22.0 <= lat <= 31.75 and 24.7 <= lon <= 36.95):
+        return False
+    if lat >= 29.49:
+        if lat > 31.35 and lon > 34.23:
+            return False
+        # Taba (29.49°N, 34.90°E) -> Rafah (31.32°N, 34.23°E)
+        border_lon = 34.90 - (lat - 29.49) * (0.67 / 1.83)
+        if lon > border_lon + 0.02:
+            return False
+    elif lat >= 27.95:
+        # East of Gulf of Aqaba (Saudi Arabia / Jordan)
+        if lon > 34.93:
+            return False
+    return True
+
+
+def enrich_temporal_metadata(iso_or_utc: str) -> Dict[str, Any]:
+    """
+    Parses an ISO-8601 or UTC timestamp string and returns structured date, time, year,
+    relative age, and recency badges so every leak clearly displays when it occurred.
+    """
+    raw = (iso_or_utc or "").strip()
+    dt_obj: Optional[datetime] = None
+
+    if raw:
+        cleaned = raw.replace(" UTC", "").replace("Z", "").replace("T", " ").strip()
+        for fmt in ("%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+            try:
+                dt_obj = datetime.strptime(cleaned[:26], fmt).replace(tzinfo=timezone.utc)
+                break
+            except ValueError:
+                continue
+
+    if dt_obj is None:
+        return {
+            "year": "Live",
+            "date_str": raw[:10] if len(raw) >= 10 else "ISS Pass",
+            "time_str": "UTC",
+            "utc_time": raw or "ISS Live Pass",
+            "days_ago": 0,
+            "is_new": False,
+            "is_recent": True,
+            "age_label": "Live Retrieval",
+            "recency_badge": "LIVE",
+        }
+
+    now_utc = datetime.now(timezone.utc)
+    delta_sec = max(0.0, (now_utc - dt_obj).total_seconds())
+    hours_ago = int(delta_sec // 3600)
+    days_ago = int(delta_sec // 86400)
+    year_str = dt_obj.strftime("%Y")
+    date_str = dt_obj.strftime("%Y-%m-%d")
+    time_str = dt_obj.strftime("%H:%M UTC")
+    utc_full = f"{date_str} {time_str}"
+
+    is_new = days_ago <= 14
+    is_recent = (days_ago <= 90) or (dt_obj.year >= now_utc.year)
+
+    if hours_ago < 24:
+        age_label = "Today • Just Detected"
+    elif days_ago <= 14:
+        age_label = f"New • {days_ago}d ago"
+    elif days_ago <= 60:
+        age_label = f"Recent • {days_ago}d ago"
+    elif days_ago < 365:
+        mos = max(1, int(round(days_ago / 30.4375)))
+        age_label = f"{mos} mo{'s' if mos > 1 else ''} ago"
+    else:
+        yrs = days_ago // 365
+        rem_mos = int(round((days_ago % 365) / 30.4375))
+        if rem_mos >= 12:
+            yrs += 1
+            rem_mos = 0
+        age_label = f"{yrs}y {rem_mos}m ago" if rem_mos > 0 else f"{yrs} yr{'s' if yrs > 1 else ''} ago"
+
+    if is_new:
+        recency_badge = "NEW • LIVE"
+    elif is_recent:
+        recency_badge = f"RECENT • {year_str}"
+    else:
+        recency_badge = year_str
+
+    return {
+        "year": year_str,
+        "date_str": date_str,
+        "time_str": time_str,
+        "utc_time": utc_full,
+        "days_ago": days_ago,
+        "is_new": is_new,
+        "is_recent": is_recent,
+        "age_label": age_label,
+        "recency_badge": recency_badge,
+    }
+
+
 def _place_hint(lat: float, lon: float) -> Tuple[str, str]:
-    """Provides a fast geographic basin/corridor name for live spaceborne coordinates."""
-    if 22.0 <= lat <= 31.9 and 24.7 <= lon <= 36.9:
-        if 30.4 <= lat <= 31.4 and 29.0 <= lon <= 30.3:
+    """Provides an accurate geographic basin/corridor name for live spaceborne coordinates."""
+    if _is_inside_egypt(lat, lon):
+        if 30.4 <= lat <= 31.5 and 29.0 <= lon <= 30.3:
             return "Alexandria / Borg El-Arab Corridor", "Northern Egypt"
         if 29.6 <= lat <= 30.5 and 30.9 <= lon <= 32.0:
             return "Greater Cairo Industrial Basin", "Lower Egypt"
-        if 30.2 <= lat <= 31.5 and 30.3 <= lon <= 31.6:
+        if 30.2 <= lat <= 31.6 and 30.3 <= lon <= 32.3:
             return "Nile Delta Energy Sector", "Northern Egypt"
-        if 27.5 <= lat <= 30.0 and 32.3 <= lon <= 34.2:
+        if 27.3 <= lat <= 30.0 and 32.3 <= lon <= 34.2:
             return "Gulf of Suez Petroleum Corridor", "Red Sea / Egypt"
-        if 28.5 <= lat <= 30.6 and 26.5 <= lon <= 29.5:
+        if 28.5 <= lat <= 30.8 and 25.0 <= lon <= 29.5:
             return "Western Desert Hydrocarbon Basin", "Western Desert, Egypt"
-        if 27.7 <= lat <= 31.3 and 32.5 <= lon <= 34.9:
+        if 27.7 <= lat <= 31.32 and 32.3 <= lon <= 34.9:
             return "Sinai Peninsula Sector", "Sinai, Egypt"
-        return "Egyptian Orbital Sector", "Egypt"
-    if 29.5 <= lat <= 33.5 and 34.2 <= lon <= 36.8:
-        return "Levant / Dead Sea Rift Basin", "Eastern Mediterranean"
+        return "Upper Egypt / Nile Valley Sector", "Egypt"
+    if 29.5 <= lat <= 33.4 and 34.2 <= lon <= 35.65:
+        if 30.9 <= lat <= 31.8 and 35.15 <= lon <= 35.65:
+            return "Palestine / Dead Sea Rift Sector", "Palestine / Southern Levant"
+        return "Palestine / Southern Levant Corridor", "Eastern Mediterranean"
+    if 29.3 <= lat <= 33.5 and 35.65 < lon <= 37.5:
+        return "Jordan Rift & Levant Basin", "Jordan / Eastern Med"
     if 29.5 <= lat <= 37.0 and 43.0 <= lon <= 49.0:
         return "Mesopotamian Oil & Gas Corridor", "Iraq"
     if 22.0 <= lat <= 29.5 and 47.0 <= lon <= 57.0:
@@ -187,70 +291,169 @@ class NASALiveRadarEngine:
     # =========================================================================
     # 1. LIVE GLOBAL / REGIONAL RED-DOT HOTSPOT RADAR (NASA CMR EMITL2BCH4PLM)
     # =========================================================================
-    def fetch_live_hotspots(self, scope: str = "mena", force_refresh: bool = False) -> Dict[str, Any]:
-        scope_key = scope.lower() if scope.lower() in REGION_SCOPES else "mena"
-        cfg = REGION_SCOPES[scope_key]
-
+    def _get_global_year_counts(self, force_refresh: bool = False) -> Dict[str, int]:
+        counts_cache = self.hotspots_cache_dir / "hotspots_v2_global_counts.json"
         now = time.time()
-        if not force_refresh and scope_key in self._mem_hotspots:
-            ts, cached_payload = self._mem_hotspots[scope_key]
-            if now - ts < 3600:
-                return cached_payload
-
-        disk_cache = self.hotspots_cache_dir / f"hotspots_{scope_key}.json"
-        if not force_refresh and disk_cache.exists():
+        if not force_refresh and counts_cache.exists():
             try:
-                if now - disk_cache.stat().st_mtime < 21600:
-                    payload = json.loads(disk_cache.read_text(encoding="utf-8"))
-                    self._mem_hotspots[scope_key] = (now, payload)
-                    return payload
+                if now - counts_cache.stat().st_mtime < 43200:
+                    return json.loads(counts_cache.read_text(encoding="utf-8"))
             except Exception:
                 pass
 
-        params: Dict[str, Any] = {
-            "short_name": "EMITL2BCH4PLM",
-            "sort_key": "-start_date",
-            "page_size": cfg["limit"],
+        ranges = {
+            "2022": "2022-01-01T00:00:00Z,2022-12-31T23:59:59Z",
+            "2023": "2023-01-01T00:00:00Z,2023-12-31T23:59:59Z",
+            "2024": "2024-01-01T00:00:00Z,2024-12-31T23:59:59Z",
+            "recent": "2025-01-01T00:00:00Z,2027-12-31T23:59:59Z",
         }
-        if cfg["bbox"]:
-            min_lon, min_lat, max_lon, max_lat = cfg["bbox"]
-            params["bounding_box"] = f"{min_lon},{min_lat},{max_lon},{max_lat}"
-
-        query_url = f"{self.CMR_GRANULES_URL}?{urllib.parse.urlencode(params)}"
+        out: Dict[str, int] = {"all": 0, "recent": 0, "2024": 0, "2023": 0, "2022": 0}
         try:
-            raw = self._http_get_bytes(query_url, auth=False, timeout=12.0)
-            cmr_data = json.loads(raw.decode("utf-8"))
-        except Exception as err:
-            if disk_cache.exists():
-                return json.loads(disk_cache.read_text(encoding="utf-8"))
-            raise RuntimeError(f"Unable to reach NASA CMR archive: {err}") from err
+            for k, temp in ranges.items():
+                q = urllib.parse.urlencode({"short_name": "EMITL2BCH4PLM", "temporal": temp, "page_size": 1})
+                raw = self._http_get_bytes(f"{self.CMR_GRANULES_URL}?{q}", auth=False, timeout=8.0)
+                out[k] = int(json.loads(raw.decode("utf-8")).get("hits", 0))
+            out["all"] = out["2022"] + out["2023"] + out["2024"] + out["recent"]
+            counts_cache.write_text(json.dumps(out), encoding="utf-8")
+        except Exception:
+            out = {"all": 1686, "recent": 1, "2024": 600, "2023": 979, "2022": 106}
+        return out
 
-        total_hits = int(cmr_data.get("hits", 0))
-        hotspots: List[Dict[str, Any]] = []
+    @staticmethod
+    def _filter_hotspots_by_year(items: List[Dict[str, Any]], year_key: str) -> List[Dict[str, Any]]:
+        if year_key == "all":
+            return items
+        if year_key == "recent":
+            return [
+                h for h in items
+                if h.get("is_new") or h.get("is_recent") or (str(h.get("year", "")).isdigit() and int(h["year"]) >= 2025)
+            ]
+        return [h for h in items if str(h.get("year")) == year_key]
 
-        for item in cmr_data.get("items", []):
-            parsed = self._parse_cmr_plume_item(item)
-            if parsed is not None:
-                hotspots.append(parsed)
+    @staticmethod
+    def _compute_year_counts(items: List[Dict[str, Any]]) -> Dict[str, int]:
+        counts = {"all": len(items), "recent": 0, "2024": 0, "2023": 0, "2022": 0}
+        for h in items:
+            yr = str(h.get("year", ""))
+            if yr in ("2022", "2023", "2024"):
+                counts[yr] += 1
+            if h.get("is_new") or h.get("is_recent") or (yr.isdigit() and int(yr) >= 2025):
+                counts["recent"] += 1
+        return counts
 
-        payload = {
+    def fetch_live_hotspots(
+        self,
+        scope: str = "egypt",
+        year: str = "all",
+        force_refresh: bool = False,
+    ) -> Dict[str, Any]:
+        scope_key = scope.lower() if scope.lower() in REGION_SCOPES else "egypt"
+        year_norm = year.lower().strip()
+        if year_norm not in ("all", "recent", "2024", "2023", "2022"):
+            year_norm = "all"
+        cfg = REGION_SCOPES[scope_key]
+        now = time.time()
+
+        # For Egypt (48 total) & MENA (453 total), 100% of all historical & recent plumes fit in one cached catalog!
+        base_year_for_fetch = "all" if scope_key in ("egypt", "mena") else year_norm
+        mem_key = f"{scope_key}_{base_year_for_fetch}"
+        disk_cache = self.hotspots_cache_dir / f"hotspots_v2_{scope_key}_{base_year_for_fetch}.json"
+
+        base_payload: Optional[Dict[str, Any]] = None
+        if not force_refresh and mem_key in self._mem_hotspots:
+            ts, cached_p = self._mem_hotspots[mem_key]
+            if now - ts < 3600:
+                base_payload = cached_p
+
+        if base_payload is None and not force_refresh and disk_cache.exists():
+            try:
+                if now - disk_cache.stat().st_mtime < 21600:
+                    base_payload = json.loads(disk_cache.read_text(encoding="utf-8"))
+                    self._mem_hotspots[mem_key] = (now, base_payload)
+            except Exception:
+                base_payload = None
+
+        if base_payload is None:
+            params: Dict[str, Any] = {
+                "short_name": "EMITL2BCH4PLM",
+                "sort_key": "-start_date",
+                "page_size": cfg["limit"],
+            }
+            if cfg["bbox"]:
+                min_lon, min_lat, max_lon, max_lat = cfg["bbox"]
+                params["bounding_box"] = f"{min_lon},{min_lat},{max_lon},{max_lat}"
+
+            if scope_key == "global" and base_year_for_fetch != "all":
+                if base_year_for_fetch == "recent":
+                    params["temporal"] = "2025-01-01T00:00:00Z,2027-12-31T23:59:59Z"
+                else:
+                    params["temporal"] = f"{base_year_for_fetch}-01-01T00:00:00Z,{base_year_for_fetch}-12-31T23:59:59Z"
+
+            query_url = f"{self.CMR_GRANULES_URL}?{urllib.parse.urlencode(params)}"
+            try:
+                raw = self._http_get_bytes(query_url, auth=False, timeout=14.0)
+                cmr_data = json.loads(raw.decode("utf-8"))
+            except Exception as err:
+                if disk_cache.exists():
+                    base_payload = json.loads(disk_cache.read_text(encoding="utf-8"))
+                else:
+                    raise RuntimeError(f"Unable to reach NASA CMR archive: {err}") from err
+
+            if base_payload is None:
+                cmr_hits = int(cmr_data.get("hits", 0))
+                parsed_list: List[Dict[str, Any]] = []
+                for item in cmr_data.get("items", []):
+                    parsed = self._parse_cmr_plume_item(item)
+                    if parsed is None:
+                        continue
+                    if scope_key == "egypt" and not _is_inside_egypt(parsed["lat"], parsed["lon"]):
+                        continue
+                    parsed_list.append(parsed)
+
+                effective_hits = len(parsed_list) if scope_key in ("egypt", "mena") else cmr_hits
+                base_payload = {
+                    "scope": scope_key,
+                    "scope_label": cfg["label"],
+                    "map_center": cfg["center"],
+                    "map_zoom": cfg["zoom"],
+                    "total_nasa_hits": effective_hits,
+                    "hotspots": parsed_list,
+                }
+                try:
+                    disk_cache.write_text(json.dumps(base_payload), encoding="utf-8")
+                except OSError:
+                    pass
+                self._mem_hotspots[mem_key] = (now, base_payload)
+
+        # Refresh relative age labels dynamically against current wall-clock UTC
+        all_items: List[Dict[str, Any]] = []
+        for h in base_payload.get("hotspots", []):
+            t_meta = enrich_temporal_metadata(h.get("iso_time") or h.get("utc_time", ""))
+            all_items.append({**h, **t_meta})
+
+        if scope_key in ("egypt", "mena"):
+            year_counts = self._compute_year_counts(all_items)
+            filtered_items = self._filter_hotspots_by_year(all_items, year_norm)
+            filtered_total = len(filtered_items)
+        else:
+            year_counts = self._get_global_year_counts(force_refresh=force_refresh)
+            filtered_items = all_items
+            filtered_total = year_counts.get(year_norm, base_payload.get("total_nasa_hits", len(filtered_items)))
+
+        return {
             "scope": scope_key,
             "scope_label": cfg["label"],
+            "year_filter": year_norm,
+            "year_counts": year_counts,
             "map_center": cfg["center"],
             "map_zoom": cfg["zoom"],
-            "total_nasa_hits": total_hits,
-            "returned_count": len(hotspots),
+            "total_scope_hits": year_counts.get("all", len(all_items)),
+            "total_nasa_hits": filtered_total,
+            "returned_count": len(filtered_items),
             "fetched_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
             "earthdata_auth": self.get_auth_status(),
-            "hotspots": hotspots,
+            "hotspots": filtered_items,
         }
-
-        try:
-            disk_cache.write_text(json.dumps(payload), encoding="utf-8")
-        except OSError:
-            pass
-        self._mem_hotspots[scope_key] = (now, payload)
-        return payload
 
     @staticmethod
     def _parse_cmr_plume_item(item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -262,9 +465,7 @@ class NASALiveRadarEngine:
         # Temporal
         tex = umm.get("TemporalExtent", {})
         iso_dt = tex.get("SingleDateTime") or tex.get("RangeDateTime", {}).get("BeginningDateTime") or ""
-        utc_pretty = iso_dt.replace("T", " ").replace("Z", " UTC")[:19] + (" UTC" if iso_dt and "UTC" not in iso_dt else "")
-        if iso_dt.endswith("Z"):
-            utc_pretty = iso_dt[:16].replace("T", " ") + " UTC"
+        t_meta = enrich_temporal_metadata(iso_dt)
 
         # Additional attributes
         attrs: Dict[str, str] = {}
@@ -318,7 +519,7 @@ class NASALiveRadarEngine:
             "plume_id": plume_id,
             "orbit": orbit,
             "iso_time": iso_dt,
-            "utc_time": utc_pretty,
+            **t_meta,
             "lat": c_lat,
             "lon": c_lon,
             "name": corridor_name,
@@ -639,6 +840,7 @@ class NASALiveRadarEngine:
             },
         )
 
+        t_meta = enrich_temporal_metadata(hotspot.get("iso_time") or hotspot["utc_time"])
         return {
             "pass_id": pass_id,
             "orbit": str(hotspot["orbit"]),
@@ -646,7 +848,8 @@ class NASALiveRadarEngine:
             "name": hotspot["name"],
             "facility": f"NASA LP DAAC Plume #{hotspot['plume_id']} • {wind_src}",
             "region": hotspot["region"],
-            "utc_time": hotspot["utc_time"],
+            "utc_time": t_meta["utc_time"],
+            "temporal": t_meta,
             "filename": Path(nc_path).name,
             "nc_path": nc_path,
             "category": "live_nasa_plume",
@@ -655,6 +858,7 @@ class NASALiveRadarEngine:
             "live_nasa": {
                 "is_live": True,
                 "mode": "confirmed_plume_granule",
+                "capture_source_label": "NASA Confirmed Plume Archive (EMITL2BCH4PLM)",
                 "granule_ur": granule_ur,
                 "plume_id": hotspot["plume_id"],
                 "wind_source": wind_src,
@@ -856,6 +1060,7 @@ class NASALiveRadarEngine:
             },
         )
 
+        t_meta = enrich_temporal_metadata(iso_dt or utc_pretty)
         return {
             "pass_id": pass_id,
             "orbit": str(orbit),
@@ -863,7 +1068,8 @@ class NASALiveRadarEngine:
             "name": f"{corridor_name} ({lat:.3f}°, {lon:.3f}°)",
             "facility": f"Live ISS Swath {granule_ur} • {int(enh_data.get('hits', 1))} Overpasses",
             "region": region_name,
-            "utc_time": utc_pretty,
+            "utc_time": t_meta["utc_time"],
+            "temporal": t_meta,
             "filename": Path(nc_path).name,
             "nc_path": nc_path,
             "category": "live_sector_scan",
@@ -872,6 +1078,7 @@ class NASALiveRadarEngine:
             "live_nasa": {
                 "is_live": True,
                 "mode": "arbitrary_point_scan",
+                "capture_source_label": "Live Raw ISS Swath Scan (EMITL2BCH4ENH)",
                 "granule_ur": granule_ur,
                 "total_overpasses_at_point": int(enh_data.get("hits", 1)),
                 "wind_source": wind_src,

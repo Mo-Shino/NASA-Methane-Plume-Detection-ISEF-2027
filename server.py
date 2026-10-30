@@ -40,7 +40,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.benchmark_generator import ensure_demo_scenes
-from src.nasa_live_engine import NASALiveRadarEngine
+from src.nasa_live_engine import NASALiveRadarEngine, enrich_temporal_metadata
 from pipeline_runner import SpectraPlumePipeline
 
 app = FastAPI(
@@ -444,8 +444,8 @@ def _build_verdict_narrative(pass_meta: Dict[str, Any], results: Dict[str, Any])
                 "pill": "Live NASA Super-Emitter",
                 "headline": f"Live NASA Plume Quantified — {pass_meta['name']} (Orbit #{pass_meta['orbit']})",
                 "summary": (
-                    f"Authenticated NASA LP DAAC retrieval ({pass_meta['daac_granule']}) coupled with "
-                    f"{live_info.get('wind_source', 'ECMWF ERA5')} wind quantified emission at "
+                    f"Captured {pass_meta['utc_time']} ({pass_meta['daac_granule']}) and coupled with "
+                    f"{live_info.get('wind_source', 'ECMWF ERA5')} wind: quantified emission at "
                     f"{flux['flux_kg_hr']:,.0f} kg/h ({flux['flux_ton_hr']:.2f} ± {flux.get('flux_uncertainty_ton_hr', 0.12):.2f} t/h)"
                     f"{na_note}, exceeding the 85 kg/h limit by {mult}x across {flux['plume_length_m']:.0f} m."
                 ),
@@ -549,6 +549,7 @@ def _run_and_package(req: AnalyzeRequest) -> Dict[str, Any]:
     comp = results["comparison"]
     meta = results["metadata"]
 
+    t_meta = enrich_temporal_metadata(pass_rec.get("utc_time", ""))
     return {
         "pass_info": {
             "pass_id": pass_rec["pass_id"],
@@ -557,7 +558,14 @@ def _run_and_package(req: AnalyzeRequest) -> Dict[str, Any]:
             "name": pass_rec["name"],
             "facility": pass_rec["facility"],
             "region": pass_rec["region"],
-            "utc_time": pass_rec["utc_time"],
+            "utc_time": t_meta["utc_time"],
+            "year": t_meta["year"],
+            "date_str": t_meta["date_str"],
+            "time_str": t_meta["time_str"],
+            "age_label": t_meta["age_label"],
+            "recency_badge": t_meta["recency_badge"],
+            "is_new": t_meta["is_new"],
+            "is_recent": t_meta["is_recent"],
             "zoom": pass_rec.get("zoom", 13),
         },
         "verdict": verdict,
@@ -634,13 +642,19 @@ def api_list_passes() -> Dict[str, Any]:
         res = _ANALYSIS_CACHE[pid]
         flux = res["flux_metrics"]
         comp = res["comparison"]
+        t_meta = enrich_temporal_metadata(rec.get("utc_time", ""))
         cards.append({
             "pass_id": pid,
             "orbit": rec["orbit"],
             "name": rec["name"],
             "facility": rec["facility"],
             "region": rec["region"],
-            "utc_time": rec["utc_time"],
+            "utc_time": t_meta["utc_time"],
+            "year": t_meta["year"],
+            "date_str": t_meta["date_str"],
+            "time_str": t_meta["time_str"],
+            "age_label": t_meta["age_label"],
+            "recency_badge": t_meta["recency_badge"],
             "badge_label": rec["badge_label"],
             "is_zero_gas_trap": bool(comp["is_zero_gas_trap"]),
             "flux_kg_hr": round(float(flux["flux_kg_hr"]), 0),
@@ -676,11 +690,12 @@ class LivePointScanRequest(BaseModel):
 @app.get("/api/nasa/hotspots")
 def api_nasa_live_hotspots(
     scope: str = Query("egypt"),
+    year: str = Query("all"),
     refresh: bool = Query(False),
 ) -> JSONResponse:
-    """Queries NASA CMR for live spaceborne EMIT methane plume hotspots across Egypt, MENA, or Global."""
+    """Queries NASA CMR for live spaceborne EMIT methane plume hotspots across Egypt, MENA, or Global, optionally filtered by year."""
     try:
-        payload = get_nasa_engine().fetch_live_hotspots(scope=scope, force_refresh=refresh)
+        payload = get_nasa_engine().fetch_live_hotspots(scope=scope, year=year, force_refresh=refresh)
         return JSONResponse(status_code=200, content=payload)
     except Exception as err:
         return JSONResponse(

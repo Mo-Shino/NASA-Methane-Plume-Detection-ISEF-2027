@@ -403,17 +403,31 @@ class TestSpectraPlumeWebAPI(unittest.TestCase):
         self.assertEqual(r_polar.status_code, 422)
         self.assertIn("Outside ISS Orbital Coverage", r_polar.json()["error_title"])
 
-        # 2. Live NASA CMR Egypt hotspots (uses disk cache or live CMR)
-        r_hs = requests.get(f"{self.base_url}/api/nasa/hotspots", params={"scope": "egypt"}, timeout=15.0)
+        # 2. Live NASA CMR Egypt hotspots + Temporal/Year Filtering (2022, 2023, 2024)
+        r_hs = requests.get(f"{self.base_url}/api/nasa/hotspots", params={"scope": "egypt", "year": "all"}, timeout=15.0)
         if r_hs.status_code == 200:
             hs_data = r_hs.json()
-            self.assertGreaterEqual(hs_data["total_nasa_hits"], 50)
+            self.assertGreaterEqual(hs_data["total_nasa_hits"], 45)
             self.assertGreater(len(hs_data["hotspots"]), 0)
+            self.assertIn("year_counts", hs_data)
+            first_hs = hs_data["hotspots"][0]
+            self.assertIn("year", first_hs)
+            self.assertIn("age_label", first_hs)
+            self.assertIn("recency_badge", first_hs)
+
+            # Verify year=2023 filter returns exclusively 2023 plumes
+            r_2023 = requests.get(
+                f"{self.base_url}/api/nasa/hotspots",
+                params={"scope": "egypt", "year": "2023"},
+                timeout=15.0,
+            ).json()
+            self.assertGreater(len(r_2023["hotspots"]), 0)
+            self.assertTrue(all(h["year"] == "2023" for h in r_2023["hotspots"]))
 
             # 3. If EARTHDATA_TOKEN is configured (.env.local / .env), verify live LP DAAC plume quantification
             health = requests.get(f"{self.base_url}/api/health", timeout=5.0).json()
             if health.get("earthdata_connected"):
-                top_ur = hs_data["hotspots"][0]["granule_ur"]
+                top_ur = first_hs["granule_ur"]
                 r_plm = requests.post(
                     f"{self.base_url}/api/nasa/analyze-plume",
                     json={"granule_ur": top_ur, "mask_threshold": 0.50},
@@ -422,6 +436,7 @@ class TestSpectraPlumeWebAPI(unittest.TestCase):
                 self.assertEqual(r_plm.status_code, 200)
                 plm_json = r_plm.json()
                 self.assertTrue(plm_json["live_nasa"]["is_live"])
+                self.assertIn("age_label", plm_json["pass_info"])
                 self.assertGreater(plm_json["kpis"]["flux_kg_hr"], 100.0)
 
 

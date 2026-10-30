@@ -73,6 +73,9 @@
     <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="9"/><path d="M3.2 12h17.6"/><path d="M12 3a13.8 13.8 0 0 1 3.6 9 13.8 13.8 0 0 1-3.6 9 13.8 13.8 0 0 1-3.6-9A13.8 13.8 0 0 1 12 3z"/>
     </symbol>
+    <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="8.8"/><polyline points="12 7.2 12 12.2 15.6 14.3"/>
+    </symbol>
   </svg>
 
   <!-- ==================== TOP BRAND HEADER ==================== -->
@@ -327,6 +330,25 @@
               </div>
             </div>
 
+            <!-- Temporal / Year Filter Bar + Active Satellite Capture Timestamp -->
+            <div class="nasa-year-bar" id="nasaYearFilterBar">
+              <div class="nasa-year-pills" id="nasaYearSwitcher">
+                <span class="year-bar-label">
+                  <svg><use href="#ic-clock"/></svg>
+                  <span>Year Filter:</span>
+                </span>
+                <button type="button" class="year-pill active" data-year="all" id="yrBtnAll" onclick="switchYearFilter('all')">All</button>
+                <button type="button" class="year-pill" data-year="recent" id="yrBtnRecent" onclick="switchYearFilter('recent')" title="Recent 2025–2026 NASA detections &amp; live scans">2025–26</button>
+                <button type="button" class="year-pill" data-year="2024" id="yrBtn2024" onclick="switchYearFilter('2024')">2024</button>
+                <button type="button" class="year-pill" data-year="2023" id="yrBtn2023" onclick="switchYearFilter('2023')">2023</button>
+                <button type="button" class="year-pill" data-year="2022" id="yrBtn2022" onclick="switchYearFilter('2022')">2022</button>
+              </div>
+              <div class="active-capture-tag" id="activeCaptureBadge" title="Exact UTC timestamp when ISS EMIT captured the currently active scene">
+                <svg><use href="#ic-clock"/></svg>
+                <span id="activeCaptureText">Captured: -- UTC</span>
+              </div>
+            </div>
+
             <div class="map-toolbar">
               <div class="map-toolbar-left">
                 <div class="telemetry-chip">
@@ -336,6 +358,10 @@
                 <div class="telemetry-chip">
                   <svg><use href="#ic-wind"/></svg>
                   <span id="mapWindText">4.1 m/s @ 315°</span>
+                </div>
+                <div class="telemetry-chip telemetry-chip-time" id="mapTimeChip" title="Satellite Observation Timestamp (UTC)">
+                  <svg><use href="#ic-clock"/></svg>
+                  <span id="mapTimeText">-- UTC</span>
                 </div>
               </div>
 

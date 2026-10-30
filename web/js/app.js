@@ -9,6 +9,9 @@ const AppState = {
   liveHotspots: [],
   liveScannedItems: [],
   totalNasaHits: 0,
+  totalScopeHits: 0,
+  yearFilter: 'all',         // 'all' | 'recent' | '2024' | '2023' | '2022'
+  yearCounts: { all: 0, recent: 0, '2024': 0, '2023': 0, '2022': 0 },
   feedMode: 'live',          // 'live' | 'benchmarks'
   radarScope: 'egypt',       // 'egypt' | 'mena' | 'global'
   scanMapMode: false,
@@ -135,19 +138,64 @@ function setMapLoading(visible, msg) {
 }
 
 /* ==================== LIVE NASA HOTSPOT RADAR & POINT SCANNER ==================== */
-async function loadLiveHotspots(scope, setRegionalCamera = true, autoAnalyzeTop = false) {
+function syncYearFilterUI() {
+  const counts = AppState.yearCounts || {};
+  const scannedRecent = AppState.liveScannedItems.filter(
+    s => s.is_new || s.is_recent || (String(s.year || '').match(/^\d+$/) && Number(s.year) >= 2025)
+  ).length;
+
+  const labels = {
+    all: { id: 'yrBtnAll', base: 'All', count: counts.all },
+    recent: { id: 'yrBtnRecent', base: '2025–26', count: (counts.recent || 0) + scannedRecent },
+    '2024': { id: 'yrBtn2024', base: '2024', count: counts['2024'] },
+    '2023': { id: 'yrBtn2023', base: '2023', count: counts['2023'] },
+    '2022': { id: 'yrBtn2022', base: '2022', count: counts['2022'] },
+  };
+
+  Object.keys(labels).forEach(k => {
+    const cfg = labels[k];
+    const btn = document.getElementById(cfg.id);
+    if (!btn) return;
+    btn.classList.toggle('active', AppState.yearFilter === k);
+    if (typeof cfg.count === 'number') {
+      btn.innerHTML = `${cfg.base} <span class="year-pill-count">(${cfg.count})</span>`;
+    } else {
+      btn.textContent = cfg.base;
+    }
+  });
+}
+
+async function switchYearFilter(yearKey) {
+  AppState.yearFilter = yearKey;
+  AppState.feedMode = 'live';
+  syncFeedTabUI();
+  syncYearFilterUI();
+  await loadLiveHotspots(AppState.radarScope, false, false, yearKey);
+}
+
+async function loadLiveHotspots(scope, setRegionalCamera = true, autoAnalyzeTop = false, yearOverride = null) {
   AppState.radarScope = scope;
+  const activeYear = yearOverride || AppState.yearFilter || 'all';
+  AppState.yearFilter = activeYear;
+
   document.querySelectorAll('#nasaScopeSwitcher .scope-pill[data-scope]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-scope') === scope);
   });
 
-  setMapLoading(true, `Fetching Live NASA EMIT Methane Hotspots (${scope.toUpperCase()})...`);
+  const yrDesc = activeYear === 'all' ? 'All Years' : (activeYear === 'recent' ? '2025–2026' : activeYear);
+  setMapLoading(true, `Fetching Live NASA EMIT Methane Hotspots (${scope.toUpperCase()} • ${yrDesc})...`);
   try {
-    const res = await fetch(`/api/nasa/hotspots?scope=${encodeURIComponent(scope)}`);
+    const res = await fetch(
+      `/api/nasa/hotspots?scope=${encodeURIComponent(scope)}&year=${encodeURIComponent(activeYear)}`
+    );
     if (!res.ok) throw new Error('CMR offline');
     const data = await res.json();
     AppState.liveHotspots = data.hotspots || [];
-    AppState.totalNasaHits = data.total_nasa_hits || AppState.liveHotspots.length;
+    AppState.totalNasaHits = typeof data.total_nasa_hits === 'number' ? data.total_nasa_hits : AppState.liveHotspots.length;
+    AppState.totalScopeHits = typeof data.total_scope_hits === 'number' ? data.total_scope_hits : AppState.totalNasaHits;
+    if (data.year_counts) {
+      AppState.yearCounts = data.year_counts;
+    }
 
     if (data.earthdata_auth) {
       updateConnectionBadge(data.earthdata_auth.connected, data.earthdata_auth);
@@ -155,9 +203,10 @@ async function loadLiveHotspots(scope, setRegionalCamera = true, autoAnalyzeTop 
 
     const liveBtnTxt = document.getElementById('feedLiveBtnText');
     if (liveBtnTxt) {
-      liveBtnTxt.textContent = `Live NASA (${AppState.totalNasaHits})`;
+      liveBtnTxt.textContent = `Live NASA (${AppState.totalScopeHits})`;
     }
 
+    syncYearFilterUI();
     renderHotspotMarkersOnMap();
     if (AppState.feedMode === 'live') {
       renderPassFeed();
@@ -182,7 +231,7 @@ async function loadLiveHotspots(scope, setRegionalCamera = true, autoAnalyzeTop 
 async function switchRadarScope(scope, btnEl) {
   AppState.feedMode = 'live';
   syncFeedTabUI();
-  await loadLiveHotspots(scope, true, false);
+  await loadLiveHotspots(scope, true, false, AppState.yearFilter);
 }
 
 function zoomToActiveSwath() {
@@ -202,15 +251,23 @@ function renderHotspotMarkersOnMap() {
 
   AppState.liveHotspots.forEach(hs => {
     const isSel = AppState.activePassId === hs.pass_id;
+    const ageTxt = hs.age_label ? ` (${escapeHtml(hs.age_label)})` : '';
+    const yrBadge = hs.recency_badge || hs.year || 'NASA';
     const icon = L_lib.divIcon({
       className: '',
-      html: `<div class="sp-live-hotspot ${isSel ? 'selected' : ''}" title="${escapeHtml(hs.name)}"></div>`,
+      html: `<div class="sp-live-hotspot ${isSel ? 'selected' : ''}" title="${escapeHtml(hs.name)} • ${escapeHtml(hs.utc_time)}"></div>`,
       iconSize: [14, 14],
       iconAnchor: [7, 7],
     });
     const m = L_lib.marker([hs.lat, hs.lon], { icon });
     m.bindTooltip(
-      `<b>Live NASA Plume #${escapeHtml(hs.plume_id)}</b><br>${escapeHtml(hs.name)}<br>${escapeHtml(hs.utc_time)} — Click to quantify`,
+      `<div style="font-family:'Plus Jakarta Sans',sans-serif;line-height:1.38;">` +
+      `<b>Live NASA Plume #${escapeHtml(hs.plume_id)}</b> ` +
+      `<span style="background:#12231A;color:#FDE68A;padding:1px 5px;border-radius:4px;font-size:10px;font-weight:700;">${escapeHtml(yrBadge)}</span><br>` +
+      `${escapeHtml(hs.name)}<br>` +
+      `<span style="color:#B45309;font-weight:700;">Captured: ${escapeHtml(hs.utc_time)}</span>${ageTxt}<br>` +
+      `<span style="font-size:10.5px;color:#526058;">Click red dot to quantify flux (kg/h)</span>` +
+      `</div>`,
       { direction: 'top', offset: [0, -6] }
     );
     m.on('click', (ev) => {
@@ -334,7 +391,7 @@ async function scanCoordinatesOnNASA(lat, lon) {
     AppState.activePassId = payload.pass_info.pass_id;
     AppState.currentPayload = payload;
 
-    // Add scanned sector to top of Live NASA Feed
+    // Add scanned sector to top of Live NASA Feed with full temporal metadata
     const existingIdx = AppState.liveScannedItems.findIndex(s => s.pass_id === payload.pass_info.pass_id);
     const scanCard = {
       pass_id: payload.pass_info.pass_id,
@@ -342,6 +399,11 @@ async function scanCoordinatesOnNASA(lat, lon) {
       name: payload.pass_info.name,
       facility: payload.pass_info.facility,
       utc_time: payload.pass_info.utc_time,
+      year: payload.pass_info.year || '2026',
+      age_label: payload.pass_info.age_label || 'Live Scan',
+      recency_badge: payload.pass_info.recency_badge || 'RECENT',
+      is_new: Boolean(payload.pass_info.is_new),
+      is_recent: Boolean(payload.pass_info.is_recent),
       lat: payload.geography.center_lat,
       lon: payload.geography.center_lon,
       is_clean: payload.geography.is_zero_gas_trap || !payload.geography.has_active_plume,
@@ -352,10 +414,11 @@ async function scanCoordinatesOnNASA(lat, lon) {
 
     AppState.feedMode = 'live';
     syncFeedTabUI();
+    syncYearFilterUI();
     renderHotspotMarkersOnMap();
     renderPassFeed();
     applyPayloadToUI(payload, true);
-    showToast(`NASA Swath ${payload.pass_info.daac_granule} scanned successfully.`);
+    showToast(`Scanned NASA Swath ${payload.pass_info.daac_granule} (Captured ${payload.pass_info.utc_time}).`);
   } catch (_) {
     setMapLoading(false);
     showToast('Connection error while scanning NASA LP DAAC archive.');
@@ -394,23 +457,38 @@ function switchView(viewName, btnEl) {
 }
 
 /* ==================== ORBITAL SCAN FEED (LEFT RAIL) ==================== */
+function _formatAgeBadgeHtml(item) {
+  const txt = item.age_label || item.year || '';
+  if (!txt) return '';
+  const cls = item.is_new ? 'is-new' : (item.is_recent ? 'is-recent' : '');
+  return `<span class="time-age-badge ${cls}">${escapeHtml(txt)}</span>`;
+}
+
 function renderPassFeed() {
   const container = document.getElementById('passFeedList');
   if (!container) return;
   const countEl = document.getElementById('passCountLabel');
 
   if (AppState.feedMode === 'live') {
-    const totalShown = AppState.liveScannedItems.length + AppState.liveHotspots.length;
+    const yr = AppState.yearFilter || 'all';
+    const filteredScans = AppState.liveScannedItems.filter(s => {
+      if (yr === 'all') return true;
+      if (yr === 'recent') {
+        return s.is_new || s.is_recent || (String(s.year || '').match(/^\d+$/) && Number(s.year) >= 2025);
+      }
+      return String(s.year) === yr;
+    });
+
+    const totalShown = filteredScans.length + AppState.totalNasaHits;
     if (countEl) {
-      countEl.textContent = AppState.totalNasaHits
-        ? `${AppState.totalNasaHits} Live`
-        : `${totalShown} Live`;
+      const yrTag = yr === 'all' ? 'Live' : (yr === 'recent' ? '2025–26' : yr);
+      countEl.textContent = `${totalShown} • ${yrTag}`;
     }
 
-    const scannedHtml = AppState.liveScannedItems.map(s => {
+    const scannedHtml = filteredScans.map(s => {
       const isActive = s.pass_id === AppState.activePassId;
       const pillClass = s.is_clean ? 'pill-safe' : 'pill-leak';
-      const badge = s.is_clean ? 'Scanned • Clean' : 'Scanned • Leak';
+      const badge = s.is_clean ? `Scan • ${s.year || 'Live'}` : `Leak • ${s.year || 'Live'}`;
       const fluxTxt = s.is_clean
         ? '<span style="color:var(--sp-safe-600);font-weight:700;">0 kg/h (Clean)</span>'
         : `<strong>${Number(s.flux_kg_hr).toLocaleString()} kg/h</strong>`;
@@ -418,13 +496,16 @@ function renderPassFeed() {
       const lonDir = s.lon >= 0 ? 'E' : 'W';
       const coordStr = `${Math.abs(s.lat).toFixed(2)}°${latDir}, ${Math.abs(s.lon).toFixed(2)}°${lonDir}`;
       return `
-        <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectOrbitalPass('${s.pass_id}')" title="${escapeHtml(s.name)}">
+        <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectOrbitalPass('${s.pass_id}')" title="${escapeHtml(s.name)} — Captured ${escapeHtml(s.utc_time)}">
           <div class="pass-card-top">
             <span class="pass-orbit-tag">Orbit #${escapeHtml(s.orbit)}</span>
-            <span class="status-pill ${pillClass}">${badge}</span>
+            <span class="status-pill ${pillClass}">${escapeHtml(badge)}</span>
           </div>
           <div class="pass-title">${escapeHtml(s.name)}</div>
-          <div class="pass-facility">${escapeHtml(s.utc_time)}</div>
+          <div class="pass-time-row">
+            <span class="pass-time-left"><svg><use href="#ic-clock"/></svg><span>${escapeHtml(s.utc_time)}</span></span>
+            ${_formatAgeBadgeHtml(s)}
+          </div>
           <div class="pass-telemetry-row">
             <span>${fluxTxt}</span>
             <span>${coordStr}</span>
@@ -433,7 +514,7 @@ function renderPassFeed() {
       `;
     }).join('');
 
-    const hotspotsHtml = AppState.liveHotspots.slice(0, 40).map(hs => {
+    const hotspotsHtml = AppState.liveHotspots.slice(0, 100).map(hs => {
       const isActive = hs.pass_id === AppState.activePassId;
       const latDir = hs.lat >= 0 ? 'N' : 'S';
       const lonDir = hs.lon >= 0 ? 'E' : 'W';
@@ -441,14 +522,18 @@ function renderPassFeed() {
       const qFlux = hs.quantified_flux_kg_hr
         ? `<strong>${Number(hs.quantified_flux_kg_hr).toLocaleString()} kg/h</strong>`
         : `<span style="color:var(--sp-danger-600);font-weight:700;">Plume #${escapeHtml(hs.plume_id)}</span>`;
+      const yrPill = hs.is_new ? 'NEW • LIVE' : `NASA • ${hs.year || 'L2B'}`;
       return `
-        <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectLiveHotspot('${hs.granule_ur}', true)" title="${escapeHtml(hs.name)} — ${escapeHtml(hs.granule_ur)}">
+        <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectLiveHotspot('${hs.granule_ur}', true)" title="${escapeHtml(hs.name)} — Captured ${escapeHtml(hs.utc_time)}">
           <div class="pass-card-top">
             <span class="pass-orbit-tag">Orbit #${escapeHtml(hs.orbit)}</span>
-            <span class="status-pill pill-leak">Live NASA</span>
+            <span class="status-pill pill-leak">${escapeHtml(yrPill)}</span>
           </div>
           <div class="pass-title">${escapeHtml(hs.name)}</div>
-          <div class="pass-facility">${escapeHtml(hs.utc_time)}</div>
+          <div class="pass-time-row">
+            <span class="pass-time-left"><svg><use href="#ic-clock"/></svg><span>${escapeHtml(hs.utc_time)}</span></span>
+            ${_formatAgeBadgeHtml(hs)}
+          </div>
           <div class="pass-telemetry-row">
             <span>${qFlux}</span>
             <span>${coordStr}</span>
@@ -457,8 +542,26 @@ function renderPassFeed() {
       `;
     }).join('');
 
-    container.innerHTML = (scannedHtml + hotspotsHtml) ||
-      '<div style="font-size:12px;color:var(--sp-ink-muted);padding:8px;">Loading live NASA CMR detections...</div>';
+    if (!scannedHtml && !hotspotsHtml) {
+      if (yr === 'recent') {
+        container.innerHTML = `
+          <div style="background:#FFFFFF;border:1px solid var(--sp-border);border-radius:10px;padding:11px;font-size:11.75px;color:var(--sp-ink-secondary);line-height:1.48;">
+            <strong style="display:block;color:var(--sp-forest-900);margin-bottom:4px;">0 Curated 2025–2026 Plumes in This Region</strong>
+            NASA JPL's manual <code>CH4PLM</code> plume catalog currently ends at late 2024 in this sector. Use <b>Click Map to Scan</b> to inspect raw <b>2025–2026 ISS EMIT</b> swaths live!
+            <button type="button" class="sp-btn sp-btn-amber" style="width:100%;margin-top:8px;justify-content:center;" onclick="if(!AppState.scanMapMode) toggleScanMapMode();">
+              <svg><use href="#ic-crosshair"/></svg>
+              <span>Scan 2026 Live Swath on Map</span>
+            </button>
+          </div>
+        `;
+      } else {
+        container.innerHTML =
+          '<div style="font-size:12px;color:var(--sp-ink-muted);padding:8px;">No NASA plumes recorded for this year filter in the selected region.</div>';
+      }
+      return;
+    }
+
+    container.innerHTML = scannedHtml + hotspotsHtml;
     return;
   }
 
@@ -482,6 +585,10 @@ function renderPassFeed() {
         </div>
         <div class="pass-title">${escapeHtml(p.name)}</div>
         <div class="pass-facility">${escapeHtml(p.facility)}</div>
+        <div class="pass-time-row">
+          <span class="pass-time-left"><svg><use href="#ic-clock"/></svg><span>${escapeHtml(p.utc_time || '')}</span></span>
+          ${_formatAgeBadgeHtml(p)}
+        </div>
         <div class="pass-telemetry-row">
           <span>${fluxText}</span>
           <span>${coordStr}</span>
@@ -592,13 +699,23 @@ function applyPayloadToUI(data, flyCamera) {
   document.getElementById('kpiLossSub').textContent =
     `$${Math.round(kpis.annual_loss_usd).toLocaleString()}/yr • Wind ${kpis.wind_speed_m_s} m/s @ ${kpis.wind_direction_deg}°`;
 
-  // 3. Map Telemetry Chips
+  // 3. Map Telemetry Chips + Active Capture Timestamp Badges
   const latDir = geography.source_lat >= 0 ? 'N' : 'S';
   const lonDir = geography.source_lon >= 0 ? 'E' : 'W';
   document.getElementById('mapCoordText').textContent =
     `${Math.abs(geography.source_lat).toFixed(4)}° ${latDir}, ${Math.abs(geography.source_lon).toFixed(4)}° ${lonDir}`;
   document.getElementById('mapWindText').textContent =
     `${kpis.wind_speed_m_s} m/s @ ${kpis.wind_direction_deg}°`;
+
+  const ageSuffix = pass_info.age_label ? ` (${pass_info.age_label})` : '';
+  const mapTimeEl = document.getElementById('mapTimeText');
+  if (mapTimeEl) {
+    mapTimeEl.textContent = `${pass_info.utc_time}${ageSuffix}`;
+  }
+  const activeCapEl = document.getElementById('activeCaptureText');
+  if (activeCapEl) {
+    activeCapEl.textContent = `Captured: ${pass_info.utc_time}${ageSuffix}`;
+  }
 
   // Sync default wind sliders when in ERA5 mode
   if (AppState.windMode === 'era5') {
@@ -671,10 +788,11 @@ function initMapEngine() {
     position: 'bottomright'
   }).addTo(map);
 
-  // Smart Map Click:
-  //   1. If "Click Map to Scan" is active -> scan that exact GPS point on live NASA satellite archive!
-  //   2. If click is inside the currently loaded 7.7x7.7 km swath -> probe 40-band pixel spectrum!
-  //   3. If click is anywhere else on Earth -> scan that exact GPS point on live NASA satellite archive!
+  // Predictable Map Click Behavior (ZERO accidental camera hijacking!):
+  //   1. When "Click Map to Scan" crosshair mode is explicitly ON -> scan that GPS coordinate on NASA!
+  //   2. When clicking inside the active 7.7x7.7 km swath rectangle -> probe 40-band pixel spectrum!
+  //   3. Normal map clicks outside the swath (panning, double-click zoom, closing popups) do NOT move the camera.
+  //   4. Right-click anywhere on the map offers a 1-click "Scan This Location on NASA (2026 Archive)" context popup!
   map.on('click', async (e) => {
     const { lat, lng } = e.latlng;
     if (AppState.scanMapMode) {
@@ -685,10 +803,25 @@ function initMapEngine() {
       const b = AppState.currentPayload.geography.swath_bounds;
       if (lat >= b[0][0] && lat <= b[1][0] && lng >= b[0][1] && lng <= b[1][1]) {
         await fetchPixelSpectrum({ lat, lon: lng });
-        return;
       }
     }
-    await scanCoordinatesOnNASA(lat, lng);
+  });
+
+  map.on('contextmenu', (e) => {
+    const { lat, lng } = e.latlng;
+    L.popup()
+      .setLatLng([lat, lng])
+      .setContent(`
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:205px;color:#12231A;">
+          <div style="font-weight:800;font-size:12.5px;margin-bottom:4px;">GPS (${lat.toFixed(4)}°, ${lng.toFixed(4)}°)</div>
+          <div style="font-size:11.5px;color:#526058;margin-bottom:7px;">Query latest 2025–2026 NASA ISS EMIT orbital swath over this coordinate:</div>
+          <button type="button" onclick="scanCoordinatesOnNASA(${lat.toFixed(5)}, ${lng.toFixed(5)})"
+            style="width:100%;background:#12231A;color:#FAF8F3;border:none;border-radius:6px;padding:6px 10px;font-weight:700;font-size:11.5px;cursor:pointer;">
+            Scan This Spot on NASA Live
+          </button>
+        </div>
+      `)
+      .openOn(map);
   });
 
   AppState.leafletMap = map;
@@ -758,9 +891,15 @@ function updateMapOverlays(data, flyCamera) {
     }).addTo(map);
   }
 
-  // 3. Epicenter / Verified Mineral Marker
+  // 3. Epicenter / Verified Mineral Marker (with full Capture Date, UTC Time & Recency Status)
   const markerLat = geography.is_zero_gas_trap ? geography.center_lat : geography.source_lat;
   const markerLon = geography.is_zero_gas_trap ? geography.center_lon : geography.source_lon;
+  const recBadgeTxt = pass_info.recency_badge || pass_info.year || 'ISS';
+  const recBadgeBg = pass_info.is_new ? '#DC2626' : (pass_info.is_recent ? '#D4810B' : '#12231A');
+  const ageNote = pass_info.age_label ? ` (${escapeHtml(pass_info.age_label)})` : '';
+  const feedSrcLabel = (data.live_nasa && data.live_nasa.capture_source_label)
+    ? data.live_nasa.capture_source_label
+    : 'Calibrated EMIT Benchmark Granule';
 
   if (geography.is_zero_gas_trap) {
     const cleanIcon = L_lib.divIcon({
@@ -771,11 +910,18 @@ function updateMapOverlays(data, flyCamera) {
     });
     AppState.layers.epicenterMarker = L_lib.marker([markerLat, markerLon], { icon: cleanIcon })
       .bindPopup(`
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:210px;color:#12231A;">
-          <div style="font-weight:800;color:#196B47;margin-bottom:4px;">Verified Zero Gas (Limestone)</div>
-          <div style="font-size:12.5px;"><b>Target:</b> ${escapeHtml(pass_info.name)}</div>
-          <div style="font-size:12.5px;"><b>NASA Raw Echoes:</b> ${kpis.nasa_flagged_pixels} false pixels</div>
-          <div style="font-size:12.5px;"><b>SpectraPlume Verdict:</b> 0.00 kg/h (100% Rejected)</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:235px;color:#12231A;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:3px;">
+            <span style="font-weight:800;color:#196B47;">Verified Zero Gas</span>
+            <span style="background:${recBadgeBg};color:#FAF8F3;font-size:10px;font-weight:800;padding:1.5px 6px;border-radius:4px;">${escapeHtml(recBadgeTxt)}</span>
+          </div>
+          <div class="sp-popup-time-box">
+            <div><b>Captured:</b> ${escapeHtml(pass_info.utc_time)}${ageNote}</div>
+            <div style="font-size:11px;color:#526058;"><b>Source:</b> ${escapeHtml(feedSrcLabel)}</div>
+          </div>
+          <div style="font-size:12.25px;"><b>Target:</b> ${escapeHtml(pass_info.name)}</div>
+          <div style="font-size:12.25px;"><b>NASA Raw Echoes:</b> ${kpis.nasa_flagged_pixels} false pixels</div>
+          <div style="font-size:12.25px;"><b>SpectraPlume Verdict:</b> 0.00 kg/h (100% Rejected)</div>
         </div>
       `).addTo(map);
   } else if (geography.has_active_plume) {
@@ -787,12 +933,19 @@ function updateMapOverlays(data, flyCamera) {
     });
     AppState.layers.epicenterMarker = L_lib.marker([markerLat, markerLon], { icon: leakIcon })
       .bindPopup(`
-        <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:220px;color:#12231A;">
-          <div style="font-weight:800;color:#C0392B;margin-bottom:4px;">Confirmed Super-Emitter Source</div>
-          <div style="font-size:12.5px;"><b>Facility:</b> ${escapeHtml(pass_info.facility)}</div>
-          <div style="font-size:12.5px;"><b>Flux Rate:</b> ${Math.round(kpis.flux_kg_hr).toLocaleString()} kg/h (${kpis.flux_ton_hr} t/h)</div>
-          <div style="font-size:12.5px;"><b>95% CI:</b> [${kpis.ci95_low_ton_hr}, ${kpis.ci95_high_ton_hr}] t/h</div>
-          <div style="font-size:12.5px;"><b>Daily Loss:</b> $${Math.round(kpis.daily_loss_usd).toLocaleString()}/day</div>
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:242px;color:#12231A;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:3px;">
+            <span style="font-weight:800;color:#C0392B;">Confirmed Super-Emitter Source</span>
+            <span style="background:${recBadgeBg};color:#FAF8F3;font-size:10px;font-weight:800;padding:1.5px 6px;border-radius:4px;">${escapeHtml(recBadgeTxt)}</span>
+          </div>
+          <div class="sp-popup-time-box">
+            <div><b>Captured:</b> ${escapeHtml(pass_info.utc_time)}${ageNote}</div>
+            <div style="font-size:11px;color:#526058;"><b>Source:</b> ${escapeHtml(feedSrcLabel)}</div>
+          </div>
+          <div style="font-size:12.25px;"><b>Facility:</b> ${escapeHtml(pass_info.facility)}</div>
+          <div style="font-size:12.25px;"><b>Flux Rate:</b> ${Math.round(kpis.flux_kg_hr).toLocaleString()} kg/h (${kpis.flux_ton_hr} t/h)</div>
+          <div style="font-size:12.25px;"><b>95% CI:</b> [${kpis.ci95_low_ton_hr}, ${kpis.ci95_high_ton_hr}] t/h</div>
+          <div style="font-size:12.25px;"><b>Daily Loss:</b> $${Math.round(kpis.daily_loss_usd).toLocaleString()}/day</div>
         </div>
       `).addTo(map);
   }
@@ -813,6 +966,13 @@ function updateMapOverlays(data, flyCamera) {
     map.flyTo([geography.center_lat, geography.center_lon], pass_info.zoom || 13, {
       duration: 0.95,
     });
+    if (AppState.layers.epicenterMarker) {
+      setTimeout(() => {
+        if (AppState.layers.epicenterMarker) {
+          AppState.layers.epicenterMarker.openPopup();
+        }
+      }, 980);
+    }
   }
 
   updateMapFooterCaption(geography, kpis);

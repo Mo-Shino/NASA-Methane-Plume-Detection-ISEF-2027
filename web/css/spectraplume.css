@@ -504,6 +504,59 @@ canvas {
   text-overflow: ellipsis;
 }
 
+.pass-time-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--sp-forest-900);
+  min-width: 0;
+}
+
+.pass-time-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pass-time-left svg {
+  width: 11.5px;
+  height: 11.5px;
+  color: var(--sp-amber-600);
+  flex-shrink: 0;
+}
+
+.time-age-badge {
+  font-family: var(--font-display);
+  font-size: 9.75px;
+  font-weight: 700;
+  padding: 1.5px 5.5px;
+  border-radius: 999px;
+  background: var(--sp-bg-sand);
+  color: var(--sp-forest-900);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.time-age-badge.is-new {
+  background: rgba(220, 38, 38, 0.14);
+  color: #B91C1C;
+  border: 1px solid rgba(220, 38, 38, 0.32);
+}
+
+.time-age-badge.is-recent {
+  background: var(--sp-amber-100);
+  color: var(--sp-amber-600);
+  border: 1px solid rgba(212, 129, 11, 0.35);
+}
+
 .pass-telemetry-row {
   display: flex;
   align-items: center;
@@ -1158,6 +1211,121 @@ canvas {
   border-color: #FCA5A5;
   color: #FFFFFF;
   box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35);
+}
+
+/* Temporal / Year Filter Strip + Active Satellite Capture Timestamp */
+.nasa-year-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 5.5px 9px;
+  background: var(--sp-bg-elevated);
+  border: 1px solid var(--sp-border);
+  border-radius: 9px;
+  min-width: 0;
+}
+
+.nasa-year-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.year-bar-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--sp-forest-900);
+  padding-right: 3px;
+  white-space: nowrap;
+}
+
+.year-bar-label svg {
+  width: 13px;
+  height: 13px;
+  color: var(--sp-amber-600);
+  flex-shrink: 0;
+}
+
+.year-pill {
+  border: 1px solid var(--sp-border);
+  background: #FFFFFF;
+  color: var(--sp-ink-secondary);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.14s ease;
+}
+
+.year-pill:hover {
+  border-color: var(--sp-amber-500);
+  color: var(--sp-forest-900);
+}
+
+.year-pill.active {
+  background: var(--sp-forest-900);
+  border-color: var(--sp-forest-900);
+  color: #FAF8F3;
+}
+
+.year-pill-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.78;
+  margin-left: 2.5px;
+}
+
+.active-capture-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 10.75px;
+  font-weight: 600;
+  color: var(--sp-forest-900);
+  background: #FFFFFF;
+  border: 1px solid var(--sp-border);
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.active-capture-tag svg {
+  width: 12.5px;
+  height: 12.5px;
+  color: var(--sp-amber-600);
+  flex-shrink: 0;
+}
+
+.telemetry-chip-time {
+  background: var(--sp-amber-100);
+  border-color: rgba(212, 129, 11, 0.32);
+  color: var(--sp-forest-900);
+}
+
+.sp-popup-time-box {
+  margin: 5px 0 6px 0;
+  padding: 5px 7px;
+  border-radius: 6px;
+  background: #F6F3EC;
+  border: 1px solid #E2D9C8;
+  font-size: 11.75px;
+  line-height: 1.4;
 }
 
 .leaflet-stage.scan-active #leafletMap {
