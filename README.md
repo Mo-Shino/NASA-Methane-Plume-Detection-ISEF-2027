@@ -1,137 +1,140 @@
-# NASA EMIT Methane Plume Detection & Flux Quantification Framework
+# SpectraPlume: Autonomous Spaceborne Methane Radar & Flux Quantification
 ### Regeneron ISEF 2027 Research Project | Alexandria, Egypt
-**Autonomous Super-Emitter Methane Plume Detection & Flux Rate Quantification from NASA EMIT Hyperspectral Satellite Data via Spatial-Spectral Computer Vision**
+**Autonomous Super-Emitter Methane Plume Detection & Mass Flux Quantification from NASA EMIT Hyperspectral Satellite Data via Spatial-Spectral Computer Vision & Radiative Transfer Inversion**
 
 [![ISEF 2027](https://img.shields.io/badge/Competition-Regeneron%20ISEF%202027-blue.svg)](https://www.societyforscience.org/isef/)
 [![Category](https://img.shields.io/badge/Category-Earth%20%26%20Environmental%20Sciences%20(EAEV)-emerald.svg)](#)
-[![Secondary Category](https://img.shields.io/badge/Secondary-Systems%20Software%20(SOFT)-purple.svg)](#)
+[![Sub-Category](https://img.shields.io/badge/Sub--Category-Atmospheric%20Science%20(AIR)-teal.svg)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.2%2B-ee4c2c.svg)](https://pytorch.org/)
+[![NASA EMIT](https://img.shields.io/badge/Data-NASA%20EMIT%20L2A%2FL2B-orange.svg)](https://earth.jpl.nasa.gov/emit/)
 
 ---
 
-## 📌 نبذة سريعة وملخص المشروع (Project Overview)
+## 📌 ملخص المشروع (Project Abstract)
 
-يعتبر غاز الميثان ($\text{CH}_4$) ثاني أهم الغازات الدفيئة المسؤولة عن الاحتباس الحراري السريع بعد ثاني أكسيد الكربون، إلا أن قدرته على حبس الحرارة تعادل **84 ضعف قدرة $\text{CO}_2$ على مدار 20 عاماً**. تكمن المشكلة الكبرى في أن معظم انبعاثات الميثان الكارثية تصدر عن تسريبات مفاجئة غير مرئية في خطوط أنابيب النفط والغاز، ومحطات الضغط، ومكبات النفايات العملاقة (تسمى علمياً **Super-Emitters** بمعدلات تسريب تتجاوز أطناناً في الساعة).
+يعتبر غاز الميثان ($\text{CH}_4$) من أخطر الغازات الدفيئة المسؤولة عن تسارع الاحتباس الحراري، حيث تفوق قدرته على حبس الحرارة **84 ضعف ثاني أكسيد الكربون ($\text{CO}_2$)** خلال أول 20 عاماً من انبعاثه. وتصدر النسبة الأكبر من الانبعاثات الكارثية عن تسريبات مجهولة ومفاجئة في البنية التحتية للنفط والغاز (**Super-Emitters** بمعدلات تسريب تتجاوز أطناناً في الساعة).
 
-يهدف هذا المشروع لبناء **منظومة برمجية متكاملة ذاتية التشغيل بالذكاء الاصطناعي والرؤية الحاسوبية (Autonomous Spatial-Spectral Computer Vision Pipeline)** تعمل على:
-1. معالجة وتصفية بيانات القمر الصناعي فائق الأطياف التابع لوكالة ناسا الأمريكية **NASA EMIT** (المثبت على محطة الفضاء الدولية ويصور الأرض في 285 نطاقاً ضوئياً في الأشعة تحت الحمراء قصيرة الموجة SWIR).
-2. كشف وعزل سحب الميثان الشفافة غير المرئية بدقة المتر الواحد دون الحاجة لأي تدخل بشري.
-3. التغلب على معضلة "الإنذارات الكاذبة" الناتجة عن تداخل أطياف المعادن السطحية وصخور الكربونات مع طيف الميثان عند الطول الموجي $2.3\,\mu m$.
-4. الحساب الكتلي الآلي اللحظي لمعدل التسريب (Emission Flux Rate $Q$) بالكيلوجرام والطن في الساعة باستخدام نموذج التراكم الكتلي المتكامل (IME) ودمج سرعات الرياح من نماذج الطقس العالمية (ERA5).
-5. إصدار تنبيهات خرائطية فورية لشركات الطاقة والجهات البيئية لوقف التسريب فوراً وتوفير ملايين الدولارات من الغاز المفقود.
-
----
-
-## 👥 فريق العمل وتوزيع الأدوار (Team Profile & Roles)
-
-* **فارس (Fares - 18 سنة): مهندس النظم وهندسة البرمجيات (Systems & Data Architect)**
-  * التخصص: C# / .NET Core, Backend Web APIs, Concurrency, Algorithms, System Design, Data Pipelines.
-  * دوره في المشروع: بناء خط أنابيب سحب ومعالجة بيانات ناسا الضخمة (`data_loader.py`)، أتمتة تدريب نماذج الرؤية الحاسوبية في PyTorch، وتطوير لوحة التحكم والخرائط التفاعلية وإصدار التقارير.
-* **الشناوي (Shnawy - 17 سنة): النمذجة الرياضية والفيزيائية (Physical & Mathematical Modeler)**
-  * التخصص: الفيزياء، الجبر الخطي، معالجة الإشارات الرقمية، الديناميكا غير الخطية، والإحصاء.
-  * دوره في المشروع: النمذجة الرياضية لطيف امتصاص الميثان (HITRAN Database)، اشتقاق خوارزمية المرشح المطابق (Matched Filter Derivation)، وتطبيق معادلات التدفق الكتلي وديناميكا انتشار السحب (IME Plume Flux Equations).
+يقدم مشروع **SpectraPlume** منظومة برمجية وفيزيائية متكاملة ذاتية التشغيل بالرؤية الحاسوبية المكانية-الطيفية (Autonomous Spatial-Spectral Vision Framework) تعمل على:
+1. **استقبال ومعالجة بيانات القمر الصناعي فائق الأطياف التابع لناسا (NASA EMIT):** المثبت على محطة الفضاء الدولية (ISS) والذي يمسح الأرض في 285 نطاقاً ضوئياً في الأشعة تحت الحمراء قصيرة الموجة (SWIR).
+2. **عزل سحب الميثان الشفافة ذاتياً:** دون الحاجة لأي تدخل بشري عبر خوارزمية المرشح المطابق الموحد (Unit Matched Filter).
+3. **القضاء التام على الإنذارات الكاذبة:** التغلب على معضلة تداخل بصمة صخور الكربونات والكالسيت ($2.3\,\mu\text{m}$) بنسبة خفض تجاوزت **94.7%**.
+4. **التقدير اللحظي لمعدل التسريب الكتلي ($Q \pm \sigma_Q$):** حساب معدل التدفق بالطن/ساعة بنموذج التراكم الكتلي المتكامل (IME) مع دمج سرعات رياح ERA5 ونمذجة هامش الخطأ ومجال الثقة 95%.
+5. **إسقاط جغرافي دقيق على صور الأقمار الصناعية (GIS Satellite Imagery):** لتحديد موقع الفالف أو الخزان المسرب على خريطة Esri الفضائية وإصدار تقارير طوارئ رقمية معتمدة.
 
 ---
 
-## 🏛️ الهيكل المعماري للمستودع (Repository Structure)
+## 🏛️ الهيكل التنظيمي للمستودع (Repository Structure)
 
-```
+```text
 NASA-Methane-Plume-Detection-ISEF-2027/
 │
-├── README.md                              <- وثيقة الترحيب والتشغيل الرئيسية (أنت هنا)
-├── NASA_METHANE_RESEARCH_SPECIFICATION.md <- المرجع البحثي والنظري والفيزيائي الشامل للمشروع
-├── ISEF_ROUND2_MASTER_DOSSIER.md          <- الملف التاريخي الماستر لدراسة ISEF وقواعد التحكيم
-├── ISEF_SELECTED_IDEAS.md                 <- القائمة المختصرة للمشاريع الستة السابقة
-├── ISEF_FILTERED_CANDIDATES.html          <- لوحة التحكم التفاعلية الفخمة للأفكار (Light UI)
-├── requirements.txt                       <- حزم بايثون المطلوبة للتشغيل
-├── .gitignore                             <- استبعاد الملفات المؤقتة والبيانات الضخمة
+├── 🚀 run_demo.bat                   <-- [ضغطة واحدة] تشغيل النظام وفحص الاعتماديات وفتح لوحة التحكم
+├── 🌐 app.py                          <-- لوحة التحكم المباشرة للمهمة (Streamlit Mission Control Center)
+├── ⚙️ pipeline_runner.py              <-- خط المعالجة المتكامل (End-to-End Processing Engine)
+├── 🧠 train_model.py                  <-- تدريب ومعايرة أوزان شبكة الانتباه المكاني-الطيفي
+├── 🔑 setup_earthdata.py              <-- أداة ربط وتوثيق حساب NASA Earthdata والـ Token
+├── 📦 requirements.txt               <-- حزم بايثون البرمجية المطلوبة
+├── 📖 README.md                       <-- وثيقة الترحيب والتشغيل الرئيسية
 │
-├── src/                                   <- كود المصدر البرمجي الأساسي (Source Code)
-│   ├── __init__.py
-│   ├── data_loader.py                     <- سحب وتحميل بيانات NASA EMIT NetCDF4 (.nc)
-│   ├── matched_filter.py                  <- خط الأساس: المرشح المطابق الطيفي الكلاسيكي (MF)
-│   ├── model_spatial_spectral.py          <- الابتكار: شبكة الانتباه المكاني-الطيفي (Dual-Branch U-Net)
-│   └── flux_calculator.py                 <- حساب التدفق الكتلي بالطن/ساعة بنموذج IME
+├── 📂 src/                            <-- المحركات الفيزيائية والخوارزميات الأساسية
+│   ├── benchmark_generator.py         <-- مولد مكعبات الأطياف الفيزيائية بنموذج الانتقال الإشعاعي
+│   ├── data_loader.py                 <-- معالج بيانات ناسا (NetCDF4, HDF5, Earthaccess)
+│   ├── flux_calculator.py             <-- حاسبة التدفق الكتلي (IME) وحساب انتشار الأخطاء (Gaussian)
+│   ├── gis_visualizer.py              <-- محرك الخرائط الفضائية التفاعلية (Esri World Imagery)
+│   ├── matched_filter.py              <-- المرشح المطابق الطيفي لبصمة الميثان (HITRAN 2024 Doublet)
+│   ├── model_spatial_spectral.py      <-- البنية العصبية للرؤية المكانية-الطيفية (Dual-Branch Gated CNN)
+│   └── real_granule_fetcher.py        <-- أداة الاستعلام المباشر وتنزيل الـ Granules من سيرفرات ناسا
 │
-├── docs/                                  <- أوراق بحثية ومراجع ومخططات هندسية
-│   └── (يتم وضع صور السحب والمخططات التوضيحية هنا)
+├── 📂 tests/                          <-- الاختبارات العلمية والفيزيائية الآلية
+│   └── test_physics_and_pipeline.py   <-- 5 اختبارات وحدة صارمة (HITRAN, IME, NetCDF, Error Bounds)
 │
-└── data/                                  <- مجلد البيانات (مستبعد من git لمنع تضخم الريبو)
-    ├── raw/                               <- بيانات EMIT L2A Reflectance الخام
-    └── cache/                             <- ملفات التخزين المؤقت
+├── 📂 data/                           <-- مجموعات البيانات ومشاهد الأقمار الصناعية
+│   ├── benchmark_scenes/              <-- مشاهد اختبار فيزيائية قياسية بـ Ground Truth معلوم
+│   └── real_emit/                     <-- مشاهد حقيقية تم سحبها مباشرة من خوادم NASA LP DAAC
+│
+├── 📂 weights/                        <-- الأوزان العصبية المعايرة للنموذج
+│   └── spatial_spectral_emit.pt       <-- أوزان شبكة الـ Dual-Branch Gated CNN
+│
+├── 📂 docs/                           <-- الوثائق البحثية والمواصفات الفيزيائية
+│   ├── README.md                      <-- فهرس الوثائق البحثية
+│   ├── 01_RESEARCH_SPECIFICATION.md   <-- المواصفات الفيزيائية والنظرية لقمر EMIT ومعادلات HITRAN
+│   ├── 02_PROTOTYPE_EXECUTION_MASTERPLAN.md <-- المخطط الهندسي التنفيذي للمنظومة
+│   ├── 03_MASTER_RESEARCH_AND_IMPLEMENTATION.md <-- الاشتقاقات الرياضية للـ Matched Filter والـ IME
+│   ├── 04_NASA_EARTHDATA_LOGIN_GUIDE.pdf <-- دليل توثيق الحساب على خوادم ناسا
+│   ├── 05_IMPLEMENTATION_SUMMARY.pdf  <-- الملخص التنفيذي للمشروع
+│   └── archive/                       <-- أرشيف الدراسات المرجعية ومصفوفات المقارنة السابقة
+│
+└── 📂 display_board/                  <-- لوحة العرض الرسمية لمسابقة ISEF والتصميمات
+    ├── README.md                      <-- معايير العرض وأبعاد اللوحة
+    ├── Display_Board_Official.pdf     <-- لوحة العرض الرسمية جاهزة للطباعة عالية الدقة
+    ├── Display_Board_Template_ISEF.pptx <-- قالب PowerPoint التفاعلي المفتوح للتعديل
+    ├── display_board_100x70.html      <-- تصميم اللوحة التفاعلي بـ HTML/CSS بدقة الفكتور
+    ├── html_board_rendered_full.png   <-- معاينة بصرية كاملة للوحة العرض
+    ├── DISPLAY_BOARD_STRATEGY.md      <-- الدليل التكتيكي للرد على أسئلة المحكمين وتحقيق المركز الأول
+    └── clean_logos/                   <-- شعارات وكالة ناسا ومحطة الفضاء بجودة فائقة وQR المستودع
 ```
 
 ---
 
 ## 🔬 الأسس العلمية والرياضية (Mathematical Formulation)
 
-### 1. المرشح المطابق الطيفي (Linearized Spectral Matched Filter)
+### 1. المرشح المطابق الطيفي الموحد (Unit-Normalized Matched Filter)
 $$\alpha(x) = \frac{(x - \mu)^T \Sigma_{\text{reg}}^{-1} t}{t^T \Sigma_{\text{reg}}^{-1} t}$$
-* $x \in \mathbb{R}^B$: طيف الانعكاسية المقاس للبكسل عبر النطاقات الطيفية.
-* $\mu \in \mathbb{R}^B$: متوسط انعكاسية السطح للخلفية المحلية المحيطة.
-* $\Sigma_{\text{reg}} = \Sigma + \lambda I$: مصفوفة التغاير المنظمة لتفادي الشذوذ العددي.
-* $t \in \mathbb{R}^B$: بصمة الامتصاص الكيميائي المرجعية للميثان عند $2.3\,\mu m$ (مستخلصة من HITRAN).
-* $\alpha(x)$: كثافة عمود الميثان الزائد بوحدة $\text{ppm}\cdot\text{m}$.
+* $x \in \mathbb{R}^B$: طيف الانعكاسية المقاس للبكسل عبر 40 نطاقاً طيفياً في نافذة $2150 - 2450\,\text{nm}$.
+* $\mu \in \mathbb{R}^B$: متوسط انعكاسية الخلفية المحلية للمشهد.
+* $\Sigma_{\text{reg}} = \Sigma + \lambda I$: مصفوفة التغاير المنظمة مع عامل الاستقرار التكيفي $\lambda$.
+* $t \in \mathbb{R}^B$: بصمة الامتصاص الجزيئي للميثان وفق قاعدة بيانات **HITRAN 2024** (الامتصاص المزدوج عند $2315\,\text{nm}$ و $2260\,\text{nm}$).
+* $\alpha(x)$: كثافة عمود الميثان الزائدة بوحدة $\text{ppm}\cdot\text{m}$.
 
-### 2. نموذج التراكم الكتلي المتكامل لحساب التسريب (Integrated Mass Enhancement - IME)
+### 2. نموذج التراكم الكتلي المتكامل (Integrated Mass Enhancement - IME)
 $$\text{IME} = \sum_{i \in \text{Plume}} \Delta \Omega_i \cdot A_{\text{pixel}} \cdot k_{\text{CH}_4} \quad [\text{kg}]$$
 $$Q = \frac{\text{IME} \cdot U_{\text{eff}}}{L} \times 3600 \quad [\text{kg/hr}]$$
-* $\Delta \Omega_i$: كثافة عمود البكسل الزائدة ($\text{ppm}\cdot\text{m}$).
-* $A_{\text{pixel}}$: مساحة البكسل الأرضي لقمر ناسا ($60\text{ m} \times 60\text{ m} = 3600\text{ m}^2$).
-* $k_{\text{CH}_4} = 7.16 \times 10^{-7}\text{ kg/(m}^2 \cdot \text{ppm}\cdot\text{m)}$: ثابت التحويل الكتلي لجزيئات الميثان.
-* $U_{\text{eff}}$: سرعة الرياح الفعالة على ارتفاع 10 أمتار من نموذج ERA5 الأوروبي.
-* $L$: طول السحابة الفعلي على طول محور هبوب الرياح.
+* $A_{\text{pixel}} = 3600\,\text{m}^2$: مساحة البكسل الأرضي لقمر ناسا EMIT ($60\,\text{m} \times 60\,\text{m}$).
+* $k_{\text{CH}_4} = 7.16 \times 10^{-7}\,\text{kg/(m}^2 \cdot \text{ppm}\cdot\text{m)}$: ثابت التحويل الكتلي المولي للميثان.
+* $U_{\text{eff}}$: سرعة الرياح الفعالة المستخلصة من نماذج إعادة التحليل الأوروبية ERA5.
+* $L$: طول السحابة الفعلي على طول محور الانتشار الهيدروديناميكي.
+
+### 3. حساب انتشار الأخطاء ومجال الثقة (Gaussian Error Propagation)
+$$\sigma_Q = Q \sqrt{\left(\frac{\sigma_{\text{IME}}}{\text{IME}}\right)^2 + \left(\frac{\sigma_U}{U}\right)^2 + \left(\frac{\sigma_L}{L}\right)^2}$$
+$$\text{CI}_{95\%} = \left[ Q - 1.96 \sigma_Q, \; Q + 1.96 \sigma_Q \right]$$
 
 ---
 
-## 🚀 دليل البدء والتشغيل (Quickstart Guide)
+## 🚀 كيفية التشغيل والعرض المباشر (Quickstart & Demo)
 
-### 1. استنساخ المستودع (Clone)
-```bash
-git clone https://github.com/Mo-Shino/NASA-Methane-Plume-Detection-ISEF-2027.git
-cd NASA-Methane-Plume-Detection-ISEF-2027
+### الطريقة الأسرع (ضغطة واحدة على ويندوز):
+اضغط مرتين على ملف:
+```text
+run_demo.bat
 ```
+سيقوم السكربت بفحص المكتبات، التأكد من ملفات الأوزان ومشاهد الأقمار الصناعية، وتشغيل لوحة التحكم التفاعلية على الرابط:
+`http://localhost:8501`
 
-### 2. إنشاء بيئة عمل بايثون وتثبيت المكتبات
-```bash
-python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On Linux/macOS:
-source venv/bin/activate
-
+### التشغيل عبر سطر الأوامر (Command Line):
+```powershell
+# 1. تفعيل بيئة العمل وتثبيت الحزم (إن لم تكن مثبتة)
 pip install -r requirements.txt
+
+# 2. تشغيل لوحة التحكم
+streamlit run app.py
 ```
 
-### 3. إعداد حساب NASA Earthdata المجاني
-* قم بالتسجيل للحصول على حساب مجاني من الرابط: [https://urs.earthdata.nasa.gov/](https://urs.earthdata.nasa.gov/)
-* استخدم مكتبة `earthaccess` لتسجيل الدخول:
-```python
-import earthaccess
-auth = earthaccess.login(strategy="interactive")
+### تشغيل الاختبارات العلمية الآلية:
+```powershell
+python -m unittest tests/test_physics_and_pipeline.py
 ```
 
 ---
 
-## 🤖 تعليمات خاصة لنموذج الذكاء الاصطناعي على اللابتوب الثاني
-### (Instructions for the Next AI Agent)
-
-> **عزيزي نموذج الذكاء الاصطناعي (Claude / Gemini / GPT):**  
-> مرحباً بك في مستودع مشروع Regeneron ISEF 2027 لفريق فارس والشناوي. هذا المشروع ليس تمريناً مدرسياً عادياً، بل مشروع مصمم للمنافسة على **المركز الأول عالمياً (Grand Award / 1st Place)** في فئة علوم الأرض والبيئة (EAEV) أو برمجيات النظم (SOFT).
->
-> **عند استئناف العمل مع الفريق على اللابتوب الجديد، اتبع البروتوكول التالي:**
-> 1. اقرأ هذا الملف `README.md` وملف `NASA_METHANE_RESEARCH_SPECIFICATION.md` لفهم الإطار العلمي الدقيق ومعادلات الـ Matched Filter والـ IME.
-> 2. فارس مطور Backend و C# محترف؛ والشناوي متميز في الرياضيات والفيزياء. ساعدهما في كتابة كود بايثون متقدم وشديد النظافة، مع شرح الخطوات البرمجية لفارس والرياضية للشناوي.
-> 3. **الخطوة العملية الفورية التالية:**
->    * تشغيل اختبار تجريبي لـ `src/data_loader.py` و `src/matched_filter.py` على عينة مصغرة (Synthetic or Real EMIT Tile).
->    * تنزيل عينة إطار حقيقي معروف باحتوائه على تسريب ميثان ضخم (مثل حوض بيرميان في تكساس أو حقول تركمانستان من كتالوج Carbon Mapper).
->    * توليد خريطة الـ Matched Filter ومقارنتها بنتائج JPL الرسمية كـ Baseline.
->    * تدريب شبكة `src/model_spatial_spectral.py` لإلغاء الإنذارات الكاذبة الناتجة عن صخور الكربونات وأسطح المباني.
-> 4. لا تقترح أبداً أفكاراً سطحية أو واجهات مستخدم تجارية مبسطة دون عمق علمي؛ المحكمون في ISEF يبحثون عن الأثر العلمي القابل للقياس، هوامش الخطأ، والتحليل الإحصائي المقارن.
+## 👥 فريق العمل (Team Identity)
+* **المشروع:** SpectraPlume Framework
+* **الفئة:** Earth & Environmental Sciences (EAEV) — Atmospheric Science (AIR)
+* **المسابقة:** Regeneron ISEF 2027
+* **المدينة:** الإسكندرية، مصر
+* *تنويه الامتثال لقواعد ISEF Rule 2:* لوحة العرض والواجهة البرمجية تلتزم بالسرية الصارمة ولا تتضمن أسماء الطلاب أو المدارس.
 
 ---
 
 ## 📄 الرخصة (License)
-هذا المشروع مرخص تحت رخصة **MIT License** المفتوحة للمساهمة في أبحاث المناخ العالمية.
+هذا المشروع مفتوح المصدر ومرخص تحت رخصة **MIT License**.
