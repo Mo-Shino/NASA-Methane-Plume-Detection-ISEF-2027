@@ -6,6 +6,12 @@
 
 const AppState = {
   passes: [],
+  liveHotspots: [],
+  liveScannedItems: [],
+  totalNasaHits: 0,
+  feedMode: 'live',          // 'live' | 'benchmarks'
+  radarScope: 'egypt',       // 'egypt' | 'mena' | 'global'
+  scanMapMode: false,
   activePassId: 'deadsea',
   activeView: 'radar',       // 'radar' | 'lab' | 'dispatch'
   mapLayerMode: 'ai',        // 'ai' | 'nasa' | 'both'
@@ -19,10 +25,12 @@ const AppState = {
   currentPayload: null,
   activePreset: 'primary',
   leafletMap: null,
+  hotspotClusterLayer: null,
   layers: {
     aiOverlay: null,
     nasaOverlay: null,
     swathRect: null,
+    nasaPolygon: null,
     epicenterMarker: null,
     probeMarker: null,
     windLine: null,
@@ -70,16 +78,33 @@ async function loadPassesAndBoot() {
     const reqPass = qs.get('pass');
     const reqView = qs.get('view');
     const reqModal = qs.get('modal');
+    const reqScope = qs.get('scope');
 
     const res = await fetch('/api/passes');
     const data = await res.json();
     AppState.passes = data.passes || [];
+    updateConnectionBadge(data.earthdata_connected, data.earthdata_auth);
+
+    // If URL explicitly asked for one of the 4 benchmark passes, open Benchmarks mode directly
     if (reqPass && AppState.passes.some(p => p.pass_id === reqPass)) {
+      AppState.feedMode = 'benchmarks';
       AppState.activePassId = reqPass;
+      syncFeedTabUI();
+      renderPassFeed();
+      await runAnalysis(AppState.activePassId, true);
+      // Still load live red dots onto the world map in the background!
+      loadLiveHotspots(reqScope || 'egypt', false, false);
+    } else {
+      // Default Boot: Live NASA Satellite Hotspot Radar across Egypt (64 real red dots!)
+      const liveOk = await loadLiveHotspots(reqScope || 'egypt', true, true);
+      if (!liveOk) {
+        // Offline Fallback: Zero-internet venue mode
+        AppState.feedMode = 'benchmarks';
+        syncFeedTabUI();
+        renderPassFeed();
+        await runAnalysis(AppState.activePassId, true);
+      }
     }
-    updateConnectionBadge(data.earthdata_connected);
-    renderPassFeed();
-    await runAnalysis(AppState.activePassId, true);
 
     if (reqView === 'lab') switchView('lab', document.getElementById('tabBtnLab'));
     else if (reqView === 'dispatch') switchView('dispatch', document.getElementById('tabBtnDispatch'));
@@ -89,12 +114,265 @@ async function loadPassesAndBoot() {
   }
 }
 
-function updateConnectionBadge(hasLiveToken) {
+function updateConnectionBadge(hasLiveToken, authObj) {
   const txt = document.getElementById('connBadgeText');
   if (!txt) return;
-  txt.textContent = hasLiveToken
-    ? 'NASA LP DAAC • Live Connected'
-    : 'ISS EMIT Suite • Active';
+  if (hasLiveToken && authObj && authObj.account) {
+    txt.textContent = `NASA Live • @${authObj.account}`;
+  } else if (hasLiveToken) {
+    txt.textContent = 'NASA LP DAAC • Live Connected';
+  } else {
+    txt.textContent = 'ISS EMIT Suite • Active';
+  }
+}
+
+function setMapLoading(visible, msg) {
+  const box = document.getElementById('mapLiveLoading');
+  const txt = document.getElementById('mapLiveLoadingText');
+  if (!box) return;
+  if (msg && txt) txt.textContent = msg;
+  box.style.display = visible ? 'inline-flex' : 'none';
+}
+
+/* ==================== LIVE NASA HOTSPOT RADAR & POINT SCANNER ==================== */
+async function loadLiveHotspots(scope, setRegionalCamera = true, autoAnalyzeTop = false) {
+  AppState.radarScope = scope;
+  document.querySelectorAll('#nasaScopeSwitcher .scope-pill[data-scope]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-scope') === scope);
+  });
+
+  setMapLoading(true, `Fetching Live NASA EMIT Methane Hotspots (${scope.toUpperCase()})...`);
+  try {
+    const res = await fetch(`/api/nasa/hotspots?scope=${encodeURIComponent(scope)}`);
+    if (!res.ok) throw new Error('CMR offline');
+    const data = await res.json();
+    AppState.liveHotspots = data.hotspots || [];
+    AppState.totalNasaHits = data.total_nasa_hits || AppState.liveHotspots.length;
+
+    if (data.earthdata_auth) {
+      updateConnectionBadge(data.earthdata_auth.connected, data.earthdata_auth);
+    }
+
+    const liveBtnTxt = document.getElementById('feedLiveBtnText');
+    if (liveBtnTxt) {
+      liveBtnTxt.textContent = `Live NASA (${AppState.totalNasaHits})`;
+    }
+
+    renderHotspotMarkersOnMap();
+    if (AppState.feedMode === 'live') {
+      renderPassFeed();
+    }
+
+    if (setRegionalCamera && AppState.leafletMap && data.map_center) {
+      AppState.leafletMap.flyTo(data.map_center, data.map_zoom || 6, { duration: 0.85 });
+    }
+
+    if (autoAnalyzeTop && AppState.liveHotspots.length > 0) {
+      // Quantify the latest real NASA plume without zooming away from the regional red-dot overview!
+      await selectLiveHotspot(AppState.liveHotspots[0].granule_ur, false);
+    }
+    setMapLoading(false);
+    return true;
+  } catch (_) {
+    setMapLoading(false);
+    return false;
+  }
+}
+
+async function switchRadarScope(scope, btnEl) {
+  AppState.feedMode = 'live';
+  syncFeedTabUI();
+  await loadLiveHotspots(scope, true, false);
+}
+
+function zoomToActiveSwath() {
+  if (!AppState.leafletMap || !AppState.currentPayload) return;
+  const g = AppState.currentPayload.geography;
+  const z = (AppState.currentPayload.pass_info && AppState.currentPayload.pass_info.zoom) || 13;
+  AppState.leafletMap.flyTo([g.center_lat, g.center_lon], z, { duration: 0.9 });
+}
+
+function renderHotspotMarkersOnMap() {
+  if (!AppState.leafletMap || typeof window.L === 'undefined') return;
+  const L_lib = window.L;
+  if (!AppState.hotspotClusterLayer) {
+    AppState.hotspotClusterLayer = L_lib.layerGroup().addTo(AppState.leafletMap);
+  }
+  AppState.hotspotClusterLayer.clearLayers();
+
+  AppState.liveHotspots.forEach(hs => {
+    const isSel = AppState.activePassId === hs.pass_id;
+    const icon = L_lib.divIcon({
+      className: '',
+      html: `<div class="sp-live-hotspot ${isSel ? 'selected' : ''}" title="${escapeHtml(hs.name)}"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    });
+    const m = L_lib.marker([hs.lat, hs.lon], { icon });
+    m.bindTooltip(
+      `<b>Live NASA Plume #${escapeHtml(hs.plume_id)}</b><br>${escapeHtml(hs.name)}<br>${escapeHtml(hs.utc_time)} — Click to quantify`,
+      { direction: 'top', offset: [0, -6] }
+    );
+    m.on('click', (ev) => {
+      L_lib.DomEvent.stopPropagation(ev);
+      selectLiveHotspot(hs.granule_ur, true);
+    });
+    AppState.hotspotClusterLayer.addLayer(m);
+  });
+}
+
+async function selectLiveHotspot(granuleUr, flyToTarget = true) {
+  setMapLoading(true, `Quantifying Live NASA Granule ${granuleUr} + ERA5 Wind...`);
+  try {
+    const res = await fetch('/api/nasa/analyze-plume', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        granule_ur: granuleUr,
+        mask_threshold: AppState.maskThreshold,
+        retrieval_mode: AppState.retrievalMode,
+        wind_speed: AppState.windMode === 'custom' ? AppState.customWindSpeed : null,
+        wind_direction: AppState.windMode === 'custom' ? AppState.customWindDir : null,
+      }),
+    });
+    const payload = await res.json();
+    setMapLoading(false);
+    if (!res.ok) {
+      showToast(payload.error_message || 'Could not retrieve live NASA plume granule.');
+      return;
+    }
+    AppState.activePassId = payload.pass_info.pass_id;
+    AppState.currentPayload = payload;
+    // Record quantified flux on the hotspot item so the sidebar shows the live kg/h value!
+    const hsItem = AppState.liveHotspots.find(h => h.granule_ur === granuleUr);
+    if (hsItem) {
+      hsItem.quantified_flux_kg_hr = Math.round(payload.kpis.flux_kg_hr);
+    }
+    renderHotspotMarkersOnMap();
+    renderPassFeed();
+    applyPayloadToUI(payload, flyToTarget);
+  } catch (_) {
+    setMapLoading(false);
+    showToast('Network error while contacting NASA LP DAAC.');
+  }
+}
+
+function toggleScanMapMode() {
+  AppState.scanMapMode = !AppState.scanMapMode;
+  const btn = document.getElementById('btnScanMapMode');
+  const txt = document.getElementById('btnScanMapText');
+  const stage = document.getElementById('leafletStageWrap');
+  if (btn) btn.classList.toggle('active', AppState.scanMapMode);
+  if (stage) stage.classList.toggle('scan-active', AppState.scanMapMode);
+  if (txt) {
+    txt.textContent = AppState.scanMapMode ? 'Click Any Spot Now...' : 'Click Map to Scan';
+  }
+  if (AppState.scanMapMode) {
+    showToast('Point-Scan Active: Click anywhere on Earth to scan latest NASA EMIT satellite swath.');
+  }
+}
+
+async function scanTypedCoordinates() {
+  const inp = document.getElementById('coordSearchInput');
+  if (!inp || !inp.value.trim()) {
+    showToast('Enter GPS coordinates as: Lat, Lon (e.g. 30.82, 29.55)');
+    return;
+  }
+  const parts = inp.value.split(/[\s,;]+/).filter(Boolean);
+  if (parts.length < 2) {
+    showToast('Enter both Latitude and Longitude separated by a comma (e.g. 30.82, 29.55).');
+    return;
+  }
+  const lat = parseFloat(parts[0]);
+  const lon = parseFloat(parts[1]);
+  if (Number.isNaN(lat) || Number.isNaN(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
+    showToast('Invalid GPS coordinates. Example: 30.82, 29.55');
+    return;
+  }
+  await scanCoordinatesOnNASA(lat, lon);
+}
+
+async function scanCoordinatesOnNASA(lat, lon) {
+  setMapLoading(true, `Scanning Live NASA ISS EMIT Swath at (${lat.toFixed(3)}°, ${lon.toFixed(3)}°)...`);
+  try {
+    const res = await fetch('/api/nasa/scan-point', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lat,
+        lon,
+        mask_threshold: AppState.maskThreshold,
+        retrieval_mode: AppState.retrievalMode,
+        wind_speed: AppState.windMode === 'custom' ? AppState.customWindSpeed : null,
+        wind_direction: AppState.windMode === 'custom' ? AppState.customWindDir : null,
+      }),
+    });
+    const payload = await res.json();
+    setMapLoading(false);
+
+    // Turn off one-shot crosshair toggle after click completes
+    if (AppState.scanMapMode) {
+      toggleScanMapMode();
+    }
+
+    if (!res.ok) {
+      showToast(`${payload.error_title || 'NASA Scan'}: ${payload.error_message || 'No overpass at this coordinate.'}`);
+      if (AppState.leafletMap && typeof window.L !== 'undefined') {
+        window.L.popup()
+          .setLatLng([lat, lon])
+          .setContent(
+            `<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:230px;color:#12231A;">
+              <div style="font-weight:800;color:#D4810B;margin-bottom:3px;">${escapeHtml(payload.error_title || 'No Overpass')}</div>
+              <div style="font-size:12px;">${escapeHtml(payload.error_message || '')}</div>
+            </div>`
+          )
+          .openOn(AppState.leafletMap);
+      }
+      return;
+    }
+
+    AppState.activePassId = payload.pass_info.pass_id;
+    AppState.currentPayload = payload;
+
+    // Add scanned sector to top of Live NASA Feed
+    const existingIdx = AppState.liveScannedItems.findIndex(s => s.pass_id === payload.pass_info.pass_id);
+    const scanCard = {
+      pass_id: payload.pass_info.pass_id,
+      orbit: payload.pass_info.orbit,
+      name: payload.pass_info.name,
+      facility: payload.pass_info.facility,
+      utc_time: payload.pass_info.utc_time,
+      lat: payload.geography.center_lat,
+      lon: payload.geography.center_lon,
+      is_clean: payload.geography.is_zero_gas_trap || !payload.geography.has_active_plume,
+      flux_kg_hr: Math.round(payload.kpis.flux_kg_hr),
+    };
+    if (existingIdx >= 0) AppState.liveScannedItems.splice(existingIdx, 1);
+    AppState.liveScannedItems.unshift(scanCard);
+
+    AppState.feedMode = 'live';
+    syncFeedTabUI();
+    renderHotspotMarkersOnMap();
+    renderPassFeed();
+    applyPayloadToUI(payload, true);
+    showToast(`NASA Swath ${payload.pass_info.daac_granule} scanned successfully.`);
+  } catch (_) {
+    setMapLoading(false);
+    showToast('Connection error while scanning NASA LP DAAC archive.');
+  }
+}
+
+function switchFeedMode(mode) {
+  AppState.feedMode = mode;
+  syncFeedTabUI();
+  renderPassFeed();
+}
+
+function syncFeedTabUI() {
+  const tLive = document.getElementById('feedTabLive');
+  const tBench = document.getElementById('feedTabBench');
+  if (tLive) tLive.classList.toggle('active', AppState.feedMode === 'live');
+  if (tBench) tBench.classList.toggle('active', AppState.feedMode === 'benchmarks');
 }
 
 /* ==================== VIEW NAVIGATION ==================== */
@@ -120,6 +398,70 @@ function renderPassFeed() {
   const container = document.getElementById('passFeedList');
   if (!container) return;
   const countEl = document.getElementById('passCountLabel');
+
+  if (AppState.feedMode === 'live') {
+    const totalShown = AppState.liveScannedItems.length + AppState.liveHotspots.length;
+    if (countEl) {
+      countEl.textContent = AppState.totalNasaHits
+        ? `${AppState.totalNasaHits} Live`
+        : `${totalShown} Live`;
+    }
+
+    const scannedHtml = AppState.liveScannedItems.map(s => {
+      const isActive = s.pass_id === AppState.activePassId;
+      const pillClass = s.is_clean ? 'pill-safe' : 'pill-leak';
+      const badge = s.is_clean ? 'Scanned • Clean' : 'Scanned • Leak';
+      const fluxTxt = s.is_clean
+        ? '<span style="color:var(--sp-safe-600);font-weight:700;">0 kg/h (Clean)</span>'
+        : `<strong>${Number(s.flux_kg_hr).toLocaleString()} kg/h</strong>`;
+      const latDir = s.lat >= 0 ? 'N' : 'S';
+      const lonDir = s.lon >= 0 ? 'E' : 'W';
+      const coordStr = `${Math.abs(s.lat).toFixed(2)}°${latDir}, ${Math.abs(s.lon).toFixed(2)}°${lonDir}`;
+      return `
+        <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectOrbitalPass('${s.pass_id}')" title="${escapeHtml(s.name)}">
+          <div class="pass-card-top">
+            <span class="pass-orbit-tag">Orbit #${escapeHtml(s.orbit)}</span>
+            <span class="status-pill ${pillClass}">${badge}</span>
+          </div>
+          <div class="pass-title">${escapeHtml(s.name)}</div>
+          <div class="pass-facility">${escapeHtml(s.utc_time)}</div>
+          <div class="pass-telemetry-row">
+            <span>${fluxTxt}</span>
+            <span>${coordStr}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const hotspotsHtml = AppState.liveHotspots.slice(0, 40).map(hs => {
+      const isActive = hs.pass_id === AppState.activePassId;
+      const latDir = hs.lat >= 0 ? 'N' : 'S';
+      const lonDir = hs.lon >= 0 ? 'E' : 'W';
+      const coordStr = `${Math.abs(hs.lat).toFixed(2)}°${latDir}, ${Math.abs(hs.lon).toFixed(2)}°${lonDir}`;
+      const qFlux = hs.quantified_flux_kg_hr
+        ? `<strong>${Number(hs.quantified_flux_kg_hr).toLocaleString()} kg/h</strong>`
+        : `<span style="color:var(--sp-danger-600);font-weight:700;">Plume #${escapeHtml(hs.plume_id)}</span>`;
+      return `
+        <div class="pass-card ${isActive ? 'active' : ''}" onclick="selectLiveHotspot('${hs.granule_ur}', true)" title="${escapeHtml(hs.name)} — ${escapeHtml(hs.granule_ur)}">
+          <div class="pass-card-top">
+            <span class="pass-orbit-tag">Orbit #${escapeHtml(hs.orbit)}</span>
+            <span class="status-pill pill-leak">Live NASA</span>
+          </div>
+          <div class="pass-title">${escapeHtml(hs.name)}</div>
+          <div class="pass-facility">${escapeHtml(hs.utc_time)}</div>
+          <div class="pass-telemetry-row">
+            <span>${qFlux}</span>
+            <span>${coordStr}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = (scannedHtml + hotspotsHtml) ||
+      '<div style="font-size:12px;color:var(--sp-ink-muted);padding:8px;">Loading live NASA CMR detections...</div>';
+    return;
+  }
+
   if (countEl) countEl.textContent = `${AppState.passes.length} Passes`;
 
   container.innerHTML = AppState.passes.map(p => {
@@ -329,14 +671,24 @@ function initMapEngine() {
     position: 'bottomright'
   }).addTo(map);
 
-  // Click anywhere inside the swath to inspect that pixel's 40-band spectrum live!
+  // Smart Map Click:
+  //   1. If "Click Map to Scan" is active -> scan that exact GPS point on live NASA satellite archive!
+  //   2. If click is inside the currently loaded 7.7x7.7 km swath -> probe 40-band pixel spectrum!
+  //   3. If click is anywhere else on Earth -> scan that exact GPS point on live NASA satellite archive!
   map.on('click', async (e) => {
-    if (!AppState.currentPayload) return;
-    const b = AppState.currentPayload.geography.swath_bounds;
     const { lat, lng } = e.latlng;
-    if (lat >= b[0][0] && lat <= b[1][0] && lng >= b[0][1] && lng <= b[1][1]) {
-      await fetchPixelSpectrum({ lat, lon: lng });
+    if (AppState.scanMapMode) {
+      await scanCoordinatesOnNASA(lat, lng);
+      return;
     }
+    if (AppState.currentPayload) {
+      const b = AppState.currentPayload.geography.swath_bounds;
+      if (lat >= b[0][0] && lat <= b[1][0] && lng >= b[0][1] && lng <= b[1][1]) {
+        await fetchPixelSpectrum({ lat, lon: lng });
+        return;
+      }
+    }
+    await scanCoordinatesOnNASA(lat, lng);
   });
 
   AppState.leafletMap = map;
@@ -377,6 +729,18 @@ function updateMapOverlays(data, flyCamera) {
       fill: false,
       dashArray: '6, 5',
     }).bindTooltip(`NASA EMIT Sensor Swath (Orbit #${pass_info.orbit}) — Click inside to probe pixel spectrum`).addTo(map);
+  }
+
+  // 1b. Authentic NASA JPL Plume Polygon Perimeter (when viewing a live NASA LP DAAC granule)
+  if (data.live_nasa && Array.isArray(data.live_nasa.polygon) && data.live_nasa.polygon.length >= 3) {
+    AppState.layers.nasaPolygon = L_lib.polygon(data.live_nasa.polygon, {
+      color: '#38BDF8',
+      weight: 1.8,
+      dashArray: '4, 4',
+      fillColor: '#38BDF8',
+      fillOpacity: 0.06,
+      interactive: false,
+    }).addTo(map);
   }
 
   // 2. Georeferenced Overlays based on Active Layer Pill ('ai' | 'nasa' | 'both')
@@ -967,6 +1331,8 @@ async function uploadGranuleFile(fileObj) {
     const passesRes = await fetch('/api/passes');
     const passesData = await passesRes.json();
     AppState.passes = passesData.passes || [];
+    AppState.feedMode = 'benchmarks';
+    syncFeedTabUI();
     AppState.activePassId = payload.pass_info.pass_id;
     AppState.currentPayload = payload;
     renderPassFeed();

@@ -368,11 +368,69 @@ canvas {
   flex-shrink: 0;
 }
 
+.feed-mode-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  background: var(--sp-bg-sand);
+  border: 1px solid var(--sp-border);
+  border-radius: 9px;
+  padding: 2.5px;
+  margin-bottom: 8px;
+  min-width: 0;
+}
+
+.feed-mode-btn {
+  border: none;
+  background: transparent;
+  color: var(--sp-ink-secondary);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 6px;
+  border-radius: 6.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.14s ease;
+}
+
+.feed-mode-btn.active {
+  background: var(--sp-forest-900);
+  color: #FFFFFF;
+}
+
+.feed-live-pip {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background: #EF4444;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+}
+
 .pass-feed-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.pass-feed-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.pass-feed-list::-webkit-scrollbar-thumb {
+  background: #C9BDAE;
+  border-radius: 999px;
 }
 
 .pass-card {
@@ -956,6 +1014,206 @@ canvas {
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+}
+
+.nasa-radar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 8px;
+  background: var(--sp-forest-900);
+  border-radius: 10px;
+  color: #FAF8F3;
+  min-width: 0;
+}
+
+.nasa-scope-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.radar-bar-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--sp-amber-400);
+  padding-right: 4px;
+  white-space: nowrap;
+}
+
+.radar-bar-tag svg {
+  width: 13.5px;
+  height: 13.5px;
+  flex-shrink: 0;
+}
+
+.scope-pill {
+  border: 1px solid rgba(231, 222, 207, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+  color: #E7DECF;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8.5px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.14s ease;
+}
+
+.scope-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+}
+
+.scope-pill.active {
+  background: var(--sp-amber-500);
+  border-color: var(--sp-amber-500);
+  color: #FFFFFF;
+}
+
+.nasa-scan-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.coord-scan-box {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(231, 222, 207, 0.24);
+  border-radius: 6.5px;
+  overflow: hidden;
+}
+
+.coord-scan-input {
+  background: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 8px;
+  width: 158px;
+  outline: none;
+}
+
+.coord-scan-input::placeholder {
+  color: rgba(231, 222, 207, 0.62);
+}
+
+.coord-scan-go {
+  border: none;
+  background: rgba(212, 129, 11, 0.85);
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 10.75px;
+  font-weight: 800;
+  padding: 4.5px 8.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.coord-scan-go:hover {
+  background: var(--sp-amber-500);
+}
+
+.scan-anywhere-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid rgba(212, 129, 11, 0.65);
+  background: rgba(212, 129, 11, 0.18);
+  color: #FDE68A;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 6.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.14s ease;
+}
+
+.scan-anywhere-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.scan-anywhere-btn.active {
+  background: #DC2626;
+  border-color: #FCA5A5;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35);
+}
+
+.leaflet-stage.scan-active #leafletMap {
+  cursor: crosshair !important;
+}
+
+.map-live-loading {
+  position: absolute;
+  top: 12px;
+  left: 52px;
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 35, 26, 0.92);
+  color: #FAF8F3;
+  border: 1px solid var(--sp-amber-500);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+}
+
+.map-spinner-ring {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid rgba(250, 248, 243, 0.28);
+  border-top-color: var(--sp-amber-400);
+  animation: spSpin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Pulsing Crimson Live NASA Hotspot Dots on Regional/Global Radar */
+.sp-live-hotspot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #EF4444;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35);
+  transition: transform 0.14s ease;
+}
+
+.sp-live-hotspot:hover,
+.sp-live-hotspot.selected {
+  transform: scale(1.32);
+  background: #F59E0B;
+  box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.42);
 }
 
 .map-toolbar {
@@ -1861,6 +2119,19 @@ canvas {
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
+  }
+
+  .nasa-radar-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .coord-scan-box {
+    flex: 1;
+  }
+
+  .coord-scan-input {
+    width: 100%;
   }
 
   .map-toolbar {

@@ -70,6 +70,9 @@
     <symbol id="ic-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 21s7-5.8 7-11.5A7 7 0 0 0 5 9.5C5 15.2 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/>
     </symbol>
+    <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="9"/><path d="M3.2 12h17.6"/><path d="M12 3a13.8 13.8 0 0 1 3.6 9 13.8 13.8 0 0 1-3.6 9 13.8 13.8 0 0 1-3.6-9A13.8 13.8 0 0 1 12 3z"/>
+    </symbol>
   </svg>
 
   <!-- ==================== TOP BRAND HEADER ==================== -->
@@ -120,10 +123,21 @@
             <svg><use href="#ic-orbit"/></svg>
             <span>Orbital Scan Feed</span>
           </div>
-          <span class="field-mono-val" id="passCountLabel">4 Passes</span>
+          <span class="field-mono-val" id="passCountLabel">Live</span>
         </div>
+
+        <div class="feed-mode-tabs" id="feedModeTabs">
+          <button type="button" class="feed-mode-btn active" id="feedTabLive" onclick="switchFeedMode('live')">
+            <span class="feed-live-pip"></span>
+            <span id="feedLiveBtnText">Live NASA</span>
+          </button>
+          <button type="button" class="feed-mode-btn" id="feedTabBench" onclick="switchFeedMode('benchmarks')">
+            <span>Benchmarks (4)</span>
+          </button>
+        </div>
+
         <div class="pass-feed-list" id="passFeedList">
-          <!-- Populated dynamically by /api/passes -->
+          <!-- Populated dynamically by Live NASA CMR or Calibrated Benchmarks -->
         </div>
       </div>
 
@@ -288,15 +302,40 @@
 
           <!-- Left: Interactive Leaflet Satellite Map -->
           <div class="map-card-shell">
+            <!-- Live NASA Global/Regional Hotspot Radar & Arbitrary Coordinate Scanner Bar -->
+            <div class="nasa-radar-bar">
+              <div class="nasa-scope-group" id="nasaScopeSwitcher">
+                <span class="radar-bar-tag">
+                  <svg><use href="#ic-globe"/></svg>
+                  <span>Live NASA:</span>
+                </span>
+                <button type="button" class="scope-pill active" data-scope="egypt" onclick="switchRadarScope('egypt', this)">Egypt</button>
+                <button type="button" class="scope-pill" data-scope="mena" onclick="switchRadarScope('mena', this)">Middle East</button>
+                <button type="button" class="scope-pill" data-scope="global" onclick="switchRadarScope('global', this)">Global</button>
+                <button type="button" class="scope-pill" onclick="zoomToActiveSwath()" title="Zoom directly to active plume footprint">Zoom Plume</button>
+              </div>
+
+              <div class="nasa-scan-group">
+                <div class="coord-scan-box">
+                  <input type="text" id="coordSearchInput" class="coord-scan-input" placeholder="Lat, Lon (e.g. 30.82, 29.55)" onkeydown="if(event.key==='Enter') scanTypedCoordinates()" />
+                  <button type="button" class="coord-scan-go" onclick="scanTypedCoordinates()">Scan</button>
+                </div>
+                <button type="button" class="scan-anywhere-btn" id="btnScanMapMode" onclick="toggleScanMapMode()" title="Click any location on Earth to scan latest NASA EMIT satellite pass">
+                  <svg><use href="#ic-crosshair"/></svg>
+                  <span id="btnScanMapText">Click Map to Scan</span>
+                </button>
+              </div>
+            </div>
+
             <div class="map-toolbar">
               <div class="map-toolbar-left">
                 <div class="telemetry-chip">
                   <svg><use href="#ic-crosshair"/></svg>
-                  <span id="mapCoordText">31.1279° N, 35.2028° E</span>
+                  <span id="mapCoordText">30.2595° N, 31.5587° E</span>
                 </div>
                 <div class="telemetry-chip">
                   <svg><use href="#ic-wind"/></svg>
-                  <span id="mapWindText">4.1 m/s @ 15°</span>
+                  <span id="mapWindText">4.1 m/s @ 315°</span>
                 </div>
               </div>
 
@@ -308,8 +347,12 @@
               </div>
             </div>
 
-            <div class="leaflet-stage">
+            <div class="leaflet-stage" id="leafletStageWrap">
               <div id="leafletMap"></div>
+              <div class="map-live-loading" id="mapLiveLoading" style="display:none;">
+                <span class="map-spinner-ring"></span>
+                <span id="mapLiveLoadingText">Querying NASA LP DAAC Satellite Archive...</span>
+              </div>
             </div>
 
             <div class="map-footer-bar">

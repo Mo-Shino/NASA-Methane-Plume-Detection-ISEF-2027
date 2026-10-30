@@ -54,11 +54,17 @@ class EMITDataLoader:
 
     @staticmethod
     def _load_env_token() -> Optional[str]:
-        """Reads EARTHDATA_TOKEN from environment variables or local .env files safely."""
+        """Reads EARTHDATA_TOKEN from environment variables or local .env / .env.local files safely."""
         if os.environ.get("EARTHDATA_TOKEN"):
             return os.environ["EARTHDATA_TOKEN"].strip()
 
-        for env_candidate in (Path.cwd() / ".env", PROJECT_ROOT / ".env"):
+        candidates = (
+            PROJECT_ROOT / ".env.local",
+            PROJECT_ROOT / ".env",
+            Path.cwd() / ".env.local",
+            Path.cwd() / ".env",
+        )
+        for env_candidate in candidates:
             if env_candidate.exists():
                 try:
                     for line in env_candidate.read_text(encoding="utf-8").splitlines():

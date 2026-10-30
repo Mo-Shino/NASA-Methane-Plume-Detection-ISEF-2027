@@ -6,6 +6,7 @@ __pycache__/
 # Data files (keep raw satellite tiles out of git)
 data/raw/
 data/cache/
+.physics_schema_version
 *.nc
 *.nc4
 *.h5
@@ -26,6 +27,8 @@ ENV/
 
 # Environment variables & secrets
 .env
+.env.*
+.env.local
 .dodsrc
 .urs_cookies
 earthdata_credentials.json

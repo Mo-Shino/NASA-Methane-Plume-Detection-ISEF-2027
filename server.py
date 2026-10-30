@@ -40,6 +40,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.benchmark_generator import ensure_demo_scenes
+from src.nasa_live_engine import NASALiveRadarEngine
 from pipeline_runner import SpectraPlumePipeline
 
 app = FastAPI(
@@ -108,12 +109,13 @@ OFFICIAL_PASSES: List[Dict[str, Any]] = [
     },
 ]
 
-# Singleton pipeline & bounded session cache for analysis results and uploaded files
+# Singleton pipeline, live NASA engine & bounded session cache for analysis results and uploaded files
 _PIPELINE: Optional[SpectraPlumePipeline] = None
+_NASA_ENGINE: Optional[NASALiveRadarEngine] = None
 _ANALYSIS_CACHE: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
 _CUSTOM_PASSES: "OrderedDict[str, Dict[str, Any]]" = OrderedDict()
-MAX_CUSTOM_PASSES = 6
-MAX_CACHE_ENTRIES = 16
+MAX_CUSTOM_PASSES = 32
+MAX_CACHE_ENTRIES = 32
 
 
 def get_pipeline() -> SpectraPlumePipeline:
@@ -124,6 +126,13 @@ def get_pipeline() -> SpectraPlumePipeline:
             weights_path=str(PROJECT_ROOT / "weights" / "spatial_spectral_emit.pt")
         )
     return _PIPELINE
+
+
+def get_nasa_engine() -> NASALiveRadarEngine:
+    global _NASA_ENGINE
+    if _NASA_ENGINE is None:
+        _NASA_ENGINE = NASALiveRadarEngine()
+    return _NASA_ENGINE
 
 
 def _rgba_to_data_url(rgba: np.ndarray) -> str:
@@ -366,10 +375,37 @@ def _build_verdict_narrative(pass_meta: Dict[str, Any], results: Dict[str, Any])
     meta = results["metadata"]
     is_trap = comp["is_zero_gas_trap"]
     is_leak = flux["flux_kg_hr"] >= 85.0
+    cat = pass_meta.get("category", "")
+    live_info = pass_meta.get("live_nasa") or {}
 
     spurious_px = max(0, comp["nasa_flagged_pixels"] - comp["ai_plume_pixels"])
 
     if is_trap:
+        if cat == "live_sector_scan":
+            return {
+                "state": "false_alarm_blocked",
+                "pill": "Live NASA Scan • Clean",
+                "headline": f"Verified Zero Methane Leak — {pass_meta['name']}",
+                "summary": (
+                    f"Live NASA LP DAAC orbital swath ({pass_meta['daac_granule']}, {pass_meta['utc_time']}) scanned "
+                    f"across 7.7 × 7.7 km. Raw linear filtering spiked on {comp['nasa_flagged_pixels']} urban/mineral "
+                    f"pixels, which SpectraPlume AI rejected — confirming 0.00 kg/h anomalous methane gas."
+                ),
+                "proof_cards": [
+                    {
+                        "title": "1. Live ISS Swath Verified",
+                        "body": f"Retrieved real 60 m pixels from {pass_meta['daac_granule']} ({live_info.get('total_overpasses_at_point', 1)} ISS overpasses at this coordinate)."
+                    },
+                    {
+                        "title": "2. Urban & Mineral Clutter Blocked",
+                        "body": f"Rejected {comp['nasa_flagged_pixels']} isolated carbonate/rooftop spikes lacking the 2260 + 2315 nm gas doublet and downwind cone."
+                    },
+                    {
+                        "title": "3. Zero False Dispatch",
+                        "body": "Sector certified clean (0 kg/h CH4) — no emergency pipeline or facility intervention required."
+                    }
+                ]
+            }
         return {
             "state": "false_alarm_blocked",
             "pill": "False Alarm Intercepted",
@@ -396,6 +432,25 @@ def _build_verdict_narrative(pass_meta: Dict[str, Any], results: Dict[str, Any])
         }
     elif is_leak:
         mult = round(flux["flux_kg_hr"] / 85.0, 1)
+        if live_info.get("is_live"):
+            nasa_raw_q = live_info.get("nasa_official_flux_field", "NA")
+            na_note = (
+                " (quantifying an unquantified 'NA' record in NASA's raw L2B metadata)"
+                if str(nasa_raw_q).upper() in ("NA", "NONE", "")
+                else ""
+            )
+            return {
+                "state": "confirmed_leak",
+                "pill": "Live NASA Super-Emitter",
+                "headline": f"Live NASA Plume Quantified — {pass_meta['name']} (Orbit #{pass_meta['orbit']})",
+                "summary": (
+                    f"Authenticated NASA LP DAAC retrieval ({pass_meta['daac_granule']}) coupled with "
+                    f"{live_info.get('wind_source', 'ECMWF ERA5')} wind quantified emission at "
+                    f"{flux['flux_kg_hr']:,.0f} kg/h ({flux['flux_ton_hr']:.2f} ± {flux.get('flux_uncertainty_ton_hr', 0.12):.2f} t/h)"
+                    f"{na_note}, exceeding the 85 kg/h limit by {mult}x across {flux['plume_length_m']:.0f} m."
+                ),
+                "proof_cards": []
+            }
         return {
             "state": "confirmed_leak",
             "pill": "Confirmed Super-Emitter",
@@ -411,14 +466,26 @@ def _build_verdict_narrative(pass_meta: Dict[str, Any], results: Dict[str, Any])
     else:
         return {
             "state": "clean_nominal",
-            "pill": "Nominal Background",
+            "pill": "Live Sector Clean" if live_info.get("is_live") else "Nominal Background",
             "headline": f"No Super-Emitter Plume Above Threshold — {pass_meta['name']}",
             "summary": (
-                "Scene analyzed across 40 SWIR channels (2150–2450 nm). No contiguous methane plume exceeding the "
-                "selected confidence gating threshold was detected."
+                f"Analyzed {pass_meta['daac_granule']} ({pass_meta['utc_time']}). No contiguous methane plume exceeding "
+                f"the 85 kg/h super-emitter threshold was detected in this 7.7 × 7.7 km sector."
             ),
             "proof_cards": []
         }
+
+
+def _register_custom_pass(rec: Dict[str, Any]) -> None:
+    _CUSTOM_PASSES[rec["pass_id"]] = rec
+    while len(_CUSTOM_PASSES) > MAX_CUSTOM_PASSES:
+        old_id, old_rec = _CUSTOM_PASSES.popitem(last=False)
+        _ANALYSIS_CACHE.pop(old_id, None)
+        if old_rec.get("category") == "custom_upload":
+            try:
+                Path(old_rec["nc_path"]).unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 def _resolve_pass_record(pass_id: str) -> Dict[str, Any]:
@@ -427,6 +494,11 @@ def _resolve_pass_record(pass_id: str) -> Dict[str, Any]:
             return {**p, "nc_path": str(SCENES_DIR / p["filename"])}
     if pass_id in _CUSTOM_PASSES:
         return _CUSTOM_PASSES[pass_id]
+    if pass_id.startswith("live_EMIT_"):
+        granule_ur = pass_id[len("live_"):]
+        rec = get_nasa_engine().prepare_live_plume_granule(granule_ur)
+        _register_custom_pass(rec)
+        return rec
     raise HTTPException(status_code=404, detail=f"Unknown orbital pass ID: {pass_id}")
 
 
@@ -526,29 +598,34 @@ def _run_and_package(req: AnalyzeRequest) -> Dict[str, Any]:
         "visuals": visuals,
         "presets": presets,
         "active_spectrum": spectrum_payload,
+        "live_nasa": pass_rec.get("live_nasa", {"is_live": False}),
     }
 
 
 @app.get("/api/health")
 def api_health() -> Dict[str, Any]:
     pipeline = get_pipeline()
+    auth_info = get_nasa_engine().get_auth_status()
     return {
         "status": "ok",
         "engine": "SpectraPlume Spatial-Spectral 3D-CNN + HITRAN 2024",
         "device": str(pipeline.device),
         "weights_loaded": bool(pipeline.weights_loaded),
-        "earthdata_connected": bool(pipeline.data_loader.has_earthdata_token()),
+        "earthdata_connected": bool(auth_info["connected"]),
+        "earthdata_auth": auth_info,
     }
 
 
 @app.get("/api/passes")
 def api_list_passes() -> Dict[str, Any]:
-    """Returns all available orbital passes with pre-computed summary badges for the Orbital Scan Feed."""
+    """Returns all calibrated benchmark passes (+ user uploads) for the Benchmark Lab feed."""
     pipeline = get_pipeline()
+    auth_info = get_nasa_engine().get_auth_status()
     cards = []
+    uploaded_only = [r for r in _CUSTOM_PASSES.values() if r.get("category") == "custom_upload"]
     all_records = [
         {**p, "nc_path": str(SCENES_DIR / p["filename"])} for p in OFFICIAL_PASSES
-    ] + list(_CUSTOM_PASSES.values())
+    ] + uploaded_only
 
     for rec in all_records:
         pid = rec["pass_id"]
@@ -574,8 +651,118 @@ def api_list_passes() -> Dict[str, Any]:
 
     return {
         "passes": cards,
-        "earthdata_connected": bool(pipeline.data_loader.has_earthdata_token()),
+        "earthdata_connected": bool(auth_info["connected"]),
+        "earthdata_auth": auth_info,
     }
+
+
+class LivePlumeAnalyzeRequest(BaseModel):
+    granule_ur: str
+    wind_speed: Optional[float] = Field(default=None, ge=0.5, le=25.0)
+    wind_direction: Optional[float] = Field(default=None, ge=0.0, le=360.0)
+    mask_threshold: float = Field(default=0.50, ge=0.25, le=0.90)
+    retrieval_mode: str = Field(default="spectraplume")
+
+
+class LivePointScanRequest(BaseModel):
+    lat: float = Field(..., ge=-90.0, le=90.0)
+    lon: float = Field(..., ge=-180.0, le=180.0)
+    wind_speed: Optional[float] = Field(default=None, ge=0.5, le=25.0)
+    wind_direction: Optional[float] = Field(default=None, ge=0.0, le=360.0)
+    mask_threshold: float = Field(default=0.50, ge=0.25, le=0.90)
+    retrieval_mode: str = Field(default="spectraplume")
+
+
+@app.get("/api/nasa/hotspots")
+def api_nasa_live_hotspots(
+    scope: str = Query("egypt"),
+    refresh: bool = Query(False),
+) -> JSONResponse:
+    """Queries NASA CMR for live spaceborne EMIT methane plume hotspots across Egypt, MENA, or Global."""
+    try:
+        payload = get_nasa_engine().fetch_live_hotspots(scope=scope, force_refresh=refresh)
+        return JSONResponse(status_code=200, content=payload)
+    except Exception as err:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error_title": "NASA CMR Archive Unreachable",
+                "error_message": str(err),
+                "suggestion": "Check internet connectivity or use the Offline Benchmark Lab passes.",
+            },
+        )
+
+
+@app.post("/api/nasa/analyze-plume")
+def api_nasa_analyze_plume(req: LivePlumeAnalyzeRequest) -> JSONResponse:
+    """Downloads a live NASA LP DAAC methane plume GeoTIFF via EARTHDATA_TOKEN and quantifies emission flux."""
+    try:
+        rec = get_nasa_engine().prepare_live_plume_granule(req.granule_ur)
+        _register_custom_pass(rec)
+        payload = _run_and_package(
+            AnalyzeRequest(
+                pass_id=rec["pass_id"],
+                wind_speed=req.wind_speed,
+                wind_direction=req.wind_direction,
+                mask_threshold=req.mask_threshold,
+                retrieval_mode=req.retrieval_mode,
+            )
+        )
+        return JSONResponse(status_code=200, content=payload)
+    except Exception as err:
+        return JSONResponse(
+            status_code=502,
+            content={
+                "error_title": "NASA LP DAAC Granule Retrieval Failed",
+                "error_message": str(err),
+                "suggestion": "Verify EARTHDATA_TOKEN in .env.local / .env and internet connectivity.",
+            },
+        )
+
+
+@app.post("/api/nasa/scan-point")
+def api_nasa_scan_point(req: LivePointScanRequest) -> JSONResponse:
+    """Scans ANY arbitrary GPS coordinate on Earth using NASA's latest EMITL2BCH4ENH V003/V002 orbital swaths."""
+    try:
+        rec = get_nasa_engine().scan_coordinates_live(req.lat, req.lon)
+        _register_custom_pass(rec)
+        payload = _run_and_package(
+            AnalyzeRequest(
+                pass_id=rec["pass_id"],
+                wind_speed=req.wind_speed,
+                wind_direction=req.wind_direction,
+                mask_threshold=req.mask_threshold,
+                retrieval_mode=req.retrieval_mode,
+            )
+        )
+        return JSONResponse(status_code=200, content=payload)
+    except ValueError as err:
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error_title": "Outside ISS Orbital Coverage",
+                "error_message": str(err),
+                "suggestion": "Click any onshore or coastal sector between 51.6°S and 51.6°N.",
+            },
+        )
+    except LookupError as err:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "error_title": "No Cloud-Free ISS EMIT Overpass at This Point",
+                "error_message": str(err),
+                "suggestion": "Click an adjacent onshore industrial, urban, or desert coordinate.",
+            },
+        )
+    except Exception as err:
+        return JSONResponse(
+            status_code=502,
+            content={
+                "error_title": "Live NASA Satellite Scan Error",
+                "error_message": str(err),
+                "suggestion": "Verify EARTHDATA_TOKEN in .env.local / .env and retry.",
+            },
+        )
 
 
 @app.post("/api/analyze")
@@ -685,16 +872,8 @@ async def api_upload_granule(file: UploadFile = File(...)) -> JSONResponse:
         "badge_label": badge,
         "zoom": 13,
     }
-    _CUSTOM_PASSES[custom_id] = custom_rec
     _ANALYSIS_CACHE[custom_id] = test_res
-
-    while len(_CUSTOM_PASSES) > MAX_CUSTOM_PASSES:
-        old_id, old_rec = _CUSTOM_PASSES.popitem(last=False)
-        _ANALYSIS_CACHE.pop(old_id, None)
-        try:
-            Path(old_rec["nc_path"]).unlink(missing_ok=True)
-        except OSError:
-            pass
+    _register_custom_pass(custom_rec)
 
     payload = _run_and_package(AnalyzeRequest(pass_id=custom_id))
     return JSONResponse(status_code=200, content=payload)
