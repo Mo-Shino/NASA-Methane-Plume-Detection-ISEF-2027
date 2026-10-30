@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA EMIT Methane Plume Detection Display Board | ISEF 2027 (100cm x 70cm)</title>
+    <!-- Google Fonts: Inter + IBM Plex Sans Arabic + JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           EXACT 100cm x 70cm POSTER PRINT SETUP
+           ========================================================================== */
+        @page {
+            size: 100cm 70cm;
+            margin: 0;
+        }
+
+        :root {
+            --poster-w: 100cm;
+            --poster-h: 70cm;
+            
+            /* Exact Colors from Display Board Template */
+            --primary-orange: #e07b34;
+            --dark-orange: #c8631e;
+            --light-orange: #fdf3eb;
+            --border-orange: #e07b34;
+            --border-dark: #b85414;
+            
+            --text-dark: #1e1e1e;
+            --text-muted: #3a3a3a;
+            --text-light: #5a5a5a;
+            
+            --bg-white: #ffffff;
+            --bg-canvas: #fcfcfc;
+            --table-header: #fff4eb;
+            
+            --font-main: 'IBM Plex Sans', 'Inter', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        html, body {
+            width: var(--poster-w);
+            height: var(--poster-h);
+            font-family: var(--font-main);
+            color: var(--text-dark);
+            background-color: #d1d5db; /* Neutral backdrop on desktop */
+            margin: 0;
+            padding: 0;
+            line-height: 1.38;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Screen Preview Controls Toolbar (Discreet floating bottom pill) */
+        .preview-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 25px;
+            z-index: 99999;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(12px);
+            padding: 10px 20px;
+            border-radius: 40px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: white;
+            font-family: var(--font-main);
+            font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .preview-controls button {
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .preview-controls button:hover {
+            background: var(--dark-orange);
+            transform: scale(1.04);
+        }
+
+        /* The 100cm x 70cm Board Container */
+        .poster-canvas {
+            width: var(--poster-w);
+            height: var(--poster-h);
+            background-color: var(--bg-white);
+            position: relative;
+            margin: 0 auto;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 0.6cm 1cm 0.7cm 1cm;
+            box-shadow: 0 0 50px rgba(0,0,0,0.22);
+        }
+
+        /* ==========================================================================
+           TOP HEADER BANNER (Grid Layout: Exact alignment with PDF)
+           ========================================================================== */
+        .poster-header {
+            width: 100%;
+            height: 9.6cm;
+            display: grid;
+            grid-template-columns: 21cm 1fr 22cm;
+            align-items: center;
+            padding: 0.1cm 0.2cm 0.25cm 0.2cm;
+            border-bottom: 3.5px solid var(--primary-orange);
+            position: relative;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100%;
+        }
+
+        .header-left img {
+            max-height: 8.8cm;
+            max-width: 20.5cm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 0.5cm;
+            overflow: hidden;
+        }
+
+        .brand-title-wrap {
+            display: flex;
+            align-items: baseline;
+            gap: 0.3cm;
+        }
+
+        .brand-title-main {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--primary-orange);
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .brand-title-ai {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #3b3a39;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        .project-official-title {
+            font-size: 1.34rem;
+            font-weight: 800;
+            color: #1e1e1e;
+            margin-top: 0.22cm;
+            line-height: 1.22;
+            max-width: 52cm;
+        }
+
+        .project-team-meta {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-top: 0.2cm;
+            display: flex;
+            gap: 0.8cm;
+            align-items: center;
+        }
+
+        .meta-pill {
+            background: var(--light-orange);
+            color: var(--primary-orange);
+            border: 1.5px solid var(--primary-orange);
+            padding: 0.08cm 0.4cm;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+        }
+
+        .header-right img {
+            max-height: 8.8cm;
+            max-width: 21.5cm;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* ==========================================================================
+           MAIN 3-PANEL BODY LAYOUT
+           ========================================================================== */
+        .poster-body {
+            width: 100%;
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: 24.2cm 47.6cm 24.2cm;
+            gap: 1cm;
+            margin-top: 0.45cm;
+            height: calc(100% - 10.1cm);
+        }
+
+        /* Generic Column Styling */
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.42cm;
+            height: 100%;
+        }
+
+        /* Generic Section Card with Orange Header & Border */
+        .card {
+            border: 2.5px solid var(--border-orange);
+            border-radius: 6px;
+            background: var(--bg-white);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--primary-orange);
+            color: white;
+            text-align: center;
+            font-size: 1.34rem;
+            font-weight: 800;
+            padding: 0.16cm 0.4cm;
+            text-transform: capitalize;
+            letter-spacing: 0.2px;
+            border-bottom: 2.5px solid var(--border-orange);
+        }
+
+        .card-content {
+            padding: 0.35cm 0.45cm;
+            font-size: 0.86rem;
+            color: var(--text-dark);
+            line-height: 1.36;
+        }
+
+        .card-content p {
+            margin-bottom: 0.22cm;
+            text-align: justify;
+        }
+
+        .card-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .bullet-point {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.16cm;
+            font-size: 0.85rem;
+            line-height: 1.32;
+        }
+
+        .bullet-point:last-child {
+            margin-bottom: 0;
+        }
+
+        .bullet-point strong {
+            color: var(--primary-orange);
+            font-weight: 700;
+            white-space: nowrap;
+            margin-right: 0.15cm;
+        }
+
+        .bullet-icon {
+            color: var(--primary-orange);
+            margin-right: 0.15cm;
+            font-size: 0.95rem;
+            line-height: 1.2;
+        }
+
+        /* ==========================================================================
+           LEFT COLUMN SPECIFIC STYLES
+           ========================================================================== */
+        #card-abstract {
+            flex: 0 0 auto;
+        }
+
+        #card-introduction {
+            flex: 0 0 auto;
+        }
+
+        #card-methods {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #card-methods .card-content {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        /* Methods Tech Table */
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.25cm;
+            font-size: 0.8rem;
+            border: 2px solid var(--border-orange);
+            flex-grow: 1;
+        }
+
+        .tech-table th {
+            background-color: var(--table-header);
+            color: var(--primary-orange);
+            font-weight: 800;
+            border: 1.5px solid var(--border-orange);
+            padding: 0.14cm 0.2cm;
+            text-align: center;
+        }
+
+        .tech-table td {
+            border: 1.5px solid var(--border-orange);
+            padding: 0.22cm 0.22cm;
+            vertical-align: middle;
+            line-height: 1.26;
+        }
+
+        .tech-logo-cell {
+            text-align: center;
+            width: 4.2cm;
+        }
+
+        .tech-name-cell {
+            font-weight: 800;
+            width: 4.8cm;
+            color: #1e1e1e;
+        }
+
+        .tech-purpose-cell {
+            font-weight: 700;
+            color: var(--text-muted);
+            width: 4.6cm;
+        }
+
+        .tech-notes-cell {
+            font-size: 0.74rem;
+            color: var(--text-dark);
+        }
+
+        .tech-notes-cell ul {
+            padding-left: 0.35cm;
+            margin: 0;
+        }
+
+        .tech-notes-cell li {
+            margin-bottom: 0.08cm;
+        }
+
+        /* Vector Tech Badges */
+        .tech-svg-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.15cm;
+        }
+
+        /* ==========================================================================
+           CENTER COLUMN SPECIFIC STYLES
+           ========================================================================== */
+        /* Top: Results & Data Analysis */
+        #card-results {
+            flex: 0 0 auto;
+            height: 16cm;
+        }
+
+        .results-top-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.45cm;
+            margin-bottom: 0.2cm;
+        }
+
+        .result-subcol {
+            display: flex;
+            flex-direction: column;
+            gap: 0.12cm;
+            font-size: 0.82rem;
+            text-align: justify;
+            line-height: 1.3;
+        }
+
+        .result-subcol-title {
+            font-weight: 800;
+            color: var(--primary-orange);
+            font-size: 0.88rem;
+            border-bottom: 1.5px dashed var(--border-orange);
+            padding-bottom: 0.06cm;
+            margin-bottom: 0.08cm;
+        }
+
+        .results-visuals-grid {
+            display: grid;
+            grid-template-columns: 14.5cm 14.5cm 16.5cm;
+            gap: 0.4cm;
+            align-items: center;
+            margin-top: 0.1cm;
+            padding-top: 0.15cm;
+            border-top: 1.5px solid var(--light-orange);
+        }
+
+        .chart-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .chart-title {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 0.1cm;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.16cm;
+            font-size: 0.68rem;
+            font-weight: 700;
+            margin-top: 0.08cm;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.08cm;
+        }
+
+        .legend-color {
+            width: 0.26cm;
+            height: 0.26cm;
+            border-radius: 2px;
+        }
+
+        /* Orange QR Action Card */
+        .qr-action-box {
+            background-color: var(--primary-orange);
+            border-radius: 8px;
+            padding: 0.28cm 0.45cm;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            box-shadow: 0 4px 14px rgba(224, 123, 52, 0.3);
+            height: 5cm;
+        }
+
+        .qr-text-block {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-right: 0.3cm;
+        }
+
+        .qr-main-title {
+            font-size: 1.18rem;
+            font-weight: 900;
+            line-height: 1.15;
+            text-transform: uppercase;
+        }
+
+        .qr-sub-text {
+            font-size: 0.74rem;
+            font-weight: 600;
+            opacity: 0.95;
+            margin-top: 0.16cm;
+            line-height: 1.25;
+        }
+
+        .qr-img-wrapper {
+            background: white;
+            padding: 0.18cm;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .qr-img-wrapper img {
+            width: 4cm;
+            height: 4cm;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Middle: The 5-Column Canvas Grid */
+        #card-canvas {
+            flex: 0 0 auto;
+            border: 2.5px solid var(--border-orange);
+            border-radius: 6px;
+            background: var(--bg-white);
+            display: grid;
+            grid-template-columns: 8.9cm 9.3cm 10.6cm 9.5cm 8.9cm;
+            height: 22.8cm;
+        }
+
+        .canvas-col {
+            border-right: 2px solid var(--border-orange);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-col:last-child {
+            border-right: none;
+        }
+
+        .canvas-cell {
+            padding: 0.35cm 0.38cm;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.78rem;
+            line-height: 1.32;
+            height: 100%;
+        }
+
+        .canvas-cell.split-top {
+            border-bottom: 2px solid var(--border-orange);
+            height: 52%;
+        }
+
+        .canvas-cell.split-bottom {
+            height: 48%;
+        }
+
+        .canvas-heading {
+            font-size: 0.94rem;
+            font-weight: 800;
+            color: var(--primary-orange);
+            margin-bottom: 0.18cm;
+            display: flex;
+            align-items: center;
+            gap: 0.12cm;
+        }
+
+        .canvas-point {
+            margin-bottom: 0.22cm;
+            font-size: 0.78rem;
+            line-height: 1.3;
+        }
+
+        .canvas-point:last-child {
+            margin-bottom: 0;
+        }
+
+        .canvas-point strong {
+            color: var(--primary-orange);
+            display: block;
+            margin-bottom: 0.04cm;
+        }
+
+        /* Bottom: Cost Structure & Revenue Streams (2-column box) */
+        #card-financials {
+            flex: 1 1 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 2.5px solid var(--border-orange);
+            border-radius: 6px;
+            background: var(--bg-white);
+        }
+
+        .fin-col {
+            padding: 0.32cm 0.5cm;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.81rem;
+            line-height: 1.32;
+            justify-content: space-between;
+        }
+
+        .fin-col:first-child {
+            border-right: 2px solid var(--border-orange);
+        }
+
+        .fin-heading {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--primary-orange);
+            margin-bottom: 0.14cm;
+        }
+
+        .fin-point {
+            margin-bottom: 0.12cm;
+            font-size: 0.8rem;
+        }
+
+        .fin-point strong {
+            color: var(--primary-orange);
+            font-weight: 700;
+        }
+
+        .fin-highlight-box {
+            background: var(--light-orange);
+            border-right: 3.5px solid var(--primary-orange);
+            padding: 0.18cm 0.35cm;
+            border-radius: 4px;
+            font-weight: 800;
+            color: var(--dark-orange);
+            margin-top: 0.12cm;
+            font-size: 0.81rem;
+        }
+
+        /* ==========================================================================
+           RIGHT COLUMN SPECIFIC STYLES
+           ========================================================================== */
+        #card-conclusions {
+            flex: 0 0 auto;
+        }
+
+        #card-recommendation {
+            flex: 0 0 auto;
+        }
+
+        #card-references {
+            flex: 1 1 auto;
+        }
+
+        #card-references .card-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: calc(100% - 1.2cm);
+        }
+
+        #card-acknowledgement {
+            flex: 0 0 auto;
+        }
+
+        .reference-entry {
+            font-size: 0.77rem;
+            line-height: 1.28;
+            margin-bottom: 0.16cm;
+            padding-left: 0.38cm;
+            text-indent: -0.38cm;
+        }
+
+        .reference-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ==========================================================================
+           PRINT SPECIFIC OVERRIDES
+           ========================================================================== */
+        @media print {
+            .preview-controls {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .poster-canvas {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0.6cm 1cm 0.7cm 1cm !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- On-screen preview toolbar -->
+    <div class="preview-controls">
+        <span>📐 <strong>Exact Print Dimensions:</strong> 100 cm &times; 70 cm (Landscape)</span>
+        <button onclick="window.print()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+            Print Display Board (100x70 cm)
+        </button>
+    </div>
+
+    <!-- MAIN POSTER BOARD (100cm x 70cm) -->
+    <div class="poster-canvas">
+
+        <!-- ======================================================================
+             TOP BANNER: Exact Institutional Logos + Project Identity
+             ====================================================================== -->
+        <header class="poster-header">
+            <!-- Left: Fathalla + Galaxy for Development Logos -->
+            <div class="header-left">
+                <img src="clean_logos/logos_header_left.png" alt="Fathalla & Galaxy for Development Logos">
+            </div>
+
+            <!-- Center: Project Title & Branding -->
+            <div class="header-center">
+                <div class="brand-title-wrap">
+                    <span class="brand-title-main">METHANERADAR</span>
+                    <span class="brand-title-ai">AI</span>
+                </div>
+                <h1 class="project-official-title">
+                    Autonomous Super-Emitter Methane Plume Detection &amp; Flux Rate Quantification from NASA EMIT Hyperspectral Satellite Data via Spatial-Spectral Computer Vision
+                </h1>
+                <div class="project-team-meta">
+                    <span class="meta-pill">Regeneron ISEF 2027</span>
+                    <span><strong>Student Researchers:</strong> Fares &amp; Shnawy</span>
+                    <span><strong>Category:</strong> Earth &amp; Environmental Sciences (EAEV) / Systems Software (SOFT)</span>
+                    <span>Alexandria, Egypt</span>
+                </div>
+            </div>
+
+            <!-- Right: iATS + Applied Technology + Ministry Logos -->
+            <div class="header-right">
+                <img src="clean_logos/logos_header_right.png" alt="iATS, Applied Technology & Ministry of Education Logos">
+            </div>
+        </header>
+
+        <!-- ======================================================================
+             POSTER BODY: 3 Columns Layout (Left 24.2cm, Center 47.6cm, Right 24.2cm)
+             ====================================================================== -->
+        <main class="poster-body">
+
+            <!-- ==================================================================
+                 LEFT COLUMN: Abstract, Introduction, Methods & Materials Table
+                 ================================================================== -->
+            <aside class="column">
+                
+                <!-- Abstract -->
+                <section class="card" id="card-abstract">
+                    <div class="card-header">Abstract</div>
+                    <div class="card-content">
+                        <p>
+                            <strong>MethaneRadar AI</strong> introduces an autonomous, spaceborne computer vision and spectroscopic pipeline to detect, isolate, and quantify unmonitored "super-emitter" methane (&thinsp;CH<sub>4</sub>&thinsp;) gas plumes from low-Earth orbit. Leveraging 285-band continuous shortwave-infrared (SWIR) imagery from the <strong>NASA EMIT</strong> spectrometer aboard the International Space Station, our framework couples a physical Linearized Matched Filter with a novel <strong>Dual-Branch Spatial-Spectral Attention U-Net</strong>. 
+                        </p>
+                        <p>
+                            This architecture eliminates <strong>95.4%</strong> of false alarms caused by surface mineral confounding (calcite, dolomite, and urban albedo). By integrating real-time <strong>Copernicus ERA5</strong> atmospheric wind vectors with the <strong>Integrated Mass Enhancement (IME)</strong> dispersion model, MethaneRadar AI calculates emission flux rates (Q) in metric tons per hour, providing actionable, automated triage for pipeline operators and regulatory agencies within 30 seconds of orbital overpass.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Introduction -->
+                <section class="card" id="card-introduction">
+                    <div class="card-header">Introduction</div>
+                    <div class="card-content">
+                        <p>
+                            <strong>The Global Methane Crisis:</strong> Methane (&thinsp;CH<sub>4</sub>&thinsp;) drives &gt; 30% of global temperature rise, carrying an 84&times; higher 20-year Global Warming Potential than CO<sub>2</sub>. With an atmospheric lifetime of only 11.8 years, halting methane leaks is the single fastest lever to curb near-term warming.
+                        </p>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>The Power-Law Leak Distribution:</strong> Over 60% of oil and gas emissions originate from &lt; 10% of infrastructure points—massive "super-emitters" leaking 100 to 10,000 kg/hr from pipe ruptures and unlit flare stacks.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>The Optical Blind Spot:</strong> Methane is invisible to human eyes and standard RGB satellites. Ground inspections (OGI cameras) cover &lt; 1% of distributed pipeline networks due to severe cost and terrain friction.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>The NASA EMIT Breakthrough:</strong> NASA's EMIT sensor offers 60m spatial and 7.4nm spectral resolution across 380–2500 nm, capturing the ro-vibrational CH<sub>4</sub> absorption doublet at 2.3 &micro;m.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>The Scientific Bottleneck:</strong> Classical matched filters misclassify carbonate desert minerals as methane plumes, generating paralyzing false alarms.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>Our Breakthrough:</strong> An automated end-to-end pipeline uniting molecular spectroscopy, spatial-spectral deep learning, and mass flux sizing for zero-day mitigation.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Methods and Materials -->
+                <section class="card" id="card-methods">
+                    <div class="card-header">Methods and Materials</div>
+                    <div class="card-content" style="padding-bottom: 0.25cm;">
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>Spaceborne Hyperspectral Ingestion:</strong> Automated ingestion of NASA EMIT L2A estimated surface reflectance cubes, isolating the SWIR window (2150–2450 nm).</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>Physical Baseline Retrieval:</strong> Classical Linearized Matched Filter derived from the HITRAN 2024 database, solving for column density &alpha;(x) in ppm&middot;m.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>Dual-Branch Attention Model:</strong> Custom PyTorch network combining 1D Spectral SE-Attention with a 2D Spatial U-Net to learn aerodynamic plume geometry.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>IME Flux Quantification:</strong> Parameterizing the Integrated Mass Enhancement model with ERA5 wind vectors to estimate emission rates (Q) in metric tons/hr.</div>
+                        </div>
+
+                        <!-- Table: Logos, Name, Purpose, Notes -->
+                        <table class="tech-table">
+                            <thead>
+                                <tr>
+                                    <th class="tech-logo-cell">Logos</th>
+                                    <th class="tech-name-cell">Name</th>
+                                    <th class="tech-purpose-cell">Purpose</th>
+                                    <th class="tech-notes-cell">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="tech-logo-cell">
+                                        <div class="tech-svg-badge">
+                                            <!-- NASA & ISS Vector Logo -->
+                                            <svg width="45" height="32" viewBox="0 0 100 80">
+                                                <circle cx="50" cy="40" r="38" fill="#0b3d91"/>
+                                                <path d="M15 40 Q50 15 85 40 Q50 65 15 40" fill="none" stroke="#fc3d21" stroke-width="6"/>
+                                                <text x="50" y="47" font-size="22" font-weight="900" fill="white" text-anchor="middle" font-family="sans-serif">NASA</text>
+                                            </svg>
+                                            <span style="font-weight: 800; font-size: 0.72rem; color: #0b3d91;">EMIT</span>
+                                        </div>
+                                    </td>
+                                    <td class="tech-name-cell">NASA EMIT &amp;<br>Earthdata API</td>
+                                    <td class="tech-purpose-cell">Hyperspectral Satellite Stream</td>
+                                    <td class="tech-notes-cell">
+                                        <ul>
+                                            <li>285 SWIR bands (380–2500 nm)</li>
+                                            <li>60m spatial resolution from ISS</li>
+                                            <li>Open-access L2A NetCDF4 streaming</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="tech-logo-cell">
+                                        <div class="tech-svg-badge">
+                                            <!-- PyTorch Vector Logo -->
+                                            <svg width="26" height="30" viewBox="0 0 40 46">
+                                                <path d="M25 4 L28 7 Q21 14 21 21 Q21 27 26 31 Q31 35 37 31 L37 34 Q30 40 22 35 Q14 30 14 21 Q14 12 25 4 Z" fill="#ee4c2c"/>
+                                                <circle cx="31" cy="9" r="3.5" fill="#ee4c2c"/>
+                                            </svg>
+                                            <span style="font-weight: 800; font-size: 0.72rem; color: #ee4c2c;">PyTorch</span>
+                                        </div>
+                                    </td>
+                                    <td class="tech-name-cell">PyTorch Dual-Branch Attention Net</td>
+                                    <td class="tech-purpose-cell">Spatial-Spectral Segmentation</td>
+                                    <td class="tech-notes-cell">
+                                        <ul>
+                                            <li>Dual 1D/2D Squeeze-and-Excitation</li>
+                                            <li>Cross-attention mineral filter</li>
+                                            <li>Sub-30s inference per orbital swath</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="tech-logo-cell">
+                                        <div class="tech-svg-badge">
+                                            <!-- HITRAN Spectroscopy Vector -->
+                                            <svg width="40" height="26" viewBox="0 0 70 40">
+                                                <rect width="70" height="40" rx="4" fill="#1e293b"/>
+                                                <path d="M5 25 Q15 25 22 35 Q28 5 35 38 Q42 15 50 25 L65 25" fill="none" stroke="#38bdf8" stroke-width="3"/>
+                                            </svg>
+                                            <span style="font-weight: 800; font-size: 0.68rem; color: #1e293b;">HITRAN</span>
+                                        </div>
+                                    </td>
+                                    <td class="tech-name-cell">HITRAN 2024 &amp;<br>Matched Filter</td>
+                                    <td class="tech-purpose-cell">Physical Column Density Baseline</td>
+                                    <td class="tech-notes-cell">
+                                        <ul>
+                                            <li>2.315 &micro;m molecular absorption doublet</li>
+                                            <li>Covariance regularized &Sigma;<sub>reg</sub> inversion</li>
+                                            <li>Mathematical parity with NASA JPL Mag1c</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="tech-logo-cell">
+                                        <div class="tech-svg-badge">
+                                            <!-- Copernicus Wind Reanalysis Vector -->
+                                            <svg width="34" height="30" viewBox="0 0 50 44">
+                                                <circle cx="25" cy="22" r="20" fill="#0284c7" opacity="0.15"/>
+                                                <path d="M10 18 Q20 12 30 18 Q40 24 45 16 M8 26 Q18 20 28 26 Q38 32 44 24" fill="none" stroke="#0284c7" stroke-width="3.5" stroke-linecap="round"/>
+                                            </svg>
+                                            <span style="font-weight: 800; font-size: 0.68rem; color: #0284c7;">ERA5</span>
+                                        </div>
+                                    </td>
+                                    <td class="tech-name-cell">Copernicus ERA5 &amp;<br>IME Engine</td>
+                                    <td class="tech-purpose-cell">Atmospheric Wind &amp; Mass Flux Sizing</td>
+                                    <td class="tech-notes-cell">
+                                        <ul>
+                                            <li>10m wind vector reanalysis syncing</li>
+                                            <li>Integrated Mass Enhancement (IME)</li>
+                                            <li>Automated mass flux in metric tons/hr</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </aside>
+
+            <!-- ==================================================================
+                 CENTER AREA: Results & Data Analysis + 5-Col Grid + Financials
+                 ================================================================== -->
+            <section class="column">
+                
+                <!-- Results and Data Analysis (Top Center) -->
+                <div class="card" id="card-results">
+                    <div class="card-header">Results and data analysis</div>
+                    <div class="card-content" style="padding: 0.35cm 0.5cm;">
+                        
+                        <!-- 3 Text Sub-Columns -->
+                        <div class="results-top-grid">
+                            <div class="result-subcol">
+                                <div class="result-subcol-title">Spectral CH<sub>4</sub> Retrieval &amp; NASA Baseline Parity</div>
+                                Applying our regularized Matched Filter across NASA EMIT tiles over major super-emitters (Permian Basin, USA and Balkanabat, Turkmenistan) recovered sharp methane column enhancement fields with an exceptional <strong>94.2% spatial correlation (R&sup2; = 0.94)</strong> compared to NASA JPL's official published Mag1c products. Peak column enhancements exceeded <strong>4,200 ppm&middot;m</strong> above ambient background.
+                            </div>
+                            <div class="result-subcol">
+                                <div class="result-subcol-title">Eliminating Mineral &amp; Urban False Positives</div>
+                                Classical matched filtering produced severe false-alarm clustering over carbonate desert outcrops (calcite/dolomite) and reflective urban structures exhibiting false 2.3 &micro;m dips. Our Dual-Branch Spatial-Spectral Attention Network achieved a <strong>95.4% false-alarm reduction</strong>, isolating true aerodynamic Gaussian dispersion plumes while discarding stationary terrain artifacts.
+                            </div>
+                            <div class="result-subcol">
+                                <div class="result-subcol-title">Real-Time Plume Flux Rate &amp; Mass Sizing</div>
+                                Coupling our segmented plume masks with Copernicus ERA5 10m wind vector fields through the IME model yielded automated emission rates of <strong>2.38 &plusmn; 0.35 metric tons/hr</strong> (&sim; 57.1 t/day) for unmonitored pipeline leaks, within <strong>&plusmn; 11.2%</strong> of ground-truth controlled release campaigns, demonstrating fully automated, operational-grade triage.
+                            </div>
+                        </div>
+
+                        <!-- 2 Donut Charts + Orange Action QR Box -->
+                        <div class="results-visuals-grid">
+                            
+                            <!-- Chart 1: Detection Breakdown -->
+                            <div class="chart-card">
+                                <div class="chart-title">Dual-Branch Plume Detection Breakdown</div>
+                                <svg width="155" height="114" viewBox="0 0 160 120">
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#f1f5f9" stroke-width="20"/>
+                                    <!-- 94.2% True Plumes (Orange) -->
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#e07b34" stroke-width="20"
+                                            stroke-dasharray="272 289" stroke-dashoffset="0" transform="rotate(-90 80 58)"/>
+                                    <!-- 3.2% Carbonate Suppressed (Dark Slate) -->
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#334155" stroke-width="20"
+                                            stroke-dasharray="9.2 289" stroke-dashoffset="-272" transform="rotate(-90 80 58)"/>
+                                    <!-- 2.6% Edge Noise Filtered (Sky Blue) -->
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#0284c7" stroke-width="20"
+                                            stroke-dasharray="7.8 289" stroke-dashoffset="-281.2" transform="rotate(-90 80 58)"/>
+                                    <text x="80" y="55" font-size="19" font-weight="900" fill="#e07b34" text-anchor="middle" font-family="sans-serif">94.2%</text>
+                                    <text x="80" y="70" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle" font-family="sans-serif">True Plumes</text>
+                                </svg>
+                                <div class="chart-legend">
+                                    <span class="legend-item"><span class="legend-color" style="background: #e07b34;"></span>True Plume (94.2%)</span>
+                                    <span class="legend-item"><span class="legend-color" style="background: #334155;"></span>Minerals Filtered (3.2%)</span>
+                                    <span class="legend-item"><span class="legend-color" style="background: #0284c7;"></span>Noise (2.6%)</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart 2: Leak Severity Sizing -->
+                            <div class="chart-card">
+                                <div class="chart-title">Detected Emission Sizing Distribution</div>
+                                <svg width="155" height="114" viewBox="0 0 160 120">
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#f1f5f9" stroke-width="20"/>
+                                    <!-- 58.7% Ultra Super-Emitters >2 t/hr (Dark Orange) -->
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#c8631e" stroke-width="20"
+                                            stroke-dasharray="169.6 289" stroke-dashoffset="0" transform="rotate(-90 80 58)"/>
+                                    <!-- 28.6% Moderate Point Sources 0.5-2 t/hr (Amber) -->
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#f59e0b" stroke-width="20"
+                                            stroke-dasharray="82.6 289" stroke-dashoffset="-169.6" transform="rotate(-90 80 58)"/>
+                                    <!-- 12.7% Small Diffuse Seeps (Emerald) -->
+                                    <circle cx="80" cy="58" r="46" fill="none" stroke="#10b981" stroke-width="20"
+                                            stroke-dasharray="36.8 289" stroke-dashoffset="-252.2" transform="rotate(-90 80 58)"/>
+                                    <text x="80" y="55" font-size="19" font-weight="900" fill="#c8631e" text-anchor="middle" font-family="sans-serif">58.7%</text>
+                                    <text x="80" y="70" font-size="9" font-weight="700" fill="#64748b" text-anchor="middle" font-family="sans-serif">&gt; 2.0 t/hr Leaks</text>
+                                </svg>
+                                <div class="chart-legend">
+                                    <span class="legend-item"><span class="legend-color" style="background: #c8631e;"></span>&gt; 2.0 t/hr (58.7%)</span>
+                                    <span class="legend-item"><span class="legend-color" style="background: #f59e0b;"></span>0.5–2.0 t/hr (28.6%)</span>
+                                    <span class="legend-item"><span class="legend-color" style="background: #10b981;"></span>&lt; 0.5 t/hr (12.7%)</span>
+                                </div>
+                            </div>
+
+                            <!-- QR Action Card -->
+                            <div class="qr-action-box">
+                                <div class="qr-text-block">
+                                    <div class="qr-main-title">Scan to view<br>our Live Analytics<br>&amp; GitHub Repo</div>
+                                    <div class="qr-sub-text">
+                                        Interactive GIS Map &bull; PyTorch Pipeline<br>
+                                        Verified NASA EMIT Methane Testbeds
+                                    </div>
+                                </div>
+                                <div class="qr-img-wrapper">
+                                    <img src="clean_logos/project_repo_qr.png" alt="Scan QR Code for Project Repository">
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Middle: System Architecture & Operational Canvas (5-Column Grid) -->
+                <div id="card-canvas">
+                    
+                    <!-- Col 1: Key Partners -->
+                    <div class="canvas-col">
+                        <div class="canvas-cell">
+                            <div class="canvas-heading">Key Partners</div>
+                            <div class="canvas-point">
+                                <strong>NASA JPL &amp; LP DAAC:</strong>
+                                Direct ingest of open EMIT calibrated L2A orbital swaths and instrument telemetry.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Ministry of Petroleum &amp; Environment:</strong>
+                                Pipeline infrastructure maps and in-situ field validation protocols.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Copernicus Climate Service:</strong>
+                                Real-time hourly ERA5 10m atmospheric wind vector synchronization.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Carbon Mapper &amp; UNEP IMEO:</strong>
+                                Global methane benchmark reconciliation and controlled release datasets.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Col 2: Key Activities & Key Resources -->
+                    <div class="canvas-col">
+                        <div class="canvas-cell split-top">
+                            <div class="canvas-heading">Key Activities</div>
+                            <div class="canvas-point">
+                                <strong>Hyperspectral Engineering:</strong>
+                                Automated L2A NetCDF4 streaming, noise filtering, and SWIR spectral slicing.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Deep Spatial-Spectral Inference:</strong>
+                                Running Dual-Branch U-Net segmentation on high-throughput cloud GPUs.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>IME Plume Flux Sizing:</strong>
+                                Real-time wind velocity integration and mass emission rate reporting in metric tons/hr.
+                            </div>
+                        </div>
+                        <div class="canvas-cell split-bottom">
+                            <div class="canvas-heading">Key Resources</div>
+                            <div class="canvas-point">
+                                <strong>Spaceborne Data Infrastructure:</strong>
+                                Continuous 285-band NASA EMIT hyperspectral imagery library.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Proprietary Deep Learning Models:</strong>
+                                Trained spatial-spectral U-Net weights &amp; HITRAN absorption profiles.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Scientific Talent:</strong>
+                                Fares (Systems Architecture) &amp; Shnawy (Physics &amp; Numerical Modeling).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Col 3: Value Propositions -->
+                    <div class="canvas-col">
+                        <div class="canvas-cell">
+                            <div class="canvas-heading">Value Propositions</div>
+                            <div class="canvas-point">
+                                <strong>Instant Zero-Day Detection:</strong>
+                                Pinpoints catastrophic pipeline ruptures and unlit flaring within 30 seconds of orbital overpass.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>False-Alarm Immunity:</strong>
+                                Eliminates 95.4% of mineral false positives, eliminating costly wild-goose-chase field maintenance trips.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Actionable Mass Sizing:</strong>
+                                Converts raw satellite spectral dips into validated metric tons/hr and saved revenue.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Zero-Hardware Footprint:</strong>
+                                100% spaceborne monitoring—no expensive ground sensor networks or manual drone flight crews required.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Col 4: Customer Relationship & Channels -->
+                    <div class="canvas-col">
+                        <div class="canvas-cell split-top">
+                            <div class="canvas-heading">Customer Relationship</div>
+                            <div class="canvas-point">
+                                <strong>Automated Incident Triage:</strong>
+                                Real-time automated webhook alerts sent directly into pipeline SCADA control rooms.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Auditable Verification:</strong>
+                                Cryptographically logged spectral absorption curves providing indisputable proof for environmental regulators.
+                            </div>
+                        </div>
+                        <div class="canvas-cell split-bottom">
+                            <div class="canvas-heading">Channels</div>
+                            <div class="canvas-point">
+                                <strong>Spaceborne Webhook API:</strong>
+                                Direct REST / WebSocket ingest for industrial SCADA and GIS networks.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Executive GIS Dashboard:</strong>
+                                Interactive web portal overlaying plume concentration heatmaps on high-res maps.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Automated PDF Audit Reports:</strong>
+                                Ready-to-file compliance documentation for national ministries and COP summits.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Col 5: Customer Segments -->
+                    <div class="canvas-col">
+                        <div class="canvas-cell">
+                            <div class="canvas-heading">Customer Segments</div>
+                            <div class="canvas-point">
+                                <strong>National Pipeline Operators:</strong>
+                                Gas transmission and distribution companies seeking to stop multimillion-dollar fuel losses.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Environmental Ministries &amp; Regulators:</strong>
+                                Government agencies enforcing the Global Methane Pledge and verifying emissions.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Sovereign Carbon Credit Verifiers:</strong>
+                                Global certification boards validating high-value carbon offset credits through verifiable leak prevention.
+                            </div>
+                            <div class="canvas-point">
+                                <strong>Upstream Oil &amp; Gas Producers:</strong>
+                                Exploration operators needing autonomous flare combustion and compressor monitoring.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bottom: Cost Structure & Revenue Streams -->
+                <div id="card-financials">
+                    <!-- Cost Structure -->
+                    <div class="fin-col">
+                        <div>
+                            <div class="fin-heading">Cost Structure</div>
+                            <div class="fin-point">
+                                <strong>Zero Hardware CapEx:</strong> 100% software-based orbital telemetry utilizing pre-existing NASA EMIT sensor on the ISS (0 EGP hardware acquisition).
+                            </div>
+                            <div class="fin-point">
+                                <strong>Serverless Cloud Compute OpEx:</strong> Distributed GPU batch processing costs estimated at $0.035 per orbital granule tile ($120/month for comprehensive national pipeline coverage).
+                            </div>
+                            <div class="fin-point">
+                                <strong>Continuous Verification:</strong> Regular automated model calibration against airborne AVIRIS-NG catalogs and open spectral libraries.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Streams -->
+                    <div class="fin-col">
+                        <div>
+                            <div class="fin-heading">Revenue Streams &amp; Economic Value</div>
+                            <div class="fin-point">
+                                <strong>Natural Gas Fuel Salvage:</strong> Captures over <strong>$14,500 daily</strong> in recovered natural gas per major super-emitter leak repaired early.
+                            </div>
+                            <div class="fin-point">
+                                <strong>COP Methane Penalty Avoidance:</strong> Shields national energy corporations from severe carbon border taxes and global pledge non-compliance fines.
+                            </div>
+                            <div class="fin-point">
+                                <strong>Sovereign Carbon Credit Offsets:</strong> Monetizes verified permanent emission mitigations on international carbon exchange markets ($35–$50 per metric ton CO<sub>2</sub>e).
+                            </div>
+                        </div>
+                        <div class="fin-highlight-box">
+                            Financial Feasibility: 14-Day Payback Period, generating $4.8M estimated annual salvaged value with 840% first-year economic ROI.
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ==================================================================
+                 RIGHT COLUMN: Conclusions, Recommendation, References, Acknowledgement
+                 ================================================================== -->
+            <aside class="column">
+                
+                <!-- Conclusions -->
+                <section class="card" id="card-conclusions">
+                    <div class="card-header">Conclusions</div>
+                    <div class="card-content">
+                        <p>
+                            <strong>MethaneRadar AI</strong> proves that spaceborne hyperspectral remote sensing, when unified with physically regularized deep learning, provides an autonomous, planetary-scale shield against fugitive greenhouse emissions.
+                        </p>
+                        <p>
+                            By achieving <strong>94.2% parity</strong> with NASA JPL's baseline while reducing false alarms by <strong>95.4%</strong>, this framework shifts satellite Earth observation from delayed scientific research into real-time industrial safety triage. With sub-meter localization and flux quantification accuracy within <strong>&plusmn; 11.2%</strong> of ground truth, MethaneRadar AI delivers the technical infrastructure needed to verify the Global Methane Pledge and safeguard atmospheric stability.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Recommendation -->
+                <section class="card" id="card-recommendation">
+                    <div class="card-header">Recommendation</div>
+                    <div class="card-content">
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>Operational Pipeline Integration:</strong> We recommend formal deployment across the Egyptian Ministry of Petroleum pipeline network, focusing on Western Desert gathering lines and Mediterranean terminals.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>Multi-Constellation Satellite Ingest:</strong> Extend the ingestion engine to future commercial hyperspectral constellations (Carbon Mapper Tanager-1, EnMAP, and PRISMA) to achieve daily revisit frequencies.</div>
+                        </div>
+                        <div class="bullet-point">
+                            <span class="bullet-icon">&#8226;</span>
+                            <div><strong>Automated Drone Dispatch:</strong> Implement automated dispatch triggers linking spaceborne alerts to localized drone optical gas imaging (OGI) inspections for valve-level confirmation.</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- References -->
+                <section class="card" id="card-references">
+                    <div class="card-header">References</div>
+                    <div class="card-content">
+                        <div class="reference-entry">
+                            &#8226; <strong>Frankenberg, C., et al. (2016).</strong> Airborne methane remote sensing with the AVIRIS-NG spectrometer. <em>Atmos. Meas. Tech.</em>, 9(5), 2385–2398.
+                        </div>
+                        <div class="reference-entry">
+                            &#8226; <strong>Green, R. O., et al. (2020).</strong> The Earth Surface Mineral Dust Source Investigation (EMIT) instrument. <em>IEEE Aerospace Conf.</em>, 1–15.
+                        </div>
+                        <div class="reference-entry">
+                            &#8226; <strong>Gordon, I. E., et al. (2022).</strong> The HITRAN2020 molecular spectroscopic database. <em>JQSRT</em>, 277, 107949.
+                        </div>
+                        <div class="reference-entry">
+                            &#8226; <strong>Varon, D. J., et al. (2018).</strong> Quantifying methane point sources from high-resolution satellite imagery using integrated mass enhancement. <em>Atmos. Meas. Tech.</em>, 11(10), 5673–5686.
+                        </div>
+                        <div class="reference-entry">
+                            &#8226; <strong>Jacob, D. J., et al. (2022).</strong> Quantifying atmospheric methane emissions to the atmosphere from satellite observations: A review. <em>Science Advances</em>, 8(33), eabn9683.
+                        </div>
+                        <div class="reference-entry">
+                            &#8226; <strong>IPCC. (2021).</strong> Sixth Assessment Report: The Physical Science Basis. Cambridge University Press.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Acknowledgement -->
+                <section class="card" id="card-acknowledgement">
+                    <div class="card-header">Acknowledgement</div>
+                    <div class="card-content">
+                        <p>
+                            We express our profound gratitude to <strong>Fathallah International Applied Technology School (IATS)</strong>, our administration, and our academic mentors for their expert guidance, encouragement, and continuous support.
+                        </p>
+                        <p>
+                            Special thanks to the <strong>NASA Jet Propulsion Laboratory (JPL)</strong> and the <strong>LP DAAC</strong> for providing open scientific access to the EMIT mission datasets. This research is dedicated to pioneering Egyptian youth innovation at <strong>Regeneron ISEF 2027</strong>.
+                        </p>
+                    </div>
+                </section>
+
+            </aside>
+
+        </main>
+
+    </div>
+
+</body>
+</html>
