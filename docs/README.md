@@ -14,6 +14,7 @@ This directory houses the foundational research specifications, physical derivat
 | [**`03_MASTER_RESEARCH_AND_IMPLEMENTATION.md`**](./03_MASTER_RESEARCH_AND_IMPLEMENTATION.md) | Deep mathematical derivations: Unit Matched Filter ($\alpha$), background covariance regularization ($\Sigma + \lambda I$), Gated Dual-Branch CNN, and Hydrodynamic IME with ERA5 Gaussian error propagation ($\pm \sigma_Q$). | Judges, Mathematical Modelers |
 | [**`04_NASA_EARTHDATA_LOGIN_GUIDE.pdf`**](./04_NASA_EARTHDATA_LOGIN_GUIDE.pdf) | Step-by-step NASA Earthdata authentication guide for accessing LP DAAC cloud archives. | Operators, Evaluators |
 | [**`05_IMPLEMENTATION_SUMMARY.pdf`**](./05_IMPLEMENTATION_SUMMARY.pdf) | High-level executive briefing and architectural summary of the software pipeline. | General Evaluation |
+| [**`06_ISEF_PRESENTATION_SCRIPT.md`**](./06_ISEF_PRESENTATION_SCRIPT.md) | Official 5-minute A-to-Z verbal presentation script & Q&A defense strategy for Fares & Shnawy. | Team Rehearsal & Live Judging |
 
 ---
 
