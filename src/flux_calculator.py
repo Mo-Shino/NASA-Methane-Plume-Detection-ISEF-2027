@@ -60,6 +60,9 @@ class IMEFluxCalculator:
                 - flux_ton_hr: Emission rate in metric tons/hour.
                 - plume_area_km2: Surface area of plume in km^2.
                 - plume_length_m: Estimated plume dispersion length in meters.
+                - effective_wind_speed_m_s: Scaled boundary layer wind speed.
+                - number_of_plume_pixels: Pixel count inside plume.
+                - source_pixel: (row, col) coordinates of emission epicenter.
         """
         # Ensure mask is boolean
         binary_mask = (plume_mask > 0.5) & (~np.isnan(enhancement_map)) & (enhancement_map > 0)
@@ -71,7 +74,10 @@ class IMEFluxCalculator:
                 "flux_kg_hr": 0.0,
                 "flux_ton_hr": 0.0,
                 "plume_area_km2": 0.0,
-                "plume_length_m": 0.0
+                "plume_length_m": 0.0,
+                "effective_wind_speed_m_s": 0.0,
+                "number_of_plume_pixels": 0,
+                "source_pixel": (0, 0)
             }
 
         # 1. Calculate IME (Integrated Mass Enhancement) in kg
@@ -86,6 +92,11 @@ class IMEFluxCalculator:
         dx = (np.max(x_coords) - np.min(x_coords) + 1) * self.pixel_size_m
         dy = (np.max(y_coords) - np.min(y_coords) + 1) * self.pixel_size_m
         plume_length_m = float(np.sqrt(dx**2 + dy**2))
+
+        # Plume source localization (epicenter with peak column enhancement)
+        masked_enh = np.where(binary_mask, enhancement_map, 0.0)
+        source_idx = np.argmax(masked_enh)
+        source_y, source_x = np.unravel_index(source_idx, enhancement_map.shape)
 
         # 3. Calculate Flux Rate Q
         # Effective wind speed adjustment factor (Varon et al. 2018 recommends empirical scaling ~ 0.3 to 0.4 for 10m wind)
@@ -102,5 +113,6 @@ class IMEFluxCalculator:
             "plume_area_km2": round(plume_area_km2, 3),
             "plume_length_m": round(plume_length_m, 1),
             "effective_wind_speed_m_s": round(u_eff, 2),
-            "number_of_plume_pixels": int(len(plume_pixels))
+            "number_of_plume_pixels": int(len(plume_pixels)),
+            "source_pixel": (int(source_y), int(source_x))
         }
