@@ -616,6 +616,7 @@ def api_health() -> Dict[str, Any]:
     auth_info = get_nasa_engine().get_auth_status()
     return {
         "status": "ok",
+        "api_version": "2.3.0",
         "engine": "SpectraPlume Spatial-Spectral 3D-CNN + HITRAN 2024",
         "device": str(pipeline.device),
         "weights_loaded": bool(pipeline.weights_loaded),
@@ -760,6 +761,15 @@ def api_nasa_scan_point(req: LivePointScanRequest) -> JSONResponse:
                 "suggestion": "Click any onshore or coastal sector between 51.6°S and 51.6°N.",
             },
         )
+    except PermissionError as err:
+        return JSONResponse(
+            status_code=401,
+            content={
+                "error_title": "NASA Earthdata Token (.env.local) Required for Raw Swath Scan",
+                "error_message": str(err),
+                "suggestion": "Copy '.env.local' to this machine for raw 80 km swaths, or click any red hotspot dot.",
+            },
+        )
     except LookupError as err:
         return JSONResponse(
             status_code=404,
@@ -781,8 +791,19 @@ def api_nasa_scan_point(req: LivePointScanRequest) -> JSONResponse:
 
 
 @app.post("/api/analyze")
-def api_analyze(req: AnalyzeRequest) -> Dict[str, Any]:
-    return _run_and_package(req)
+def api_analyze(req: AnalyzeRequest) -> Any:
+    try:
+        return _run_and_package(req)
+    except HTTPException:
+        raise
+    except Exception as err:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error_title": "Granule Analysis Error",
+                "error_message": str(err),
+            },
+        )
 
 
 @app.get("/api/pixel-spectrum")

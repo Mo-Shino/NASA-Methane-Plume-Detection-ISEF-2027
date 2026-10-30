@@ -98,14 +98,17 @@ async function loadPassesAndBoot() {
       // Still load live red dots onto the world map in the background!
       loadLiveHotspots(reqScope || 'egypt', false, false);
     } else {
-      // Default Boot: Live NASA Satellite Hotspot Radar across Egypt (64 real red dots!)
+      // Default Boot: Live NASA Satellite Hotspot Radar across Egypt (48 real red dots!)
       const liveOk = await loadLiveHotspots(reqScope || 'egypt', true, true);
-      if (!liveOk) {
-        // Offline Fallback: Zero-internet venue mode
-        AppState.feedMode = 'benchmarks';
-        syncFeedTabUI();
-        renderPassFeed();
-        await runAnalysis(AppState.activePassId, true);
+      if (!liveOk || !AppState.currentPayload) {
+        // Offline / Token-Free Guaranteed Fallback so telemetry & charts are NEVER uninitialized
+        if (!liveOk) {
+          AppState.feedMode = 'benchmarks';
+          syncFeedTabUI();
+          renderPassFeed();
+        }
+        AppState.activePassId = 'deadsea';
+        await runAnalysis('deadsea', !liveOk);
       }
     }
 
@@ -113,7 +116,7 @@ async function loadPassesAndBoot() {
     else if (reqView === 'dispatch') switchView('dispatch', document.getElementById('tabBtnDispatch'));
     if (reqModal === 'upload') openUploadModal();
   } catch (err) {
-    showToast('Unable to reach local SpectraPlume engine. Retrying...');
+    showToast('Unable to reach local SpectraPlume engine. Keep run_demo.py open in the background.');
   }
 }
 
@@ -124,6 +127,8 @@ function updateConnectionBadge(hasLiveToken, authObj) {
     txt.textContent = `NASA Live • @${authObj.account}`;
   } else if (hasLiveToken) {
     txt.textContent = 'NASA LP DAAC • Live Connected';
+  } else if (AppState.liveHotspots && AppState.liveHotspots.length > 0) {
+    txt.textContent = 'NASA CMR • Public Live';
   } else {
     txt.textContent = 'ISS EMIT Suite • Active';
   }
@@ -607,26 +612,38 @@ async function selectOrbitalPass(passId) {
 
 /* ==================== ANALYSIS EXECUTION ==================== */
 async function runAnalysis(passId, flyCamera = false) {
+  const targetId = passId || AppState.activePassId || 'deadsea';
   const body = {
-    pass_id: passId || AppState.activePassId,
+    pass_id: targetId,
     mask_threshold: AppState.maskThreshold,
     retrieval_mode: AppState.retrievalMode,
     wind_speed: AppState.windMode === 'custom' ? AppState.customWindSpeed : null,
     wind_direction: AppState.windMode === 'custom' ? AppState.customWindDir : null,
   };
 
+  let res;
   try {
-    const res = await fetch('/api/analyze', {
+    res = await fetch('/api/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error('Analysis request failed');
+  } catch (_) {
+    showToast('Local Python server stopped — keep the terminal (run_demo.py) window open in the background.');
+    return;
+  }
+
+  try {
     const payload = await res.json();
+    if (!res.ok) {
+      const reason = payload.error_message || payload.detail || `HTTP ${res.status}`;
+      showToast(`Analysis Warning: ${reason}`);
+      return;
+    }
     AppState.currentPayload = payload;
     applyPayloadToUI(payload, flyCamera);
-  } catch (err) {
-    showToast('Error analyzing granule. Please verify server connection.');
+  } catch (_) {
+    showToast('Server returned an unexpected response — restart run_demo.py after git pull.');
   }
 }
 
