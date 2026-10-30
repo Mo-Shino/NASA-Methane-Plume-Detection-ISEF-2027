@@ -1,7 +1,12 @@
 """
 generate_presentation.py
-Rebuilds the presentation with MINIMAL text, ZERO clutter, HUGE numbers,
-vector graphics, and exact alignment with the ISEF presentation script.
+Rebuilds the presentation:
+- Exactly 5 slides (matches the 5 scenes of the script)
+- Only Arabic headings and numbers (NO explanation paragraphs)
+- Removed slide 6 (Q&A)
+- Removed prompter / "كواليس الإلقاء"
+- Removed control instructions / hint text
+- Pure, clean, authoritative, vectorized design
 """
 
 from pathlib import Path
@@ -18,11 +23,11 @@ HTML_CONTENT = r'''<!DOCTYPE html>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&family=JetBrains+Mono:wght@600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=JetBrains+Mono:wght@700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet" />
 
   <style>
     :root {
-      /* Editorial Warm Light Canvas */
+      /* Warm Editorial Light Palette */
       --sp-bg-canvas: #F6F3EC;
       --sp-bg-sand: #E7DECF;
       --sp-bg-sand-soft: #EFE9DD;
@@ -46,24 +51,21 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       --sp-amber-500: #D4810B;
       --sp-amber-400: #E5982A;
       --sp-amber-100: #FEF6E9;
-      --sp-amber-border: #ECCB98;
 
       /* Status */
       --sp-danger-600: #C0392B;
       --sp-danger-bg: #FDF2F0;
-      --sp-danger-border: #EABCB5;
       --sp-safe-600: #196B47;
       --sp-safe-bg: #EDF7F2;
-      --sp-safe-border: #B7DFC9;
 
       /* Fonts */
       --font-arabic: 'Cairo', sans-serif;
       --font-display: 'Plus Jakarta Sans', 'Cairo', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
 
-      /* Shadows */
-      --shadow-card: 0 4px 14px rgba(18, 35, 26, 0.05), 0 1px 3px rgba(18, 35, 26, 0.03);
-      --shadow-float: 0 14px 34px rgba(18, 35, 26, 0.09);
+      /* Elevation */
+      --shadow-card: 0 4px 16px rgba(18, 35, 26, 0.06), 0 1px 3px rgba(18, 35, 26, 0.04);
+      --shadow-float: 0 14px 34px rgba(18, 35, 26, 0.1);
     }
 
     * {
@@ -93,15 +95,15 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       position: relative;
     }
 
-    /* Minimalist Topbar */
+    /* Top Bar */
     .deck-topbar {
-      height: 52px;
+      height: 54px;
       background: var(--sp-forest-900);
       border-bottom: 1.5px solid rgba(212, 129, 11, 0.35);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
+      padding: 0 32px;
       color: #FAF8F3;
       z-index: 100;
     }
@@ -109,19 +111,19 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
     }
 
     .brand-svg {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
     }
 
     .brand-title {
       font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 18px;
+      font-weight: 900;
+      font-size: 20px;
       color: #FFFFFF;
       letter-spacing: -0.02em;
     }
@@ -129,46 +131,47 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .slide-dots {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .dot-pill {
-      height: 6px;
-      width: 22px;
+      height: 7px;
+      width: 26px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.22);
       cursor: pointer;
       transition: all 0.25s ease;
     }
 
     .dot-pill.active {
-      width: 44px;
+      width: 52px;
       background: var(--sp-amber-500);
     }
 
     .top-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .timer-pill {
       font-family: var(--font-mono);
-      font-size: 13px;
-      padding: 3px 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 4px 12px;
       border-radius: 999px;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #D2DDD6;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #E2ECE5;
     }
 
     .top-btn {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.16);
       color: #FAF8F3;
-      padding: 4px 12px;
+      padding: 5px 14px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -179,18 +182,12 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       background: rgba(255, 255, 255, 0.18);
     }
 
-    .top-btn.active-mode {
-      background: var(--sp-amber-500);
-      border-color: var(--sp-amber-400);
-      color: #FFFFFF;
-    }
-
-    /* Main Stage */
+    /* Main Deck Stage */
     .deck-stage {
       flex: 1;
       position: relative;
       width: 100%;
-      height: calc(100vh - 52px - 44px);
+      height: calc(100vh - 54px - 46px);
       overflow: hidden;
     }
 
@@ -204,7 +201,7 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 24px 44px 16px;
+      padding: 28px 48px 22px;
       overflow: hidden;
     }
 
@@ -215,66 +212,62 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       z-index: 10;
     }
 
-    /* Header in Slide */
+    /* Slide Header */
     .slide-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
-    .slide-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 800;
-      padding: 4px 12px;
+    .slide-scene-tag {
+      font-size: 14px;
+      font-weight: 900;
+      padding: 5px 16px;
       border-radius: 999px;
       background: var(--sp-bg-sand);
       color: var(--sp-forest-900);
-      border: 1px solid var(--sp-border);
-      letter-spacing: 0.02em;
+      border: 1.5px solid var(--sp-border);
     }
 
-    .slide-badge-dark {
+    .slide-scene-tag-dark {
       background: rgba(212, 129, 11, 0.15);
       color: var(--sp-amber-400);
-      border-color: rgba(212, 129, 11, 0.35);
+      border-color: rgba(212, 129, 11, 0.4);
     }
 
     .citations-strip {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .cite-pill {
+    .cite-badge {
       font-family: var(--font-mono);
-      font-size: 11.5px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 8px;
       background: #FFFFFF;
-      border: 1px solid var(--sp-border);
+      border: 1.5px solid var(--sp-border);
       color: var(--sp-forest-900);
     }
 
-    .cite-pill-dark {
+    .cite-badge-dark {
       background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.16);
       color: #FAF8F3;
     }
 
-    .cite-pill strong {
+    .cite-badge strong {
       color: var(--sp-amber-600);
     }
 
-    .cite-pill-dark strong {
+    .cite-badge-dark strong {
       color: var(--sp-amber-400);
     }
 
-    /* SLIDE 1: Cover & Scenario Hook */
+    /* SLIDE 1: Cover & Scenario */
     #slide-1 {
       background: radial-gradient(circle at 75% 25%, #183023 0%, #101F17 55%, #0B1711 100%);
       color: #FAF8F3;
@@ -283,57 +276,57 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .slide1-layout {
       display: grid;
       grid-template-columns: 1.25fr 0.9fr;
-      gap: 36px;
+      gap: 40px;
       align-items: center;
       margin: auto 0;
     }
 
     .hero-h1 {
-      font-size: 68px;
+      font-size: 76px;
       font-weight: 900;
       line-height: 1;
       letter-spacing: -0.03em;
       color: #FFFFFF;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .hero-h2 {
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
       color: var(--sp-amber-400);
-      margin-bottom: 22px;
+      margin-bottom: 26px;
     }
 
-    .hero-hook-banner {
-      background: rgba(255, 255, 255, 0.05);
-      border-right: 4.5px solid var(--sp-amber-500);
-      padding: 18px 22px;
-      border-radius: 0 14px 14px 0;
-      font-size: 21px;
-      font-weight: 700;
-      line-height: 1.5;
+    .hero-scenario-banner {
+      background: rgba(255, 255, 255, 0.06);
+      border-right: 5px solid var(--sp-amber-500);
+      padding: 20px 24px;
+      border-radius: 0 16px 16px 0;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.45;
       color: #FAF8F3;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
 
-    .hero-hook-banner strong {
+    .hero-scenario-banner span {
       color: var(--sp-amber-400);
     }
 
     .team-badges-row {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 18px;
     }
 
     .team-pill {
       display: flex;
       align-items: center;
-      gap: 10px;
-      background: rgba(18, 35, 26, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 8px 16px;
-      border-radius: 12px;
+      gap: 12px;
+      background: rgba(18, 35, 26, 0.9);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      padding: 10px 20px;
+      border-radius: 14px;
     }
 
     .team-dot {
@@ -342,36 +335,36 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       border-radius: 50%;
     }
 
-    .team-dot.fares { background: #3B82F6; box-shadow: 0 0 8px #3B82F6; }
-    .team-dot.shnawy { background: #10B981; box-shadow: 0 0 8px #10B981; }
+    .team-dot.fares { background: #3B82F6; box-shadow: 0 0 10px #3B82F6; }
+    .team-dot.shnawy { background: #10B981; box-shadow: 0 0 10px #10B981; }
 
     /* SLIDE 2: Problem & Citations */
     .stat-cards-trio {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-      margin: 10px 0 18px;
+      gap: 24px;
+      margin: 12px 0 20px;
     }
 
     .stat-card-bold {
       background: #FFFFFF;
       border: 1.5px solid var(--sp-border);
-      border-radius: 18px;
-      padding: 22px 20px;
+      border-radius: 20px;
+      padding: 24px 22px;
       box-shadow: var(--shadow-card);
       position: relative;
     }
 
-    .stat-card-bold.amber { border-top: 5px solid var(--sp-amber-500); }
-    .stat-card-bold.danger { border-top: 5px solid var(--sp-danger-600); }
-    .stat-card-bold.safe { border-top: 5px solid var(--sp-safe-600); }
+    .stat-card-bold.amber { border-top: 6px solid var(--sp-amber-500); }
+    .stat-card-bold.danger { border-top: 6px solid var(--sp-danger-600); }
+    .stat-card-bold.safe { border-top: 6px solid var(--sp-safe-600); }
 
     .stat-huge-num {
       font-family: var(--font-mono);
-      font-size: 64px;
+      font-size: 72px;
       font-weight: 900;
       line-height: 1;
-      margin: 8px 0;
+      margin: 10px 0;
     }
 
     .stat-huge-num.amber { color: var(--sp-amber-600); }
@@ -379,39 +372,39 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .stat-huge-num.safe { color: var(--sp-safe-600); }
 
     .stat-card-title {
-      font-size: 18px;
+      font-size: 21px;
       font-weight: 900;
       color: var(--sp-forest-900);
       margin-bottom: 4px;
     }
 
     .stat-card-sub {
-      font-size: 13.5px;
+      font-size: 14.5px;
       color: var(--sp-ink-secondary);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .two-flaws-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px;
+      gap: 20px;
     }
 
     .flaw-strip {
       background: var(--sp-bg-card);
       border: 1.5px solid var(--sp-border);
-      border-radius: 14px;
-      padding: 14px 18px;
+      border-radius: 16px;
+      padding: 18px 22px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
     }
 
     .flaw-icon {
-      font-size: 24px;
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
+      font-size: 26px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -422,14 +415,15 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .flaw-icon.amber { background: var(--sp-amber-100); color: var(--sp-amber-600); }
 
     .flaw-title {
-      font-size: 15.5px;
-      font-weight: 800;
+      font-size: 18px;
+      font-weight: 900;
       color: var(--sp-forest-900);
     }
 
     .flaw-sub {
-      font-size: 13px;
+      font-size: 14.5px;
       color: var(--sp-ink-secondary);
+      font-weight: 700;
       margin-top: 2px;
     }
 
@@ -437,17 +431,17 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .physics-grid-clean {
       display: grid;
       grid-template-columns: 1.15fr 0.95fr;
-      gap: 24px;
+      gap: 26px;
       align-items: stretch;
       flex: 1;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     .spectrum-box-clean {
       background: #FFFFFF;
       border: 1.5px solid var(--sp-border);
-      border-radius: 18px;
-      padding: 18px 20px;
+      border-radius: 20px;
+      padding: 20px 24px;
       box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
@@ -464,15 +458,15 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .two-innovations-col {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
       justify-content: space-between;
     }
 
     .innov-card {
       background: #FFFFFF;
       border: 1.5px solid var(--sp-border);
-      border-radius: 18px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 22px 24px;
       box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
@@ -481,7 +475,7 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 
     .innov-card.highlight {
       border-color: var(--sp-amber-500);
-      box-shadow: 0 4px 18px rgba(212, 129, 11, 0.12);
+      box-shadow: 0 4px 20px rgba(212, 129, 11, 0.12);
     }
 
     .innov-title-row {
@@ -491,7 +485,7 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     }
 
     .innov-heading {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 900;
       color: var(--sp-forest-900);
     }
@@ -499,27 +493,27 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .innov-stat-row {
       display: flex;
       align-items: baseline;
-      gap: 10px;
+      gap: 12px;
       margin: 10px 0 6px;
     }
 
     .innov-big-stat {
       font-family: var(--font-mono);
-      font-size: 48px;
+      font-size: 54px;
       font-weight: 900;
       line-height: 1;
     }
 
     .innov-stat-label {
-      font-size: 16px;
-      font-weight: 800;
+      font-size: 18px;
+      font-weight: 900;
       color: var(--sp-forest-900);
     }
 
     .innov-rule-text {
-      font-size: 13.5px;
+      font-size: 14.5px;
       color: var(--sp-ink-secondary);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     /* SLIDE 4: Live Demo & Proof */
@@ -531,30 +525,30 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .demo-kpi-bar {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin-bottom: 16px;
+      gap: 20px;
+      margin-bottom: 18px;
     }
 
     .kpi-tile {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 16px 20px;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 18px 22px;
       backdrop-filter: blur(8px);
     }
 
     .kpi-title {
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14.5px;
+      font-weight: 800;
       color: #A3B5AA;
     }
 
     .kpi-num {
       font-family: var(--font-mono);
-      font-size: 46px;
+      font-size: 52px;
       font-weight: 900;
       line-height: 1;
-      margin: 4px 0;
+      margin: 6px 0;
     }
 
     .kpi-num.amber { color: var(--sp-amber-400); }
@@ -564,16 +558,16 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .proof-main-grid {
       display: grid;
       grid-template-columns: 1.15fr 0.95fr;
-      gap: 20px;
+      gap: 24px;
       align-items: stretch;
       flex: 1;
     }
 
     .gis-mock-box {
       background: #0B1711;
-      border: 1px solid rgba(212, 129, 11, 0.35);
-      border-radius: 16px;
-      padding: 16px;
+      border: 1.5px solid rgba(212, 129, 11, 0.35);
+      border-radius: 18px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -582,29 +576,29 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .benchmark-col {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
       justify-content: space-between;
     }
 
     .stats-card-dark {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 18px;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 20px;
       backdrop-filter: blur(8px);
     }
 
     .f1-and-bars {
       display: grid;
-      grid-template-columns: 100px 1fr;
-      gap: 18px;
+      grid-template-columns: 110px 1fr;
+      gap: 20px;
       align-items: center;
     }
 
     .f1-circle-wrap {
       position: relative;
-      width: 100px;
-      height: 100px;
+      width: 110px;
+      height: 110px;
     }
 
     .f1-center-text {
@@ -618,14 +612,14 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 
     .f1-val {
       font-family: var(--font-mono);
-      font-size: 21px;
+      font-size: 24px;
       font-weight: 900;
       color: #FFFFFF;
     }
 
     .f1-lbl {
-      font-size: 9.5px;
-      font-weight: 800;
+      font-size: 10px;
+      font-weight: 900;
       color: var(--sp-amber-400);
       text-transform: uppercase;
     }
@@ -633,19 +627,19 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .bar-line {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     .bar-label-flex {
       display: flex;
       justify-content: space-between;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 3px;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 4px;
     }
 
     .bar-track-dark {
-      height: 7px;
+      height: 8px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 999px;
       overflow: hidden;
@@ -661,10 +655,10 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .bar-fill-anim.recall { background: #60A5FA; width: 0%; }
 
     .sinai-trap-banner {
-      background: rgba(0, 0, 0, 0.45);
+      background: rgba(0, 0, 0, 0.5);
       border: 1.5px solid rgba(212, 129, 11, 0.4);
-      border-radius: 14px;
-      padding: 12px 18px;
+      border-radius: 16px;
+      padding: 14px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -672,11 +666,11 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 
     .sinai-score-pill {
       text-align: center;
-      padding: 6px 14px;
-      border-radius: 8px;
+      padding: 8px 16px;
+      border-radius: 10px;
       font-family: var(--font-mono);
       font-weight: 900;
-      font-size: 22px;
+      font-size: 24px;
     }
 
     .sinai-score-pill.nasa {
@@ -695,16 +689,16 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .biz-trio-clean {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-      margin: 12px 0 16px;
+      gap: 24px;
+      margin: 14px 0 20px;
       flex: 1;
     }
 
     .biz-clean-card {
       background: #FFFFFF;
       border: 1.5px solid var(--sp-border);
-      border-radius: 18px;
-      padding: 24px 20px;
+      border-radius: 20px;
+      padding: 26px 24px;
       box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
@@ -713,40 +707,41 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 
     .biz-hero-num {
       font-family: var(--font-mono);
-      font-size: 48px;
+      font-size: 54px;
       font-weight: 900;
       line-height: 1;
-      margin: 12px 0 6px;
+      margin: 14px 0 8px;
       color: var(--sp-forest-900);
     }
 
     .biz-card-head {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
       color: var(--sp-forest-900);
+      margin-bottom: 6px;
     }
 
     .biz-card-text {
-      font-size: 14px;
+      font-size: 15px;
       color: var(--sp-ink-secondary);
-      font-weight: 600;
+      font-weight: 700;
       line-height: 1.5;
     }
 
     .sdg-badges-row {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       margin-top: 14px;
     }
 
     .sdg-chip {
       flex: 1;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 12px;
+      border-radius: 12px;
       color: #FFFFFF;
       font-weight: 900;
       text-align: center;
-      font-size: 14px;
+      font-size: 15px;
     }
 
     .sdg-chip.s13 { background: #3F7E44; }
@@ -754,62 +749,24 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 
     .closing-clean-bar {
       background: var(--sp-forest-900);
-      border-radius: 14px;
-      padding: 14px 22px;
+      border-radius: 16px;
+      padding: 16px 26px;
       color: #FAF8F3;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    /* SLIDE 6: Tough ISEF Q&A Defense */
-    .qa-clean-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      flex: 1;
-      justify-content: center;
-    }
-
-    .qa-box-clean {
-      background: #FFFFFF;
-      border: 1.5px solid var(--sp-border);
-      border-radius: 16px;
-      padding: 16px 20px;
-      box-shadow: var(--shadow-card);
-    }
-
-    .qa-q-title {
-      font-size: 17px;
-      font-weight: 900;
-      color: var(--sp-forest-900);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .qa-a-text {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--sp-ink-secondary);
-      line-height: 1.55;
-      background: var(--sp-bg-sand-soft);
-      padding: 10px 14px;
-      border-radius: 8px;
-      border-right: 3.5px solid var(--sp-amber-500);
-    }
-
     /* Bottom Bar */
     .deck-bottombar {
-      height: 44px;
+      height: 46px;
       background: var(--sp-bg-sand);
-      border-top: 1px solid var(--sp-border);
+      border-top: 1.5px solid var(--sp-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      font-size: 12px;
+      padding: 0 32px;
+      font-size: 13px;
       color: var(--sp-ink-secondary);
       z-index: 90;
     }
@@ -823,74 +780,28 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     .nav-btn-box {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
     .arrow-btn {
       background: #FFFFFF;
       border: 1px solid var(--sp-border);
       color: var(--sp-forest-900);
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       font-weight: 900;
+      font-size: 16px;
     }
 
     .arrow-btn:hover {
       background: var(--sp-amber-500);
       color: #FFFFFF;
       border-color: var(--sp-amber-400);
-    }
-
-    /* Prompter Dock (Hidden by default, toggled via P key) */
-    .prompter-dock {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(18, 35, 26, 0.98);
-      border-top: 2.5px solid var(--sp-amber-500);
-      backdrop-filter: blur(12px);
-      padding: 14px 28px;
-      z-index: 1000;
-      transform: translateY(105%);
-      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .prompter-dock.open {
-      transform: translateY(0);
-    }
-
-    .prompter-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .prompter-box {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 10px;
-      padding: 10px 14px;
-    }
-
-    .prompter-name {
-      font-size: 12.5px;
-      font-weight: 900;
-      margin-bottom: 4px;
-    }
-
-    .prompter-name.fares { color: #60A5FA; }
-    .prompter-name.shnawy { color: #34D399; }
-
-    .prompter-cue {
-      font-size: 13.5px;
-      color: #FAF8F3;
-      line-height: 1.5;
     }
   </style>
 </head>
@@ -911,19 +822,18 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         <span class="brand-title">SpectraPlume</span>
       </div>
 
+      <!-- 5 Dots for 5 Scenes -->
       <div class="slide-dots">
         <div class="dot-pill active" onclick="goToSlide(0)"></div>
         <div class="dot-pill" onclick="goToSlide(1)"></div>
         <div class="dot-pill" onclick="goToSlide(2)"></div>
         <div class="dot-pill" onclick="goToSlide(3)"></div>
         <div class="dot-pill" onclick="goToSlide(4)"></div>
-        <div class="dot-pill" onclick="goToSlide(5)"></div>
       </div>
 
       <div class="top-actions">
         <span class="timer-pill" id="timer">⏱️ 00:00 / 04:30</span>
-        <button class="top-btn" onclick="togglePrompter()" id="prompterBtn">🎙️ كواليس الإلقاء (P)</button>
-        <button class="top-btn" onclick="toggleFullscreen()">⛶ ملء الشاشة (F)</button>
+        <button class="top-btn" onclick="toggleFullscreen()">⛶ ملء الشاشة</button>
       </div>
     </header>
 
@@ -936,64 +846,64 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       <section class="slide active" id="slide-1">
         <div class="slide-head">
           <div class="citations-strip">
-            <span class="cite-pill cite-pill-dark">Regeneron ISEF 2027</span>
-            <span class="cite-pill cite-pill-dark">Category: <strong>AIR (Atmospheric Science)</strong></span>
-            <span class="cite-pill cite-pill-dark">NASA EMIT Spaceborne Mission</span>
+            <span class="cite-badge cite-badge-dark">Regeneron ISEF 2027</span>
+            <span class="cite-badge cite-badge-dark">Category: <strong>AIR</strong></span>
+            <span class="cite-badge cite-badge-dark">NASA EMIT Mission</span>
           </div>
-          <span class="slide-badge slide-badge-dark">🎬 المشهد 1: الافتتاحية والسيناريو</span>
+          <span class="slide-scene-tag slide-scene-tag-dark">المشهد 1: الافتتاحية والسيناريو</span>
         </div>
 
         <div class="slide1-layout">
           <div>
             <h1 class="hero-h1">SpectraPlume</h1>
-            <h2 class="hero-h2">رادار فضائي ذكي لكشف انبعاثات الميثان وحساب التدفق من مدار الأرض</h2>
+            <h2 class="hero-h2">رادار فضائي ذكي لرصد تسريبات الميثان وحساب التدفق من المدار</h2>
 
-            <div class="hero-hook-banner">
-              "ماسورة مكسورة في الصحراء بتخسر ملايين.. 
-              <strong>مفيش إنسان شايفها، ورادارنا بيشوفها من الفضاء!</strong>"
+            <div class="hero-scenario-banner">
+              ماسورة مكسورة في الصحراء.. 
+              <span>مفيش إنسان شايفها، ورادارنا بيشوفها من الفضاء!</span>
             </div>
 
             <div class="team-badges-row">
               <div class="team-pill">
                 <span class="team-dot fares"></span>
-                <span style="font-weight:900; font-size:16px;">فارس محمد</span>
+                <span style="font-weight:900; font-size:18px;">فارس محمد</span>
               </div>
               <div class="team-pill">
                 <span class="team-dot shnawy"></span>
-                <span style="font-weight:900; font-size:16px;">محمد الشناوي</span>
+                <span style="font-weight:900; font-size:18px;">محمد الشناوي</span>
               </div>
             </div>
           </div>
 
           <!-- Clean Vector Graphic (CH4 Molecule + Sensor Beam) -->
           <div style="display:flex; justify-content:center;">
-            <svg viewBox="0 0 320 320" width="280" height="280">
+            <svg viewBox="0 0 320 320" width="300" height="300">
               <circle cx="160" cy="160" r="130" fill="none" stroke="rgba(212,129,11,0.25)" stroke-width="2" stroke-dasharray="6 6"/>
               <!-- Central Carbon -->
-              <circle cx="160" cy="160" r="32" fill="#12231A" stroke="#E5982A" stroke-width="3"/>
-              <text x="160" y="168" text-anchor="middle" fill="#FFFFFF" font-family="Plus Jakarta Sans" font-weight="900" font-size="24">C</text>
+              <circle cx="160" cy="160" r="34" fill="#12231A" stroke="#E5982A" stroke-width="3"/>
+              <text x="160" y="169" text-anchor="middle" fill="#FFFFFF" font-family="Plus Jakarta Sans" font-weight="900" font-size="26">C</text>
               <!-- 4 Hydrogens -->
-              <line x1="160" y1="128" x2="160" y2="80" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
-              <circle cx="160" cy="65" r="18" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
-              <text x="160" y="71" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="14">H</text>
+              <line x1="160" y1="126" x2="160" y2="78" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="160" cy="62" r="19" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+              <text x="160" y="68" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="15">H</text>
 
-              <line x1="128" y1="160" x2="80" y2="160" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
-              <circle cx="65" cy="160" r="18" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
-              <text x="65" y="165" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="14">H</text>
+              <line x1="126" y1="160" x2="78" y2="160" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="62" cy="160" r="19" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+              <text x="62" y="166" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="15">H</text>
 
-              <line x1="192" y1="160" x2="240" y2="160" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
-              <circle cx="255" cy="160" r="18" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
-              <text x="255" y="165" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="14">H</text>
+              <line x1="194" y1="160" x2="242" y2="160" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="258" cy="160" r="19" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+              <text x="258" y="166" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="15">H</text>
 
-              <line x1="160" y1="192" x2="160" y2="240" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
-              <circle cx="160" cy="255" r="18" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
-              <text x="160" y="261" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="14">H</text>
+              <line x1="160" y1="194" x2="160" y2="242" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+              <circle cx="160" cy="258" r="19" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+              <text x="160" y="264" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="15">H</text>
             </svg>
           </div>
         </div>
 
-        <div style="font-size:12.5px; color:#A3B5AA;">
-          Spaceborne Methane Detection & Real-Time Flux Inversion
+        <div style="font-size:13px; color:#A3B5AA; font-weight:700;">
+          Autonomous Spaceborne Methane Super-Emitter Intelligence
         </div>
       </section>
 
@@ -1002,41 +912,41 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       <!-- ========================================== -->
       <section class="slide" id="slide-2">
         <div class="slide-head">
-          <span class="slide-badge">⚠️ المشهد 2: المشكلة وتوثيق الأبحاث</span>
+          <span class="slide-scene-tag">المشهد 2: المشكلة وتوثيق الأبحاث</span>
           <div class="citations-strip">
-            <span class="cite-pill">IPCC AR6: <strong>84× GWP₂₀</strong></span>
-            <span class="cite-pill">Science Advances 2023: <strong>Thorpe et al.</strong></span>
-            <span class="cite-pill">NASA EMIT: <strong>2.3 µm SWIR</strong></span>
+            <span class="cite-badge">IPCC AR6: <strong>84× GWP₂₀</strong></span>
+            <span class="cite-badge">Science Advances 2023: <strong>Thorpe et al.</strong></span>
+            <span class="cite-badge">NASA EMIT: <strong>2.3 µm SWIR</strong></span>
           </div>
         </div>
 
         <!-- 3 Big Stat Cards -->
         <div class="stat-cards-trio">
           <div class="stat-card-bold amber">
-            <span class="cite-pill">IPCC AR6 (2021)</span>
+            <span class="cite-badge">IPCC AR6</span>
             <div class="stat-huge-num amber">
               <span class="count-up" data-val="84">0</span>×
             </div>
-            <div class="stat-card-title">أقوى من CO₂ في الاحتباس الحراري</div>
-            <div class="stat-card-sub">معيار تسخين الكوكب على مدى 20 سنة</div>
+            <div class="stat-card-title">أقوى من ثاني أكسيد الكربون</div>
+            <div class="stat-card-sub">معيار تسخين الغلاف الجوي (20 سنة)</div>
           </div>
 
           <div class="stat-card-bold danger">
-            <span class="cite-pill">Science Advances 2023</span>
+            <span class="cite-badge">Science Advances 2023</span>
             <div class="stat-huge-num danger">
               ><span class="count-up" data-val="50">0</span>%
             </div>
-            <div class="stat-card-title">من انبعاثات الميثان في العالم</div>
-            <div class="stat-card-sub">تخرج من أقل من 10% من المواقع (Super-Emitters)</div>
+            <div class="stat-card-title">انبعاثات الـ Super-Emitters</div>
+            <div class="stat-card-sub">أقل من 10% من المواقع حول العالم</div>
           </div>
 
           <div class="stat-card-bold safe">
-            <span class="cite-pill">NASA EMIT (2022)</span>
+            <span class="cite-badge">NASA EMIT</span>
             <div class="stat-huge-num safe">
               <span class="count-up" data-val="285">0</span>
             </div>
-            <div class="stat-card-title">نطاق طيفي على متن محطة الفضاء</div>
-            <div class="stat-card-sub">مطياف التصوير الفضائي عند 2.3 ميكرومتر</div>
+            <div class="stat-card-title">نطاق طيفي SWIR على الفضاء</div>
+            <div class="stat-card-sub">عزل امتصاص الغاز عند 2.3 ميكرومتر</div>
           </div>
         </div>
 
@@ -1046,7 +956,7 @@ HTML_CONTENT = r'''<!DOCTYPE html>
             <div class="flaw-icon red">⚠️</div>
             <div>
               <div class="flaw-title">عقبة الإنذارات الكاذبة (False Alarms)</div>
-              <div class="flaw-sub">صخور الكالسيت تمتص عند نفس النطاق (2.335 µm) وتخدع خوارزميات ناسا!</div>
+              <div class="flaw-sub">صخور الكالسيت تمتص عند 2.335 µm فتخدع خوارزميات ناسا</div>
             </div>
           </div>
 
@@ -1054,13 +964,13 @@ HTML_CONTENT = r'''<!DOCTYPE html>
             <div class="flaw-icon amber">❓</div>
             <div>
               <div class="flaw-title">غياب معدل التدفق الكتلي (قيمة NA)</div>
-              <div class="flaw-sub">ناسا بتسيب كمية التسريب مجهولة لعدم وجود Inversion Model مباشر!</div>
+              <div class="flaw-sub">غياب نموذج استرجاع فيزيائي مباشر يربط الرياح بالكتلة</div>
             </div>
           </div>
         </div>
 
-        <div style="font-size:12px; color:var(--sp-ink-muted);">
-          المشكلة المزدوجة: تشويش المعادن الجيرية + غياب حساب أطنان الغاز المتسرب
+        <div style="font-size:13px; color:var(--sp-ink-muted); font-weight:700;">
+          العقبة: التشويش الطيفي للمعادن الجيرية + غياب حساب التدفق الكتلي
         </div>
       </section>
 
@@ -1069,11 +979,11 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       <!-- ========================================== -->
       <section class="slide" id="slide-3">
         <div class="slide-head">
-          <span class="slide-badge">🔬 المشهد 3: الابتكار — الفيزياء الجزيئية</span>
+          <span class="slide-scene-tag">المشهد 3: الابتكار — الفيزياء الجزيئية</span>
           <div class="citations-strip">
-            <span class="cite-pill">HITRAN 2024: <strong>2260 + 2315 nm</strong></span>
-            <span class="cite-pill">CaCO₃: <strong>2335 nm (Singlet)</strong></span>
-            <span class="cite-pill">Varon et al.: <strong>AMT 2018 (IME)</strong></span>
+            <span class="cite-badge">HITRAN 2024: <strong>2260 + 2315 nm</strong></span>
+            <span class="cite-badge">CaCO₃: <strong>2335 nm (Singlet)</strong></span>
+            <span class="cite-badge">Varon et al.: <strong>AMT 2018 (IME)</strong></span>
           </div>
         </div>
 
@@ -1081,26 +991,26 @@ HTML_CONTENT = r'''<!DOCTYPE html>
           <!-- Spectrum Chart -->
           <div class="spectrum-box-clean">
             <div class="spectrum-legend-clean">
-              <span style="font-weight:900; font-size:15px; color:var(--sp-forest-900);">البصمة الطيفية: CH₄ Doublet vs. CaCO₃</span>
-              <div style="display:flex; gap:12px; font-size:12px; font-weight:800;">
+              <span style="font-weight:900; font-size:17px; color:var(--sp-forest-900);">البصمة الطيفية: CH₄ Doublet vs. CaCO₃</span>
+              <div style="display:flex; gap:16px; font-size:13px; font-weight:800;">
                 <span style="color:#D4810B;">● الميثان (قمتان)</span>
                 <span style="color:#C0392B;">● الكالسيت (قمة واحدة)</span>
               </div>
             </div>
 
             <!-- Vector SVG Plot -->
-            <svg viewBox="0 0 500 210" style="width:100%; height:auto; background:var(--sp-bg-canvas); border-radius:10px;">
+            <svg viewBox="0 0 500 210" style="width:100%; height:auto; background:var(--sp-bg-canvas); border-radius:12px;">
               <line x1="40" y1="30" x2="470" y2="30" stroke="#E3D9CD" stroke-width="1" stroke-dasharray="4 4"/>
               <line x1="40" y1="90" x2="470" y2="90" stroke="#E3D9CD" stroke-width="1" stroke-dasharray="4 4"/>
               <line x1="40" y1="150" x2="470" y2="150" stroke="#E3D9CD" stroke-width="1" stroke-dasharray="4 4"/>
               <line x1="40" y1="180" x2="470" y2="180" stroke="#D2C5BA" stroke-width="1.5"/>
 
               <!-- Labels -->
-              <text x="50" y="198" font-family="JetBrains Mono" font-size="11" fill="#6B7870">2150nm</text>
-              <text x="165" y="198" font-family="JetBrains Mono" font-size="11" fill="#D4810B" font-weight="800">2260nm</text>
-              <text x="270" y="198" font-family="JetBrains Mono" font-size="11" fill="#D4810B" font-weight="900">2315nm</text>
-              <text x="350" y="198" font-family="JetBrains Mono" font-size="11" fill="#C0392B" font-weight="800">2335nm</text>
-              <text x="440" y="198" font-family="JetBrains Mono" font-size="11" fill="#6B7870">2450nm</text>
+              <text x="50" y="198" font-family="JetBrains Mono" font-size="12" fill="#6B7870">2150nm</text>
+              <text x="165" y="198" font-family="JetBrains Mono" font-size="12" fill="#D4810B" font-weight="800">2260nm</text>
+              <text x="270" y="198" font-family="JetBrains Mono" font-size="12" fill="#D4810B" font-weight="900">2315nm</text>
+              <text x="350" y="198" font-family="JetBrains Mono" font-size="12" fill="#C0392B" font-weight="800">2335nm</text>
+              <text x="440" y="198" font-family="JetBrains Mono" font-size="12" fill="#6B7870">2450nm</text>
 
               <!-- Methane Doublet Marker Lines -->
               <line x1="185" y1="20" x2="185" y2="180" stroke="#D4810B" stroke-width="1.8" stroke-dasharray="4 3"/>
@@ -1121,8 +1031,8 @@ HTML_CONTENT = r'''<!DOCTYPE html>
               <circle cx="365" cy="160" r="5" fill="#C0392B"/>
             </svg>
 
-            <div style="font-size:13px; font-weight:700; color:var(--sp-forest-900); text-align:center;">
-              الميثان له قمتان توأم (2260 + 2315 nm) · الكالسيت قمة واحدة منفردة (2335 nm)
+            <div style="font-size:14px; font-weight:800; color:var(--sp-forest-900); text-align:center;">
+              الميثان: قمتان توأم (2260 + 2315 nm) · الكالسيت: قمة واحدة (2335 nm)
             </div>
           </div>
 
@@ -1131,21 +1041,21 @@ HTML_CONTENT = r'''<!DOCTYPE html>
             <div class="innov-card highlight">
               <div class="innov-title-row">
                 <span class="innov-heading">1. بصمة التوأم (HITRAN 2024)</span>
-                <span class="cite-pill">Doublet Ratio Filter</span>
+                <span class="cite-badge">Doublet Filter</span>
               </div>
               <div class="innov-stat-row">
                 <div class="innov-big-stat" style="color:var(--sp-amber-600);">
                   <span class="count-up" data-val="78.4" data-dec="1">0</span>%
                 </div>
-                <div class="innov-stat-label">إلغاء تام لإنذارات صخور الحجر الجيري</div>
+                <div class="innov-stat-label">إلغاء إنذارات صخور الحجر الجيري</div>
               </div>
               <div class="innov-rule-text">فحص النسبة الفيزيائية بين القمتين يطرد الصخور فوراً</div>
             </div>
 
             <div class="innov-card">
               <div class="innov-title-row">
-                <span class="innov-heading">2. حساب التدفق (Varon AMT + ERA5)</span>
-                <span class="cite-pill">Hydrodynamic IME</span>
+                <span class="innov-heading">2. حساب التدفق (Varon + ERA5)</span>
+                <span class="cite-badge">Hydrodynamic IME</span>
               </div>
               <div class="innov-stat-row">
                 <div class="innov-big-stat" style="color:var(--sp-safe-600);">
@@ -1158,8 +1068,8 @@ HTML_CONTENT = r'''<!DOCTYPE html>
           </div>
         </div>
 
-        <div style="font-size:12px; color:var(--sp-ink-muted);">
-          منظومة Physics-Informed مقيدة بقوانين فيزياء الغلاف الجوي
+        <div style="font-size:13px; color:var(--sp-ink-muted); font-weight:700;">
+          Physics-Informed: ذكاء اصطناعي مقيد بقوانين فيزياء الغلاف الجوي
         </div>
       </section>
 
@@ -1168,38 +1078,38 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       <!-- ========================================== -->
       <section class="slide" id="slide-4">
         <div class="slide-head">
-          <span class="slide-badge slide-badge-dark">🛰️ المشهد 4: الديمو العملي والإثبات</span>
+          <span class="slide-scene-tag slide-scene-tag-dark">المشهد 4: الديمو العملي والإثبات</span>
           <div class="citations-strip">
-            <span class="cite-pill cite-pill-dark">42 NASA Swaths</span>
-            <span class="cite-pill cite-pill-dark">Paired t-test: <strong>p = 2.4 × 10⁻⁸</strong></span>
-            <span class="cite-pill cite-pill-dark">Threshold: <strong>85 kg/h</strong></span>
+            <span class="cite-badge cite-badge-dark">42 NASA Swaths</span>
+            <span class="cite-badge cite-badge-dark">Paired t-test: <strong>p = 2.4 × 10⁻⁸</strong></span>
+            <span class="cite-badge cite-badge-dark">Threshold: <strong>85 kg/h</strong></span>
           </div>
         </div>
 
         <!-- 3 Big Real-Time Telemetry Cards -->
         <div class="demo-kpi-bar">
           <div class="kpi-tile">
-            <div class="kpi-title">معدل الانبعاث الكتلي اللحظي</div>
+            <div class="kpi-title">معدل الانبعاث اللحظي</div>
             <div class="kpi-num amber">
-              <span class="count-up" data-val="2.46" data-dec="2">0.00</span> <span style="font-size:22px;">طن/ساعة</span>
+              <span class="count-up" data-val="2.46" data-dec="2">0.00</span> <span style="font-size:24px;">طن/ساعة</span>
             </div>
-            <div style="font-size:12px; color:#A3B5AA;">EMIT Orbit #2222205</div>
+            <div style="font-size:12.5px; color:#A3B5AA;">EMIT Orbit #2222205</div>
           </div>
 
           <div class="kpi-tile">
-            <div class="kpi-title">الخسارة المالية اليومية المقدرة</div>
+            <div class="kpi-title">الخسارة المالية اليومية</div>
             <div class="kpi-num safe">
-              $<span class="count-up" data-val="10600">0</span> <span style="font-size:22px;">/يوم</span>
+              $<span class="count-up" data-val="10600">0</span> <span style="font-size:24px;">/يوم</span>
             </div>
-            <div style="font-size:12px; color:#A3B5AA;">تسريب حقل غاز في الشرق الأوسط</div>
+            <div style="font-size:12.5px; color:#A3B5AA;">تسريب حقل غاز في الشرق الأوسط</div>
           </div>
 
           <div class="kpi-tile">
-            <div class="kpi-title">زمن المعالجة والاستجابة (Latency)</div>
+            <div class="kpi-title">زمن المعالجة والاستجابة</div>
             <div class="kpi-num blue">
-              <span class="count-up" data-val="435">0</span> <span style="font-size:22px;">ms</span>
+              <span class="count-up" data-val="435">0</span> <span style="font-size:24px;">ms</span>
             </div>
-            <div style="font-size:12px; color:#A3B5AA;">معالجة فورية Real-Time</div>
+            <div style="font-size:12.5px; color:#A3B5AA;">معالجة فورية Real-Time</div>
           </div>
         </div>
 
@@ -1207,13 +1117,13 @@ HTML_CONTENT = r'''<!DOCTYPE html>
         <div class="proof-main-grid">
           <!-- GIS Satellite Map Box -->
           <div class="gis-mock-box">
-            <div style="display:flex; justify-content:space-between; font-size:11.5px; color:#A3B5AA;">
-              <span>🛰️ ESRI Satellite Imagery Overlay</span>
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:#A3B5AA;">
+              <span>🛰️ ESRI Satellite GIS Layer</span>
               <span style="font-family:var(--font-mono); color:var(--sp-amber-400);">31.8712° N, -102.3355° W</span>
             </div>
 
             <!-- Vector Map with Infrared Plume -->
-            <svg viewBox="0 0 420 180" style="width:100%; height:auto; background:#07120C; border-radius:10px;">
+            <svg viewBox="0 0 420 180" style="width:100%; height:auto; background:#07120C; border-radius:12px;">
               <defs>
                 <radialGradient id="plume" cx="30%" cy="60%" r="55%">
                   <stop offset="0%" stop-color="#EF4444" stop-opacity="0.95"/>
@@ -1222,14 +1132,10 @@ HTML_CONTENT = r'''<!DOCTYPE html>
                   <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
                 </radialGradient>
               </defs>
-              <!-- Terrain contours -->
               <path d="M 0 120 Q 140 90 280 140 T 420 110" fill="none" stroke="rgba(212,129,11,0.2)" stroke-width="1.5"/>
-              <!-- Plume -->
               <path d="M 120 115 Q 170 75 260 70 Q 340 65 390 55 Q 350 105 270 125 Q 190 140 120 115 Z" fill="url(#plume)"/>
-              <!-- Target Crosshair -->
               <circle cx="120" cy="115" r="12" fill="none" stroke="#EF4444" stroke-width="2"/>
               <circle cx="120" cy="115" r="3.5" fill="#EF4444"/>
-              <!-- Wind Vector -->
               <g transform="translate(45, 35)">
                 <circle cx="0" cy="0" r="16" fill="rgba(0,0,0,0.5)" stroke="rgba(255,255,255,0.2)"/>
                 <line x1="0" y1="10" x2="8" y2="-8" stroke="#34D399" stroke-width="2.5" stroke-linecap="round"/>
@@ -1238,8 +1144,8 @@ HTML_CONTENT = r'''<!DOCTYPE html>
               </g>
             </svg>
 
-            <div style="display:flex; justify-content:space-between; font-size:12px; color:#A3B5AA;">
-              <span>إسقاط GPS فوري لفرق الصيانة والطوارئ</span>
+            <div style="display:flex; justify-content:space-between; font-size:12.5px; color:#A3B5AA;">
+              <span>إسقاط GPS فوري لفرق الصيانة</span>
               <span>حد الكشف: <strong>85 kg/h</strong></span>
             </div>
           </div>
@@ -1249,7 +1155,7 @@ HTML_CONTENT = r'''<!DOCTYPE html>
             <div class="stats-card-dark">
               <div class="f1-and-bars">
                 <div class="f1-circle-wrap">
-                  <svg viewBox="0 0 100 100" width="100" height="100">
+                  <svg viewBox="0 0 100 100" width="110" height="110">
                     <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="8"/>
                     <circle id="f1Circle" cx="50" cy="50" r="40" fill="none" stroke="#D4810B" stroke-width="8"
                             stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"
@@ -1288,11 +1194,11 @@ HTML_CONTENT = r'''<!DOCTYPE html>
             <!-- Sinai Mountain Trap Banner -->
             <div class="sinai-trap-banner">
               <div>
-                <div style="font-weight:900; font-size:14px; color:#FFFFFF;">فخ جبال سيناء (Negative Control)</div>
-                <div style="font-size:11.5px; color:#A3B5AA;">مشهد صخور جيرية بدون أي غاز</div>
+                <div style="font-weight:900; font-size:15px; color:#FFFFFF;">فخ جبال سيناء (Negative Control)</div>
+                <div style="font-size:12px; color:#A3B5AA;">مشهد صخور جيرية بدون أي غاز</div>
               </div>
 
-              <div style="display:flex; gap:10px;">
+              <div style="display:flex; gap:12px;">
                 <div class="sinai-score-pill nasa">243 ❌</div>
                 <div class="sinai-score-pill spectra">0 ✅</div>
               </div>
@@ -1300,8 +1206,8 @@ HTML_CONTENT = r'''<!DOCTYPE html>
           </div>
         </div>
 
-        <div style="font-size:12px; color:var(--sp-amber-400); text-align:center; font-weight:800;">
-          التفوق الإحصائي مؤكد: Paired t-test (p = 2.4 × 10⁻⁸) عبر 42 مسار تصوير حقيقي لناسا
+        <div style="font-size:13px; color:var(--sp-amber-400); text-align:center; font-weight:800;">
+          التفوق الإحصائي: Paired t-test (p = 2.4 × 10⁻⁸) عبر 42 مسار تصوير حقيقي لناسا
         </div>
       </section>
 
@@ -1310,150 +1216,82 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       <!-- ========================================== -->
       <section class="slide" id="slide-5">
         <div class="slide-head">
-          <span class="slide-badge">🌱 المشهد 5: الجدوى والاستدامة والختام</span>
+          <span class="slide-scene-tag">المشهد 5: الجدوى والاستدامة والختام</span>
           <div class="citations-strip">
-            <span class="cite-pill">Zero Orbital CapEx</span>
-            <span class="cite-pill">UN SDG 13: <strong>Climate Action</strong></span>
-            <span class="cite-pill">UN SDG 7: <strong>Clean Energy</strong></span>
+            <span class="cite-badge">Zero Orbital CapEx</span>
+            <span class="cite-badge">UN SDG 13: <strong>Climate Action</strong></span>
+            <span class="cite-badge">UN SDG 7: <strong>Clean Energy</strong></span>
           </div>
         </div>
 
         <div class="biz-trio-clean">
           <div class="biz-clean-card">
-            <span class="cite-pill">الكفاءة الاستثمارية</span>
+            <span class="cite-badge">الكفاءة الاستثمارية</span>
             <div class="biz-hero-num" style="color:var(--sp-safe-600);">$0.00</div>
             <div class="biz-card-head">Zero Orbital CapEx</div>
             <div class="biz-card-text">
-              استثمار بيانات NASA EMIT المفتوحة مجاناً بدلاً من إطلاق قمر صناعي بتكلفة 100 مليون دولار!
+              استثمار بيانات NASA EMIT المفتوحة مجاناً بدلاً من إطلاق قمر بـ 100 مليون دولار
             </div>
           </div>
 
           <div class="biz-clean-card">
-            <span class="cite-pill">العائد الاقتصادي للشركات</span>
+            <span class="cite-badge">العائد الاقتصادي للشركات</span>
             <div class="biz-hero-num" style="color:var(--sp-amber-600);">
               $<span class="count-up" data-val="18000">0</span>
             </div>
             <div class="biz-card-head">توفير يومي لكل بئر متسرب</div>
             <div class="biz-card-text">
-              وقف تسريب واحد بحجم 1,000 kg/h يعيد ضخ الغاز في الشبكة بدلاً من هدره في الغلاف الجوي.
+              وقف تسريب واحد بحجم 1,000 kg/h يعيد ضخ الغاز في الشبكة بدلاً من هدره
             </div>
           </div>
 
           <div class="biz-clean-card">
-            <span class="cite-pill">أهداف الأمم المتحدة</span>
+            <span class="cite-badge">أهداف الأمم المتحدة</span>
             <div class="sdg-badges-row">
-              <div class="sdg-chip s13">SDG 13<br><span style="font-size:11px; font-weight:normal;">العمل المناخي</span></div>
-              <div class="sdg-chip s7">SDG 7<br><span style="font-size:11px; font-weight:normal;">طاقة نظيفة</span></div>
+              <div class="sdg-chip s13">SDG 13<br><span style="font-size:11.5px; font-weight:normal;">العمل المناخي</span></div>
+              <div class="sdg-chip s7">SDG 7<br><span style="font-size:11.5px; font-weight:normal;">طاقة نظيفة</span></div>
             </div>
             <div class="biz-card-head" style="margin-top:14px;">الاستدامة وحماية المناخ</div>
             <div class="biz-card-text">
-              حماية الكوكب بوقف أقوى غاز دفيء وصون موارد الطاقة للأجيال القادمة.
+              وقف أخطر غاز دفيء وصون موارد الطاقة للأجيال القادمة
             </div>
           </div>
         </div>
 
         <!-- Closing Bar -->
         <div class="closing-clean-bar">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-size:22px;">📘</span>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:24px;">📘</span>
             <div>
-              <div style="font-weight:900; font-size:15px; color:#FFFFFF;">Engineering Log Book</div>
-              <div style="font-size:12px; color:#A3B5AA;">توثيق كامل لكل خطوة وتجربة ومعادلة رياضية</div>
+              <div style="font-weight:900; font-size:16px; color:#FFFFFF;">Engineering Log Book</div>
+              <div style="font-size:12.5px; color:#A3B5AA;">توثيق كامل لكل خطوة وتجربة ومعادلة رياضية</div>
             </div>
           </div>
 
-          <div style="font-weight:900; font-size:17px; color:var(--sp-amber-400);">
+          <div style="font-weight:900; font-size:19px; color:var(--sp-amber-400);">
             شكراً لحضراتكم — جاهزون لأسئلة السادة المحكمين! 🎙️
           </div>
         </div>
 
-        <div style="font-size:12px; color:var(--sp-ink-muted);">
+        <div style="font-size:13px; color:var(--sp-ink-muted); font-weight:700;">
           SpectraPlume: حل بيئي، اقتصادي وواقعي جاهز للتطبيق الفوري
-        </div>
-      </section>
-
-      <!-- ========================================== -->
-      <!-- SLIDE 6: Tough ISEF Q&A Defense            -->
-      <!-- ========================================== -->
-      <section class="slide" id="slide-6">
-        <div class="slide-head">
-          <span class="slide-badge">🛡️ دفاع المسابقة — أسئلة المحكمين</span>
-          <span class="cite-pill">Q&A Quick Defense</span>
-        </div>
-
-        <div class="qa-clean-stack">
-          <div class="qa-box-clean">
-            <div class="qa-q-title">
-              <span>Q1: "إيه الفرق الجوهري بينكم وبين ناسا؟"</span>
-              <span class="cite-pill" style="color:var(--sp-safe-600);">المجيب: 🟢 الشناوي</span>
-            </div>
-            <div class="qa-a-text">
-              ناسا بتتلخبط بين الميثان وصخور الحجر الجيري وبتسيب معدل التدفق <code>NA</code>. إحنا عزلنا الصخور بنسبة <strong>78.4%</strong> ببصمة التوأم من <strong>HITRAN 2024</strong>، وحسبنا التدفق بنموذج <strong>IME</strong> وسرعات رياح ERA5 بدقة <strong>92.1%</strong> في <strong>435ms</strong> فقط!
-            </div>
-          </div>
-
-          <div class="qa-box-clean">
-            <div class="qa-q-title">
-              <span>Q2: "القمر بيمر كل عدة أيام، لو تسريب استمر ساعة ووقف هتعملوا إيه؟"</span>
-              <span class="cite-pill" style="color:#2563EB;">المجيب: 🔵 فارس</span>
-            </div>
-            <div class="qa-a-text">
-              قرار تصميمي مقصود مبني على ورقة <em>Science Advances 2023</em>؛ إحنا بنستهدف التسريبات المزمنة الكبرى (<strong>Super-Emitters</strong>) المستمرة لأيام وأسابيع والمسؤولة عن أكثر من <strong>50% من الكارثة</strong>، وبكده وفرنا 100 مليون دولار لقمر خاص وحلينا نصف المشكلة فوراً!
-            </div>
-          </div>
-
-          <div class="qa-box-clean">
-            <div class="qa-q-title">
-              <span>Q3: "ليه نسبة استبعاد الصخور 78.4% مش 100%؟"</span>
-              <span class="cite-pill">رد مشترك: 🔵 فارس أو 🟢 الشناوي</span>
-            </div>
-            <div class="qa-a-text">
-              الأمانة العلمية؛ بكسل EMIT مساحته 60×60 متراً ويحدث بداخله تداخل طيفي (<strong>Sub-pixel mixing</strong>). في الصخور النقية زي <strong>جبال سيناء لغينا 243 إنذاراً بنسبة 100%</strong>، والمتوسط العالمي عبر 42 مسار هو 78.4%، وده رقم قياسي غير مسبوق عالمياً.
-            </div>
-          </div>
-        </div>
-
-        <div style="font-size:12px; color:var(--sp-ink-muted);">
-          إجابات علمية سريعة ومقنعة مبنية على الفيزياء والأرقام الموثقة
         </div>
       </section>
 
     </main>
 
-    <!-- Bottom Navigation Bar -->
+    <!-- Bottom Navigation Bar (No instructions text) -->
     <footer class="deck-bottombar" id="bottomBar">
       <div class="nav-btn-box">
-        <button class="arrow-btn" onclick="prevSlide()" title="السابق (◀)">▶</button>
-        <button class="arrow-btn" onclick="nextSlide()" title="التالي (▶)">◀</button>
-        <span style="font-family:var(--font-mono); font-weight:800; margin-right:8px;" id="slideNum">1 / 6</span>
+        <button class="arrow-btn" onclick="prevSlide()" title="السابق">▶</button>
+        <button class="arrow-btn" onclick="nextSlide()" title="التالي">◀</button>
+        <span style="font-family:var(--font-mono); font-weight:900; margin-right:10px; font-size:14px;" id="slideNum">1 / 5</span>
       </div>
 
-      <div style="font-size:11.5px; color:var(--sp-ink-muted);">
-        استخدم الأسهم ◀ ▶ أو المسافة للتنقل · اضغط P لكواليس الإلقاء · اضغط F لملء الشاشة
-      </div>
-
-      <div style="font-family:var(--font-display); font-weight:800; font-size:12px;">
+      <div style="font-family:var(--font-display); font-weight:900; font-size:13px; color:var(--sp-forest-900);">
         SpectraPlume © ISEF 2027
       </div>
     </footer>
-
-    <!-- Presenter Prompter (Hidden dock - toggled by P key) -->
-    <div class="prompter-dock" id="prompter">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span style="color:var(--sp-amber-400); font-weight:900; font-size:13px;">🎙️ كواليس الإلقاء — توزيع الأدوار للمشهد الحالي</span>
-        <button class="top-btn" onclick="togglePrompter()" style="padding:2px 8px; font-size:11px;">إغلاق ✕</button>
-      </div>
-      <div class="prompter-grid">
-        <div class="prompter-box">
-          <div class="prompter-name fares">🔵 فارس محمد:</div>
-          <div class="prompter-cue" id="cueFares"></div>
-        </div>
-        <div class="prompter-box">
-          <div class="prompter-name shnawy">🟢 محمد الشناوي:</div>
-          <div class="prompter-cue" id="cueShnawy"></div>
-        </div>
-      </div>
-    </div>
 
   </div>
 
@@ -1463,36 +1301,6 @@ HTML_CONTENT = r'''<!DOCTYPE html>
     const dots = document.querySelectorAll('.dot-pill');
     const slideNum = document.getElementById('slideNum');
     const bottomBar = document.getElementById('bottomBar');
-    const prompter = document.getElementById('prompter');
-    const prompterBtn = document.getElementById('prompterBtn');
-
-    // Spoken Script Prompter by Slide
-    const cues = [
-      {
-        fares: "ابدأ بتشويق: 'تخيل في اللحظة دي في ماسورة غاز مكسورة في صحراء بتخرج طاقة تشغل مدينة كاملة ومحدش شايفها.. وبرنامجنا بيشوفها من الفضاء ويحدد الـ GPS في ثواني!'",
-        shnawy: "ادخل بثقة: 'أنا محمد الشناوي وده زميلي فارس محمد.. مشروعنا SpectraPlume رادار فضائي ذكي بيستغل قمر ناسا EMIT لكشف سحب الغاز وحساب كميتها بالطن في الساعة.'"
-      },
-      {
-        fares: "شاور على 50%: 'ورقة Science Advances 2023 أثبتت إن الـ Super-Emitters أقل من 10% ومسؤولة عن أكثر من 50% من الكارثة!'، ووضح عقبتي ناسا (الإنذارات الكاذبة وقيمة NA).",
-        shnawy: "شاور على 84×: 'الميثان غاز شفاف، لكن طبقاً لتقرير IPCC AR6 خطورته تعادل 84 ضعف ثاني أكسيد الكربون!'، وشاور على قمر ناسا EMIT ونطاق 2.3 ميكرومتر."
-      },
-      {
-        fares: "اشرح الابتكار: 'بنينا منظومة Physics-Informed؛ بفحص نسبة القمتين لغينا إنذارات صخور الحجر الجيري بنسبة 78.4%!'",
-        shnawy: "اشرح الفيزياء: 'الميثان له قمتين توأم (2315 و 2260 nm)، بينما الكالسيت له قمة واحدة عند 2335 nm. وطبقنا نموذج IME مع رياح ERA5 بخطأ 7.9% MAPE فقط!'"
-      },
-      {
-        fares: "وجّه الداشبورد للمحكم: 'معدل التسريب 2.46 طن/ساعة، والخسارة 10,600 دولار كل يوم، والتحليل بيخلص في 435ms!' واذكر F1=0.942 ودقة 96.1%.",
-        shnawy: "أشر للخريطة الفضائية واختم بأقوى دليل: 'أثبتنا التفوق بـ Paired t-test (p = 2.4×10⁻⁸)! وفي فخ جبال سيناء خوارزمية ناسا طلعت 243 إنذار كاذب وبرنامجنا طلع صفر بنجاح 100%!'"
-      },
-      {
-        fares: "اشرح الجدوى: 'أولاً Zero Orbital CapEx: بنستغل قمر ناسا المجاني بدون ما نحتاج 100 مليون دولار لقمر خاص!'، واربط المشروع بـ SDG 13 و SDG 7.",
-        shnawy: "أكمل التوفير: 'وقف تسريب 1,000 kg/h بيوفر 18,000 دولار كل يوم!'، وأشر لـ Engineering Log Book واختم: 'شكراً لوقت حضرتك يا فندم وإحنا جاهزون لأي أسئلة!'"
-      },
-      {
-        fares: "في سؤال استمرارية القمر: 'التركيز على الـ Super-Emitters المزمنة المستمرة لأيام وفر 100 مليون دولار وحل نصف المشكلة فوراً.'",
-        shnawy: "في سؤال الفرق عن ناسا وسؤال الـ 78.4%: 'شرح بصمة التوأم ونموذج IME، وتوضيح الأمانة العلمية وراء الـ 78.4% بسبب Sub-pixel mixing.'"
-      }
-    ];
 
     function goToSlide(idx) {
       if (idx < 0 || idx >= slides.length) return;
@@ -1510,10 +1318,6 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       } else {
         bottomBar.className = 'deck-bottombar';
       }
-
-      // Update Prompter Cues
-      document.getElementById('cueFares').textContent = cues[cur].fares;
-      document.getElementById('cueShnawy').textContent = cues[cur].shnawy;
 
       // Animate Numbers & Bars
       animateSlide(slides[cur]);
@@ -1558,11 +1362,6 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       }
     }
 
-    function togglePrompter() {
-      prompter.classList.toggle('open');
-      prompterBtn.classList.toggle('active-mode');
-    }
-
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -1588,13 +1387,10 @@ HTML_CONTENT = r'''<!DOCTYPE html>
       } else if (e.key === 'ArrowLeft' || e.key === 'Backspace' || e.key === 'PageUp') {
         e.preventDefault();
         prevSlide();
-      } else if (e.key.toLowerCase() === 'p') {
-        e.preventDefault();
-        togglePrompter();
       } else if (e.key.toLowerCase() === 'f') {
         e.preventDefault();
         toggleFullscreen();
-      } else if (e.key >= '1' && e.key <= '6') {
+      } else if (e.key >= '1' && e.key <= '5') {
         goToSlide(parseInt(e.key) - 1);
       }
     });
@@ -1608,4 +1404,4 @@ HTML_CONTENT = r'''<!DOCTYPE html>
 '''
 
 OUTPUT_FILE.write_text(HTML_CONTENT, encoding="utf-8")
-print(f"SUCCESS: Clean minimal presentation written to {OUTPUT_FILE}")
+print(f"SUCCESS: 5-slide minimal presentation written to {OUTPUT_FILE}")
