@@ -990,6 +990,21 @@ def api_logo_svg():
 WEB_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(WEB_DIR)), name="static")
 
+PRESENTATION_DIR = PROJECT_ROOT / "docs" / "presentation"
+PRESENTATION_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/presentation", StaticFiles(directory=str(PRESENTATION_DIR), html=True), name="presentation")
+
+@app.get("/presentation", response_class=HTMLResponse)
+def serve_presentation():
+    pres_file = PRESENTATION_DIR / "index.html"
+    if not pres_file.exists():
+        return HTMLResponse("<h1>Presentation Loading...</h1>", status_code=200)
+    return HTMLResponse(
+        content=pres_file.read_text(encoding="utf-8"),
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+    )
+
+
 
 @app.get("/", response_class=HTMLResponse)
 def serve_mission_console():

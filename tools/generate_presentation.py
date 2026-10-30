@@ -1,0 +1,2360 @@
+"""
+generate_presentation.py
+Builds the ultra-premium, vectorized, interactive HTML presentation for SpectraPlume ISEF 2027.
+Matches the official script and design system perfectly.
+"""
+
+import os
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+OUTPUT_DIR = PROJECT_ROOT / "docs" / "presentation"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_FILE = OUTPUT_DIR / "index.html"
+
+HTML_CONTENT = r'''<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpectraPlume — العرض الرسمي Regeneron ISEF 2027</title>
+  
+  <!-- Google Fonts: Cairo (Arabic Authority) + Plus Jakarta Sans + Inter + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      /* Warm Editorial Light Palette (Base) */
+      --sp-bg-canvas: #F6F3EC;
+      --sp-bg-sand: #E7DECF;
+      --sp-bg-sand-soft: #EFE9DD;
+      --sp-bg-card: #FFFFFF;
+      --sp-bg-elevated: #FCFBF8;
+      --sp-border: #D2C5BA;
+      --sp-border-subtle: #E3D9CD;
+
+      /* Deep Authority Forest Dark Palette */
+      --sp-forest-950: #0B1711;
+      --sp-forest-900: #12231A;
+      --sp-forest-800: #1A3326;
+      --sp-forest-700: #234735;
+      --sp-forest-600: #2E5C45;
+      
+      /* Typography Inks */
+      --sp-ink-primary: #12231A;
+      --sp-ink-secondary: #43534A;
+      --sp-ink-muted: #6B7870;
+      --sp-text-light: #FAF8F3;
+      --sp-text-light-muted: #A3B5AA;
+
+      /* Signature SWIR Infrared Amber */
+      --sp-amber-600: #B86D07;
+      --sp-amber-500: #D4810B;
+      --sp-amber-400: #E5982A;
+      --sp-amber-300: #F3B755;
+      --sp-amber-100: #FEF6E9;
+      --sp-amber-glow: rgba(212, 129, 11, 0.28);
+
+      /* Semantic Status */
+      --sp-danger-700: #9E2A1C;
+      --sp-danger-600: #C0392B;
+      --sp-danger-bg: #FDF2F0;
+      --sp-danger-border: #EABCB5;
+
+      --sp-safe-700: #135336;
+      --sp-safe-600: #196B47;
+      --sp-safe-bg: #EDF7F2;
+      --sp-safe-border: #B7DFC9;
+
+      /* Presenter Accent Colors */
+      --sp-fares-blue: #2563EB;
+      --sp-fares-bg: #EFF6FF;
+      --sp-shnawy-green: #059669;
+      --sp-shnawy-bg: #ECFDF5;
+
+      /* Fonts */
+      --font-arabic: 'Cairo', 'Plus Jakarta Sans', sans-serif;
+      --font-display: 'Plus Jakarta Sans', 'Cairo', sans-serif;
+      --font-body: 'Inter', 'Cairo', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Elevation & Shadows */
+      --shadow-sm: 0 2px 6px rgba(18, 35, 26, 0.04);
+      --shadow-card: 0 4px 16px rgba(18, 35, 26, 0.06), 0 1px 3px rgba(18, 35, 26, 0.04);
+      --shadow-float: 0 18px 40px rgba(18, 35, 26, 0.12), 0 4px 10px rgba(18, 35, 26, 0.05);
+      --shadow-glow: 0 0 28px rgba(212, 129, 11, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--sp-forest-950);
+      color: var(--sp-ink-primary);
+      font-family: var(--font-arabic);
+      user-select: none;
+    }
+
+    /* Presentation Viewport Frame (Standard 16:9 Aspect Ratio) */
+    .deck-viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: var(--sp-bg-canvas);
+      overflow: hidden;
+    }
+
+    /* Top Global Navigation Bar */
+    .deck-topbar {
+      height: 56px;
+      background: var(--sp-forest-900);
+      border-bottom: 1.5px solid rgba(212, 129, 11, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      color: var(--sp-text-light);
+      z-index: 100;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .brand-svg {
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-tag {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: rgba(212, 129, 11, 0.2);
+      color: var(--sp-amber-400);
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(212, 129, 11, 0.4);
+    }
+
+    /* Slide Stepper Dots */
+    .slide-dots {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .dot-pill {
+      height: 8px;
+      width: 24px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .dot-pill.active {
+      width: 48px;
+      background: var(--sp-amber-500);
+      box-shadow: 0 0 10px var(--sp-amber-500);
+    }
+
+    .dot-pill:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Topbar Controls & Timer */
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: #A3B5AA;
+    }
+
+    .timer-badge.active {
+      color: var(--sp-amber-400);
+      border-color: rgba(212, 129, 11, 0.5);
+    }
+
+    .top-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FAF8F3;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-family: var(--font-arabic);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .top-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .top-btn.active-mode {
+      background: var(--sp-amber-500);
+      color: #FFFFFF;
+      border-color: var(--sp-amber-400);
+    }
+
+    /* Main Slides Stage */
+    .deck-stage {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97) translateY(12px);
+      transition: opacity 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px 44px 20px;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: scale(1) translateY(0);
+      z-index: 10;
+    }
+
+    /* Common Slide Headers */
+    .slide-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .slide-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--sp-bg-sand);
+      border: 1px solid var(--sp-border);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sp-forest-900);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .slide-eyebrow-dark {
+      background: rgba(212, 129, 11, 0.15);
+      border: 1px solid rgba(212, 129, 11, 0.35);
+      color: var(--sp-amber-400);
+    }
+
+    .slide-title {
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.25;
+      color: var(--sp-forest-900);
+      letter-spacing: -0.02em;
+    }
+
+    .slide-title-dark {
+      color: #FFFFFF;
+    }
+
+    .slide-subtitle {
+      font-size: 15px;
+      color: var(--sp-ink-secondary);
+      margin-top: 4px;
+    }
+
+    .slide-subtitle-dark {
+      color: var(--sp-text-light-muted);
+    }
+
+    /* Presenter Duo Badges */
+    .presenter-turn-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .presenter-turn-fares {
+      background: var(--sp-fares-bg);
+      color: var(--sp-fares-blue);
+      border: 1.5px solid #BFDBFE;
+    }
+
+    .presenter-turn-shnawy {
+      background: var(--sp-shnawy-bg);
+      color: var(--sp-shnawy-green);
+      border: 1.5px solid #A7F3D0;
+    }
+
+    .presenter-turn-both {
+      background: var(--sp-amber-100);
+      color: var(--sp-amber-600);
+      border: 1.5px solid var(--sp-amber-border);
+    }
+
+    /* On-Screen Memory Anchors (المفاتيح العلمية للباحثين) */
+    .memory-anchors-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .anchor-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sp-forest-900);
+      font-family: var(--font-mono);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .anchor-chip-dark {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #FAF8F3;
+    }
+
+    .anchor-chip .tag-highlight {
+      color: var(--sp-amber-500);
+    }
+
+    /* SLIDE 1: Hero Cover & Hook */
+    #slide-1 {
+      background: radial-gradient(circle at 75% 20%, #1A3326 0%, #12231A 50%, #0B1711 100%);
+      color: #FAF8F3;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cosmic-mesh {
+      position: absolute;
+      inset: 0;
+      opacity: 0.15;
+      background-image: 
+        radial-gradient(circle at 25px 25px, rgba(212, 129, 11, 0.4) 2%, transparent 0%),
+        radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.3) 2%, transparent 0%);
+      background-size: 100px 100px;
+      pointer-events: none;
+    }
+
+    .slide1-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 40px;
+      align-items: center;
+      margin: auto 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-brand-lockup {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-meta-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #FAF8F3;
+    }
+
+    .hero-meta-badge.highlight {
+      background: rgba(212, 129, 11, 0.2);
+      border-color: var(--sp-amber-500);
+      color: var(--sp-amber-400);
+    }
+
+    .hero-main-title {
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #FFFFFF 0%, #F5F1E9 50%, var(--sp-amber-400) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-tagline-ar {
+      font-size: 24px;
+      font-weight: 700;
+      color: #E2ECE5;
+      line-height: 1.4;
+    }
+
+    .hero-hook-quote {
+      background: rgba(255, 255, 255, 0.05);
+      border-right: 4px solid var(--sp-amber-500);
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: #F8F5EE;
+      line-height: 1.6;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+
+    .hero-hook-quote strong {
+      color: var(--sp-amber-400);
+      font-weight: 800;
+    }
+
+    .hero-team-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .team-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(18, 35, 26, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 18px;
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .team-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: #FFFFFF;
+    }
+
+    .team-avatar.fares {
+      background: linear-gradient(135deg, #2563EB, #1D4ED8);
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .team-avatar.shnawy {
+      background: linear-gradient(135deg, #059669, #047857);
+      box-shadow: 0 0 12px rgba(5, 150, 105, 0.4);
+    }
+
+    .team-info h4 {
+      font-size: 15px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .team-info p {
+      font-size: 12px;
+      color: var(--sp-text-light-muted);
+    }
+
+    /* Vector Hero Illustration Stage (Slide 1) */
+    .hero-illustration-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radar-pulse-ring {
+      position: absolute;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(212, 129, 11, 0.35);
+      animation: spinSlow 36s linear infinite;
+    }
+
+    .radar-pulse-ring-2 {
+      position: absolute;
+      width: 480px;
+      height: 480px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Floating Molecules Animation */
+    .molecule-floating {
+      animation: floatMolecule 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatMolecule {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(-16px) rotate(8deg); }
+    }
+
+    /* SLIDE 2: Problem & Citations */
+    .problem-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--sp-border);
+      border-radius: 20px;
+      padding: 24px 22px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-float);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+    }
+
+    .stat-card.amber::before { background: var(--sp-amber-500); }
+    .stat-card.danger::before { background: var(--sp-danger-600); }
+    .stat-card.safe::before { background: var(--sp-safe-600); }
+
+    .stat-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .stat-citation-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--sp-bg-sand-soft);
+      color: var(--sp-forest-900);
+      border: 1px solid var(--sp-border-subtle);
+    }
+
+    .stat-big-number {
+      font-family: var(--font-mono);
+      font-size: 58px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .stat-big-number.amber { color: var(--sp-amber-600); }
+    .stat-big-number.danger { color: var(--sp-danger-600); }
+    .stat-big-number.safe { color: var(--sp-safe-700); }
+
+    .stat-unit {
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .stat-label {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--sp-forest-900);
+      margin-bottom: 6px;
+    }
+
+    .stat-desc {
+      font-size: 13.5px;
+      color: var(--sp-ink-secondary);
+      line-height: 1.5;
+    }
+
+    .problem-dilemma-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .dilemma-card {
+      background: var(--sp-bg-elevated);
+      border: 1.5px solid var(--sp-border);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .dilemma-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .dilemma-icon-box.danger {
+      background: var(--sp-danger-bg);
+      border: 1px solid var(--sp-danger-border);
+      color: var(--sp-danger-600);
+    }
+
+    .dilemma-icon-box.amber {
+      background: var(--sp-amber-100);
+      border: 1px solid var(--sp-amber-border);
+      color: var(--sp-amber-600);
+    }
+
+    .dilemma-content h4 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--sp-forest-900);
+      margin-bottom: 4px;
+    }
+
+    .dilemma-content p {
+      font-size: 13.5px;
+      color: var(--sp-ink-secondary);
+      line-height: 1.5;
+    }
+
+    /* SLIDE 3: Physics & Innovation */
+    .physics-layout-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .spectrum-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--sp-border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .spectrum-legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--sp-border-subtle);
+    }
+
+    .spectrum-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .spectrum-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .innovation-pillars-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      justify-content: space-between;
+    }
+
+    .pillar-box {
+      background: #FFFFFF;
+      border: 1.5px solid var(--sp-border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pillar-box.active-glow {
+      border-color: var(--sp-amber-500);
+      box-shadow: 0 4px 20px rgba(212, 129, 11, 0.15);
+    }
+
+    .pillar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pillar-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pillar-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--sp-forest-900);
+      color: #FFFFFF;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pillar-title {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--sp-forest-900);
+    }
+
+    .pillar-metric-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      background: var(--sp-bg-sand-soft);
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--sp-border-subtle);
+    }
+
+    .pillar-metric-val {
+      font-family: var(--font-mono);
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--sp-forest-900);
+    }
+
+    .pillar-metric-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--sp-ink-secondary);
+    }
+
+    .pillar-desc {
+      font-size: 13px;
+      color: var(--sp-ink-secondary);
+      line-height: 1.5;
+    }
+
+    /* SLIDE 4: Live Demo & Statistical Proof */
+    #slide-4 {
+      background: radial-gradient(circle at 80% 10%, #15271D 0%, #0E1A14 60%, #07100B 100%);
+      color: #FAF8F3;
+    }
+
+    .telemetry-trio {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .telemetry-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(10px);
+    }
+
+    .telemetry-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--sp-text-light-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .telemetry-val {
+      font-family: var(--font-mono);
+      font-size: 42px;
+      font-weight: 900;
+      color: #FFFFFF;
+      margin: 4px 0;
+    }
+
+    .telemetry-val.amber { color: var(--sp-amber-400); }
+    .telemetry-val.safe { color: #34D399; }
+    .telemetry-val.blue { color: #60A5FA; }
+
+    .telemetry-sub {
+      font-size: 12px;
+      color: #A3B5AA;
+    }
+
+    .proof-split-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .gis-stage-box {
+      background: #0B1711;
+      border: 1px solid rgba(212, 129, 11, 0.35);
+      border-radius: 18px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .gis-header-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      z-index: 2;
+    }
+
+    .gis-badge {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(212, 129, 11, 0.15);
+      border: 1px solid rgba(212, 129, 11, 0.4);
+      color: var(--sp-amber-400);
+    }
+
+    .stats-matrix-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(10px);
+    }
+
+    .gauge-and-bars {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .circular-gauge-wrapper {
+      position: relative;
+      width: 110px;
+      height: 110px;
+    }
+
+    .gauge-center-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .gauge-score {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 900;
+      color: #FFFFFF;
+    }
+
+    .gauge-caption {
+      font-size: 10px;
+      color: var(--sp-amber-400);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .progress-bar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .p-bar-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .p-bar-track {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .p-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .p-bar-fill.precision { background: linear-gradient(90deg, #10B981, #34D399); width: 0%; }
+    .p-bar-fill.recall { background: linear-gradient(90deg, #3B82F6, #60A5FA); width: 0%; }
+
+    /* The Sinai Mountain Trap Box */
+    .sinai-trap-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1.5px solid rgba(212, 129, 11, 0.4);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .sinai-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 10px;
+      min-width: 90px;
+    }
+
+    .sinai-pill.nasa {
+      background: rgba(192, 57, 43, 0.2);
+      border: 1px solid rgba(192, 57, 43, 0.5);
+      color: #F87171;
+    }
+
+    .sinai-pill.spectra {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #34D399;
+    }
+
+    .sinai-pill .val {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .sinai-pill .lbl {
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* SLIDE 5: Economic Feasibility & UN SDGs */
+    .business-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    .biz-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--sp-border);
+      border-radius: 20px;
+      padding: 26px 22px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+    }
+
+    .biz-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-float);
+    }
+
+    .biz-icon-stage {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: var(--sp-forest-900);
+      color: var(--sp-amber-400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .biz-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--sp-forest-900);
+      margin-bottom: 8px;
+    }
+
+    .biz-desc {
+      font-size: 14px;
+      color: var(--sp-ink-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .biz-metric-highlight {
+      background: var(--sp-bg-sand-soft);
+      border: 1px solid var(--sp-border-subtle);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--sp-forest-900);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sdg-badge-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .sdg-pill {
+      flex: 1;
+      padding: 12px 10px;
+      border-radius: 12px;
+      color: #FFFFFF;
+      font-weight: 800;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .sdg-13 { background: #3F7E44; }
+    .sdg-7 { background: #FCC30B; color: #12231A; }
+
+    .closing-signoff-bar {
+      background: var(--sp-forest-900);
+      border: 1.5px solid rgba(212, 129, 11, 0.4);
+      border-radius: 16px;
+      padding: 16px 24px;
+      color: #FAF8F3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logbook-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* SLIDE 6: Tough ISEF Q&A Defense */
+    .qa-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .qa-card {
+      background: #FFFFFF;
+      border: 1.5px solid var(--sp-border);
+      border-radius: 18px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow-card);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .qa-card:hover {
+      border-color: var(--sp-amber-500);
+      transform: translateX(-4px);
+    }
+
+    .qa-question-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .qa-q-text {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--sp-forest-900);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .qa-answer-box {
+      background: var(--sp-bg-sand-soft);
+      border-right: 4px solid var(--sp-amber-500);
+      padding: 12px 18px;
+      border-radius: 0 10px 10px 0;
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--sp-ink-secondary);
+    }
+
+    /* Presenter Floating Prompter Dock (كواليس الإلقاء) */
+    .prompter-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(18, 35, 26, 0.96);
+      border-top: 2px solid var(--sp-amber-500);
+      backdrop-filter: blur(14px);
+      color: #FAF8F3;
+      padding: 14px 32px;
+      z-index: 1000;
+      transform: translateY(105%);
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.4);
+    }
+
+    .prompter-dock.open {
+      transform: translateY(0);
+    }
+
+    .prompter-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .prompter-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--sp-amber-400);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prompter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .prompter-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+
+    .prompter-role {
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prompter-role.fares { color: #60A5FA; }
+    .prompter-role.shnawy { color: #34D399; }
+
+    .prompter-text {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: #F3F4F6;
+    }
+
+    /* Bottom Deck Navigation Bar */
+    .deck-bottombar {
+      height: 48px;
+      background: var(--sp-bg-sand);
+      border-top: 1px solid var(--sp-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      font-size: 12.5px;
+      color: var(--sp-ink-secondary);
+      z-index: 90;
+    }
+
+    .deck-bottombar-dark {
+      background: var(--sp-forest-950);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: var(--sp-text-light-muted);
+    }
+
+    .nav-arrow-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      background: #FFFFFF;
+      border: 1px solid var(--sp-border);
+      color: var(--sp-forest-900);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--sp-amber-500);
+      color: #FFFFFF;
+      border-color: var(--sp-amber-400);
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* SVGs Helper Styles */
+    .vector-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="deck-viewport">
+
+    <!-- Top Global Sticky Bar -->
+    <header class="deck-topbar">
+      <div class="brand-group" onclick="goToSlide(0)">
+        <!-- SpectraPlume Vector Logo -->
+        <svg class="brand-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 287 282">
+          <path fill="#DA831A" d="M149.79 245.451C149.72 241.487 149.7 237.527 149.72 233.563C149.79 222.686 149.66 211.813 149.7 200.937C149.72 195.734 149.9 190.514 149.8 185.312C149.77 183.575 149.55 181.968 149.01 180.312C145.88 170.865 137.89 166.22 129.6 161.817C125.58 159.684 121.5 157.665 117.47 155.544C117.47 155.544 116.99 155.286 116.99 155.285C115.03 154.223 113.07 153.176 111.13 152.094C101.73 146.862 92.24 141.796 82.86 136.536C74.86 132.049 68.27 126.995 62.76 119.558C52.46 105.637 51.4399 87.726 55.8199 71.589C58.8199 60.549 66.9 47.461 75.45 40.322C76.64 39.323 77.84 38.32 79.05 37.342C83.87 33.46 89.49 30.423 95.3 28.338C104.13 25.176 111.13 23.987 120.19 24.034C127.1 24.07 134.02 24.091 140.94 24.091C149.75 24.092 158.57 23.991 167.38 24.155C173.75 24.273 180.12 24.139 186.5 24.172C193.02 24.206 199.55 24.138 206.06 24.237C206.06 24.237 206.94 24.253 206.94 24.253C214.48 24.422 221.62 26.131 228.3 29.694C235.16 33.357 241.89 39.617 245.96 46.271C252.52 56.969 253.97 64.025 253.98 76.625C253.99 88.562 253.93 100.5 253.97 112.437C253.99 118.621 254.07 124.817 253.99 131C253.94 135.071 253.64 139.157 252.73 143.125C252.5 144.11 252.22 145.079 251.98 146.061C251.98 146.062 251.95 146.175 251.95 146.176C250.6 150.994 248.52 155.736 245.94 160.024C242.91 165.072 239.76 168.693 235.39 172.639C229.92 177.57 223.45 181.37 216.4 183.552C209.2 185.782 202.34 186.757 194.81 186.2L194.79 245.532L149.79 245.451Z"/>
+          <path fill="#0E241A" d="M173.31 61.564C174.46 61.563 175.6 61.563 176.75 61.565C183.52 61.575 190.3 61.536 197.06 61.656C197.06 61.656 197.56 61.667 197.56 61.667C202.7 61.799 207.31 63.92 210.38 68.125C212.41 70.91 213.33 73.761 213.36 77.187C213.37 78.291 213.34 79.396 213.33 80.5C213.24 87.421 213.4 94.331 213.41 101.25C213.42 109.519 213.48 117.795 213.38 126.063C213.35 128.262 213.28 130.352 212.7 132.483C210.27 141.335 202.83 146.955 193.69 146.946C189.09 146.941 185.18 145.18 181.19 143.002C176.54 140.467 171.93 137.885 167.24 135.44C163.29 133.384 159.46 131.143 155.57 128.973C155.57 128.973 155.13 128.722 155.12 128.722C149.93 125.882 144.58 123.301 139.44 120.362C133.71 117.085 127.73 114.25 122 110.978C117.84 108.602 113.57 106.434 109.38 104.109C106.78 102.667 104.31 100.821 102.5 98.436C97.6801 92.062 97.6 84.823 100.54 77.639C102.76 72.22 107.2 67.81 112.43 65.218C120.31 61.306 124.85 61.584 133.62 61.573C146.85 61.557 160.08 61.572 173.31 61.564Z"/>
+          <path fill="#F1F0E5" d="M179.94 77.403C180.79 77.402 181.65 77.401 182.5 77.426C185.86 77.528 188.52 78.63 190.91 81.053C194.72 84.925 194.64 89.213 194.66 94.375C194.67 99.622 194.74 104.879 194.67 110.125C194.66 111.195 194.66 112.316 194.46 113.373C193.26 119.75 188.41 123.824 181.94 123.848C178.73 123.86 175.74 121.863 173.01 120.342C166.4 116.657 159.67 113.188 153.07 109.481C149.61 107.536 146.1 105.683 142.62 103.755C139.9 102.239 137.54 100.499 136.25 97.562C133.8 91.99 135.18 85.687 139.69 81.62C142.91 78.716 146.46 77.5 150.75 77.445C152.46 77.422 154.17 77.437 155.88 77.452C163.9 77.522 171.92 77.409 179.94 77.403Z"/>
+          <path fill="#DA831A" d="M52.8199 139.306C53.77 139.879 54.72 140.452 55.6801 141.016C58.61 142.743 61.61 144.325 64.5601 146.003C71.99 150.224 79.34 154.597 86.8199 158.726C90.59 160.81 94.27 163.057 98.02 165.182C102.4 167.662 106.52 170.609 109.92 174.337C117.81 182.994 122.53 192.497 122.73 204.375C122.74 204.875 122.74 205.375 122.74 205.875C122.8 215.56 122.82 225.252 122.71 234.937C122.67 238.38 122.55 242.055 122.74 245.489L52.85 245.458L52.8199 139.306Z"/>
+        </svg>
+        <div class="brand-title">
+          SpectraPlume
+          <span class="brand-tag">ISEF 2027</span>
+        </div>
+      </div>
+
+      <!-- Slide Indicator Stepper -->
+      <div class="slide-dots">
+        <div class="dot-pill active" onclick="goToSlide(0)" title="المشهد 1: الافتتاحية"></div>
+        <div class="dot-pill" onclick="goToSlide(1)" title="المشهد 2: المشكلة والأبحاث"></div>
+        <div class="dot-pill" onclick="goToSlide(2)" title="المشهد 3: الابتكار الفيزيائي"></div>
+        <div class="dot-pill" onclick="goToSlide(3)" title="المشهد 4: الديمو والإثبات"></div>
+        <div class="dot-pill" onclick="goToSlide(4)" title="المشهد 5: الجدوى والاستدامة"></div>
+        <div class="dot-pill" onclick="goToSlide(5)" title="دفاع التحكيم: Q&A"></div>
+      </div>
+
+      <!-- Topbar Controls -->
+      <div class="topbar-controls">
+        <div class="timer-badge" id="deckTimer">⏱️ 00:00 / 04:30</div>
+        <button class="top-btn" onclick="togglePrompter()" id="btnPrompter" title="اختصار: P">
+          🎙️ كواليس الإلقاء
+        </button>
+        <button class="top-btn" onclick="toggleFullscreen()" title="اختصار: F">
+          ⛶ ملء الشاشة
+        </button>
+      </div>
+    </header>
+
+    <!-- Slides Stage Container -->
+    <main class="deck-stage">
+
+      <!-- ========================================== -->
+      <!-- SLIDE 1: The Scenario Hook (Scene 1)       -->
+      <!-- ========================================== -->
+      <section class="slide active" id="slide-1">
+        <div class="cosmic-mesh"></div>
+
+        <div class="slide-header" style="z-index:2;">
+          <div class="memory-anchors-bar">
+            <span class="anchor-chip anchor-chip-dark">Regeneron ISEF 2027</span>
+            <span class="anchor-chip anchor-chip-dark">Category: <span class="tag-highlight">AIR (Atmospheric Science)</span></span>
+            <span class="anchor-chip anchor-chip-dark">NASA EMIT Hyperspectral Mission</span>
+          </div>
+          <div class="presenter-turn-badge presenter-turn-both">
+            🎬 المشهد 1: الافتتاحية والسيناريو الخاطف
+          </div>
+        </div>
+
+        <div class="slide1-grid">
+          <div class="hero-brand-lockup">
+            <div class="hero-meta-strip">
+              <span class="hero-meta-badge highlight">🛰️ Spaceborne Intelligence</span>
+              <span class="hero-meta-badge">4.5 Min Official Pitch</span>
+              <span class="hero-meta-badge">Real-Time Inversion</span>
+            </div>
+
+            <h1 class="hero-main-title">SpectraPlume</h1>
+            <p class="hero-tagline-ar">رادار فضائي ذكي لكشف انبعاثات الميثان وحساب معدل التدفق من مدار الأرض</p>
+
+            <div class="hero-hook-quote">
+              "تخيل معايا إن في اللحظة دي، في ماسورة غاز مكسورة في الصحراء بتخرج طاقة تشغل مدينة كاملة.. 
+              <strong>والمشكلة إن مفيش إنسان شايفها ولا عارف إنها موجودة!</strong>"
+            </div>
+
+            <div class="hero-team-row">
+              <div class="team-card">
+                <div class="team-avatar fares">🔵</div>
+                <div class="team-info">
+                  <h4>فارس محمد</h4>
+                  <p>Co-Researcher & Systems</p>
+                </div>
+              </div>
+              <div class="team-card">
+                <div class="team-avatar shnawy">🟢</div>
+                <div class="team-info">
+                  <h4>محمد الشناوي</h4>
+                  <p>Co-Researcher & Physics</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Vector Stage: NASA EMIT + CH4 Molecule Floating -->
+          <div class="hero-illustration-stage">
+            <div class="radar-pulse-ring"></div>
+            <div class="radar-pulse-ring-2"></div>
+            
+            <svg class="molecule-floating" viewBox="0 0 400 400" width="360" height="360">
+              <!-- Orbit Arc -->
+              <path d="M 50 350 A 260 260 0 0 1 350 50" fill="none" stroke="rgba(212, 129, 11, 0.4)" stroke-width="2.5" stroke-dasharray="8 6"/>
+              
+              <!-- Earth Surface Arc Simulation -->
+              <path d="M 0 380 Q 200 290 400 380 L 400 400 L 0 400 Z" fill="#1A3326" opacity="0.8"/>
+              <path d="M 0 380 Q 200 290 400 380" fill="none" stroke="#34D399" stroke-width="2" opacity="0.6"/>
+
+              <!-- Central CH4 Molecule Vector Graphic -->
+              <g transform="translate(180, 160)">
+                <!-- Carbon Central Atom -->
+                <circle cx="20" cy="20" r="32" fill="#12231A" stroke="#E5982A" stroke-width="3"/>
+                <text x="20" y="27" text-anchor="middle" fill="#FFFFFF" font-family="Plus Jakarta Sans" font-weight="900" font-size="22">C</text>
+                
+                <!-- 4 Covalent Bonds to Hydrogen -->
+                <line x1="20" y1="-12" x2="20" y2="-45" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="20" cy="-55" r="16" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+                <text x="20" y="-49" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="13">H</text>
+
+                <line x1="-12" y1="20" x2="-45" y2="20" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="-55" cy="20" r="16" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+                <text x="-55" y="25" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="13">H</text>
+
+                <line x1="52" y1="20" x2="85" y2="20" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="95" cy="20" r="16" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+                <text x="95" y="25" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="13">H</text>
+
+                <line x1="20" y1="52" x2="20" y2="85" stroke="#E5982A" stroke-width="3.5" stroke-linecap="round"/>
+                <circle cx="20" cy="95" r="16" fill="#0B1711" stroke="#34D399" stroke-width="2.5"/>
+                <text x="20" y="100" text-anchor="middle" fill="#FAF8F3" font-family="Plus Jakarta Sans" font-weight="800" font-size="13">H</text>
+              </g>
+
+              <!-- Spacecraft EMIT / Sensor Node -->
+              <g transform="translate(60, 70)">
+                <rect x="0" y="0" width="36" height="20" rx="4" fill="#E5982A" stroke="#FAF8F3" stroke-width="1.5"/>
+                <line x1="-16" y1="10" x2="0" y2="10" stroke="#60A5FA" stroke-width="3"/>
+                <line x1="36" y1="10" x2="52" y2="10" stroke="#60A5FA" stroke-width="3"/>
+                <!-- Infrared Beam to Earth -->
+                <polygon points="18,20 160,330 220,330" fill="url(#beamGrad)" opacity="0.35"/>
+              </g>
+
+              <defs>
+                <linearGradient id="beamGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#D4810B" stop-opacity="0.8"/>
+                  <stop offset="100%" stop-color="#D4810B" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Slide Footer Anchors -->
+        <div class="slide-footer-anchors" style="z-index:2; margin-top:auto;">
+          <div style="font-size:12.5px; color:var(--sp-text-light-muted); display:flex; justify-content:space-between;">
+            <span>💡 رادار فضائي ذكي (Spaceborne Intelligence)</span>
+            <span>استخدم الأسهم ◀ ▶ للتنقل بين المشاهد</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 2: Problem & Citations (Scene 2)     -->
+      <!-- ========================================== -->
+      <section class="slide" id="slide-2">
+        <div class="slide-header">
+          <div>
+            <div class="slide-eyebrow">⚠️ المشهد 2: المشكلة وتوثيق الأبحاث العالمية</div>
+            <h2 class="slide-title">أزمة غاز الميثان وعقبات الخوارزميات التقليدية</h2>
+            <p class="slide-subtitle">توثيق دولي من تقارير المناخ IPCC ودورية Science Advances وبيانات ناسا</p>
+          </div>
+          <div class="memory-anchors-bar">
+            <span class="anchor-chip">IPCC AR6 <span class="tag-highlight">(84× GWP₂₀)</span></span>
+            <span class="anchor-chip">Thorpe et al. <span class="tag-highlight">(Science Advances 2023)</span></span>
+            <span class="anchor-chip">NASA EMIT <span class="tag-highlight">(285 Bands)</span></span>
+          </div>
+        </div>
+
+        <!-- 3 Hero Stat Cards with Animated Counters -->
+        <div class="problem-stats-row">
+          <!-- Stat 1: 84x -->
+          <div class="stat-card amber">
+            <div class="stat-card-header">
+              <span class="stat-citation-pill">IPCC AR6 (2021)</span>
+              <!-- Fire Flame Vector SVG -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D4810B" stroke-width="2.2">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+              </svg>
+            </div>
+            <div class="stat-big-number amber">
+              <span class="counter-num" data-target="84">0</span><span class="stat-unit">×</span>
+            </div>
+            <div class="stat-label">أقوى من ثاني أكسيد الكربون</div>
+            <p class="stat-desc">تأثير احتباس حراري كارثي على مدى 20 سنة طبقاً للهيئة الحكومية الدولية المعنية بتغير المناخ.</p>
+          </div>
+
+          <!-- Stat 2: >50% -->
+          <div class="stat-card danger">
+            <div class="stat-card-header">
+              <span class="stat-citation-pill">Science Advances 2023</span>
+              <!-- Factory Vector SVG -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C0392B" stroke-width="2.2">
+                <path d="M2 20h20M2 20V8l6 4V8l6 4V4l6 4v12"/>
+                <path d="M6 16h.01M10 16h.01M14 16h.01M18 16h.01"/>
+              </svg>
+            </div>
+            <div class="stat-big-number danger">
+              <span class="stat-unit">></span><span class="counter-num" data-target="50">0</span><span class="stat-unit">%</span>
+            </div>
+            <div class="stat-label">من انبعاثات العالم (Super-Emitters)</div>
+            <p class="stat-desc">أثبتت دراسة Thorpe et al. أن أقل من 10% من المواقع مسؤولة عن نصف انبعاثات الكوكب كاملة!</p>
+          </div>
+
+          <!-- Stat 3: 285 Bands -->
+          <div class="stat-card safe">
+            <div class="stat-card-header">
+              <span class="stat-citation-pill">NASA EMIT (2022)</span>
+              <!-- Satellite Sensor Vector SVG -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#196B47" stroke-width="2.2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M19.07 4.93l-4.24 4.24M9.17 14.83l-4.24 4.24"/>
+              </svg>
+            </div>
+            <div class="stat-big-number safe">
+              <span class="counter-num" data-target="285">0</span><span class="stat-unit">قناة</span>
+            </div>
+            <div class="stat-label">مطياف التصوير الفضائي SWIR</div>
+            <p class="stat-desc">جهاز محطة الفضاء الدولية لعزل امتصاص الميثان عند نطاق 2.3 ميكرومتر بدقة طيفية 7.4nm.</p>
+          </div>
+        </div>
+
+        <!-- The Two Fatal Dilemmas -->
+        <div class="problem-dilemma-grid">
+          <div class="dilemma-card">
+            <div class="dilemma-icon-box danger">⚠️</div>
+            <div class="dilemma-content">
+              <h4>العقبة الأولى: فخ الإنذارات الكاذبة (False Alarms)</h4>
+              <p>صخور الحجر الجيري (الكالسيت) طبقاً للمسح الجيولوجي الأمريكي بتمتص الضوء عند 2.3 ميكرومتر برضه، فبتعمل تشويش إشعاعي ويطلع للمحطات إنذار بوجود غاز وهو صخر!</p>
+            </div>
+          </div>
+
+          <div class="dilemma-card">
+            <div class="dilemma-icon-box amber">❓</div>
+            <div class="dilemma-content">
+              <h4>العقبة الثانية: غياب معدل التدفق الكتلي (`NA`)</h4>
+              <p>خوارزميات ناسا بتحدد شكل السحابة فقط، لكن بتسيب معدل التدفق مكتوب <code style="font-family:var(--font-mono); color:var(--sp-amber-600); font-weight:800;">NA</code> لعدم وجود Inversion Model يربط الرياح بالكتلة!</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:auto; padding-top:14px; display:flex; justify-content:space-between; font-size:12.5px; color:var(--sp-ink-muted);">
+          <span>🔵 فارس: "الـ Super-Emitters هي السبب في أكثر من 50% من الكارثة"</span>
+          <span>🟢 الشناوي: "فارق الـ 20 نانومتر بين الميثان والكالسيت كان يخدع ناسا"</span>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 3: Physics & Innovation (Scene 3)    -->
+      <!-- ========================================== -->
+      <section class="slide" id="slide-3">
+        <div class="slide-header">
+          <div>
+            <div class="slide-eyebrow">🔬 المشهد 3: الابتكار — الفيزياء الجزيئية وحساب التدفق</div>
+            <h2 class="slide-title">الذكاء الاصطناعي المقيد بفيزياء الغلاف الجوي</h2>
+            <p class="slide-subtitle">بصمة التوأم من HITRAN 2024 ونمذجة الـ IME الهيدروديناميكية مع رياح ERA5</p>
+          </div>
+          <div class="memory-anchors-bar">
+            <span class="anchor-chip">Doublet: <span class="tag-highlight">2260 + 2315 nm</span></span>
+            <span class="anchor-chip">Calcite: <span class="tag-highlight">2335 nm (Singlet)</span></span>
+            <span class="anchor-chip">Varon et al. <span class="tag-highlight">(AMT 2018)</span></span>
+          </div>
+        </div>
+
+        <div class="physics-layout-grid">
+          <!-- Left Column: The Interactive Vector Absorption Spectrum -->
+          <div class="spectrum-card">
+            <div class="spectrum-legend-row">
+              <div style="font-weight:800; font-size:15px; color:var(--sp-forest-900);">
+                البصمة الطيفية: CH₄ Doublet vs. CaCO₃ Singlet
+              </div>
+              <div style="display:flex; gap:14px;">
+                <span class="spectrum-tag" style="color:#D4810B;"><span class="spectrum-dot" style="background:#D4810B;"></span> الميثان (CH₄ Doublet)</span>
+                <span class="spectrum-tag" style="color:#9E2A1C;"><span class="spectrum-dot" style="background:#9E2A1C;"></span> الكالسيت (CaCO₃ Singlet)</span>
+              </div>
+            </div>
+
+            <!-- Vector Plot of HITRAN Doublet vs Calcite Singlet -->
+            <svg viewBox="0 0 520 250" class="vector-svg" style="background:var(--sp-bg-canvas); border-radius:12px; border:1px solid var(--sp-border-subtle);">
+              <!-- Grid Lines -->
+              <line x1="50" y1="40" x2="490" y2="40" stroke="#E3D9CD" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="50" y1="100" x2="490" y2="100" stroke="#E3D9CD" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="50" y1="160" x2="490" y2="160" stroke="#E3D9CD" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="50" y1="210" x2="490" y2="210" stroke="#D2C5BA" stroke-width="1.5"/>
+
+              <!-- X-Axis Labels -->
+              <text x="70" y="230" font-family="JetBrains Mono" font-size="11" fill="#6B7870">2150nm</text>
+              <text x="180" y="230" font-family="JetBrains Mono" font-size="11" fill="#D4810B" font-weight="700">2260nm</text>
+              <text x="280" y="230" font-family="JetBrains Mono" font-size="11" fill="#D4810B" font-weight="800">2315nm</text>
+              <text x="360" y="230" font-family="JetBrains Mono" font-size="11" fill="#9E2A1C" font-weight="700">2335nm</text>
+              <text x="450" y="230" font-family="JetBrains Mono" font-size="11" fill="#6B7870">2450nm</text>
+
+              <!-- Methane CH4 Doublet Vertical Marker Lines -->
+              <line x1="200" y1="30" x2="200" y2="210" stroke="#D4810B" stroke-width="1.8" stroke-dasharray="4 3"/>
+              <line x1="298" y1="30" x2="298" y2="210" stroke="#D4810B" stroke-width="2" stroke-dasharray="4 3"/>
+              
+              <!-- Calcite CaCO3 Vertical Marker Line -->
+              <line x1="375" y1="30" x2="375" y2="210" stroke="#C0392B" stroke-width="1.5" stroke-dasharray="3 3"/>
+
+              <!-- Calcite Curve (Single Dip at 2335nm) -->
+              <path d="M 60 70 Q 200 70 300 80 Q 375 185 410 85 Q 460 75 490 70" 
+                    fill="none" stroke="#C0392B" stroke-width="2" stroke-dasharray="5 4" opacity="0.85"/>
+
+              <!-- Methane CH4 Curve (Two Dips: Shoulder at 2260, Deep Dip at 2315) -->
+              <path d="M 60 60 Q 150 65 175 90 Q 200 135 225 95 Q 260 90 280 140 Q 298 195 320 120 Q 380 70 490 60" 
+                    fill="none" stroke="#12231A" stroke-width="3"/>
+
+              <!-- Dips Callout Circles -->
+              <circle cx="200" cy="135" r="5" fill="#E5982A"/>
+              <circle cx="298" cy="195" r="6" fill="#D4810B"/>
+              <circle cx="375" cy="180" r="5" fill="#C0392B"/>
+
+              <!-- Annotations -->
+              <text x="298" y="22" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="11" font-weight="800" fill="#D4810B">القمة الرئيسية (2315nm)</text>
+              <text x="200" y="22" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10.5" font-weight="700" fill="#D4810B">الكتف الفرعي (2260nm)</text>
+              <text x="390" y="22" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="10.5" font-weight="700" fill="#C0392B">كالسيت (2335nm)</text>
+            </svg>
+
+            <div style="font-size:12.5px; color:var(--sp-ink-secondary); margin-top:8px; line-height:1.5;">
+              📌 <strong>قاعدة HITRAN 2024:</strong> جزيء الميثان له <em>بصمتان توأم</em> متلازمتان. خوارزميتنا تفحص النسبة الفيزيائية بين القمتين فتطرد انعكاسات الصخور الجيرية فوراً!
+            </div>
+          </div>
+
+          <!-- Right Column: The Two Innovation Pillars -->
+          <div class="innovation-pillars-stack">
+            <!-- Pillar 1 -->
+            <div class="pillar-box active-glow">
+              <div class="pillar-header">
+                <div class="pillar-title-group">
+                  <div class="pillar-num">1</div>
+                  <h3 class="pillar-title">بصمة التوأم الجزيئية (Doublet Filter)</h3>
+                </div>
+                <span class="stat-citation-pill">HITRAN 2024</span>
+              </div>
+              
+              <div class="pillar-metric-row">
+                <div class="pillar-metric-val" style="color:var(--sp-amber-600);">
+                  <span class="counter-num" data-target="78.4" data-decimals="1">0</span>%
+                </div>
+                <div class="pillar-metric-label">إلغاء تام لإنذارات صخور الحجر الجيري</div>
+              </div>
+
+              <p class="pillar-desc">
+                بدلاً من الذكاء الاصطناعي الأعمى الذي يهلوس على الصخور، تم تقييد النموذج بنسبة الامتصاص بين (2315nm و 2260nm).
+              </p>
+            </div>
+
+            <!-- Pillar 2 -->
+            <div class="pillar-box">
+              <div class="pillar-header">
+                <div class="pillar-title-group">
+                  <div class="pillar-num">2</div>
+                  <h3 class="pillar-title">نمذجة التدفق الهيدروديناميكي (IME)</h3>
+                </div>
+                <span class="stat-citation-pill">Varon et al. (AMT 2018)</span>
+              </div>
+
+              <div class="pillar-metric-row">
+                <div class="pillar-metric-val" style="color:var(--sp-safe-700);">
+                  <span class="counter-num" data-target="7.9" data-decimals="1">0</span>%
+                </div>
+                <div class="pillar-metric-label">متوسط نسبة الخطأ (MAPE) — دقة 92.1%</div>
+              </div>
+
+              <p class="pillar-desc">
+                دمج سرعات رياح <strong>ERA5 10m</strong> اللحظية في معادلة <code style="font-family:var(--font-mono); font-weight:700;">Q = (IME · U) / L</code> لحساب أطنان التسريب في أقل من نصف ثانية!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:auto; padding-top:14px; display:flex; justify-content:space-between; font-size:12.5px; color:var(--sp-ink-muted);">
+          <span>🟢 الشناوي: "الميثان له حفرتان، والكالسيت عنده حفرة واحدة"</span>
+          <span>🔵 فارس: "ألغينا 78.4% من الصخور ودقة الحساب قفزت لـ 92.1%"</span>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 4: Live Demo & Proof (Scene 4)       -->
+      <!-- ========================================== -->
+      <section class="slide" id="slide-4">
+        <div class="slide-header">
+          <div>
+            <div class="slide-eyebrow slide-eyebrow-dark">🛰️ المشهد 4: الديمو العملي التفاعلي والإثبات الإحصائي</div>
+            <h2 class="slide-title slide-title-dark">تحليل مداري حي وإثبات التفوق على 42 مسار تصوير</h2>
+            <p class="slide-subtitle slide-subtitle-dark">اختبار حقيقي على قمر ناسا EMIT واختبار فخ جبال سيناء الصخري</p>
+          </div>
+          <div class="memory-anchors-bar">
+            <span class="anchor-chip anchor-chip-dark">42 NASA Swaths</span>
+            <span class="anchor-chip anchor-chip-dark">Paired t-test: <span class="tag-highlight">p = 2.4 × 10⁻⁸</span></span>
+            <span class="anchor-chip anchor-chip-dark">Threshold: <span class="tag-highlight">85 kg/h</span></span>
+          </div>
+        </div>
+
+        <!-- Telemetry Trio Hero Numbers -->
+        <div class="telemetry-trio">
+          <div class="telemetry-card">
+            <div class="telemetry-title">⚡ معدل التسريب الكتلي اللحظي</div>
+            <div class="telemetry-val amber">
+              <span class="counter-num" data-target="2.46" data-decimals="2">0.00</span> <span style="font-size:20px;">طن/ساعة</span>
+            </div>
+            <div class="telemetry-sub">EMIT Orbit #2222205 (Middle East)</div>
+          </div>
+
+          <div class="telemetry-card">
+            <div class="telemetry-title">💵 الخسارة المالية اليومية المقدرة</div>
+            <div class="telemetry-val safe">
+              $<span class="counter-num" data-target="10600">0</span> <span style="font-size:20px;">/يوم</span>
+            </div>
+            <div class="telemetry-sub">على أساس أسعار الغاز الطبيعي العالمية</div>
+          </div>
+
+          <div class="telemetry-card">
+            <div class="telemetry-title">⏱️ زمن الاستجابة الفضائية (Inference)</div>
+            <div class="telemetry-val blue">
+              <span class="counter-num" data-target="435">0</span> <span style="font-size:20px;">ms</span>
+            </div>
+            <div class="telemetry-sub">معالجة فورية Real-Time بمجرد التقاط المشهد</div>
+          </div>
+        </div>
+
+        <!-- Proof Split: GIS Mockup vs Benchmark Stats -->
+        <div class="proof-split-layout">
+          <!-- GIS Vector Map -->
+          <div class="gis-stage-box">
+            <div class="gis-header-strip">
+              <span class="gis-badge">ESRI Satellite Layer · Active Ingestion</span>
+              <span style="font-family:var(--font-mono); font-size:12px; color:#A3B5AA;">GPS: 31.8712° N, -102.3355° W</span>
+            </div>
+
+            <!-- Vector Simulated Hyperspectral GIS Map -->
+            <svg viewBox="0 0 460 210" class="vector-svg" style="border-radius:10px; background:#07120C;">
+              <!-- Map Grid -->
+              <defs>
+                <pattern id="gisGrid" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                </pattern>
+                <radialGradient id="plumeGlow" cx="35%" cy="60%" r="50%">
+                  <stop offset="0%" stop-color="#EF4444" stop-opacity="0.9"/>
+                  <stop offset="35%" stop-color="#F59E0B" stop-opacity="0.75"/>
+                  <stop offset="70%" stop-color="#10B981" stop-opacity="0.45"/>
+                  <stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#gisGrid)" />
+
+              <!-- Topographic / Desert Land Contours -->
+              <path d="M 0 140 Q 120 110 240 160 T 460 130" fill="none" stroke="rgba(212,129,11,0.2)" stroke-width="1.5"/>
+              <path d="M 0 80 Q 180 50 320 90 T 460 60" fill="none" stroke="rgba(212,129,11,0.15)" stroke-width="1.5"/>
+
+              <!-- Methane Plume Dispersion Cloud (Vector Contour) -->
+              <path d="M 140 130 Q 190 90 280 85 Q 360 80 410 70 Q 370 120 290 140 Q 210 155 140 130 Z" fill="url(#plumeGlow)"/>
+
+              <!-- Source Reticle Crosshair -->
+              <circle cx="140" cy="130" r="14" fill="none" stroke="#EF4444" stroke-width="2"/>
+              <circle cx="140" cy="130" r="4" fill="#EF4444"/>
+              <line x1="140" y1="110" x2="140" y2="150" stroke="#EF4444" stroke-width="1.5"/>
+              <line x1="120" y1="130" x2="160" y2="130" stroke="#EF4444" stroke-width="1.5"/>
+
+              <!-- Wind Azimuth Vector (ERA5: 6.8 m/s @ 64°) -->
+              <g transform="translate(60, 45)">
+                <circle cx="0" cy="0" r="20" fill="rgba(0,0,0,0.6)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+                <line x1="0" y1="14" x2="12" y2="-12" stroke="#34D399" stroke-width="2.5" stroke-linecap="round"/>
+                <polygon points="12,-12 6,-6 14,-4" fill="#34D399"/>
+                <text x="26" y="4" font-family="JetBrains Mono" font-size="10.5" fill="#34D399" font-weight="700">6.8 m/s (64°)</text>
+              </g>
+
+              <!-- Source Facility Label -->
+              <rect x="155" y="145" width="130" height="22" rx="4" fill="rgba(0,0,0,0.75)" stroke="rgba(255,255,255,0.2)"/>
+              <text x="162" y="160" font-family="Plus Jakarta Sans" font-size="10.5" fill="#FAF8F3" font-weight="700">Flare Stack Vent #4</text>
+            </svg>
+
+            <div style="font-size:12px; color:#A3B5AA; display:flex; justify-content:space-between; margin-top:8px;">
+              <span>إسقاط فوري للإحداثيات على خرائط الطوارئ</span>
+              <span>حد الكشف: <strong>85 kg/h</strong></span>
+            </div>
+          </div>
+
+          <!-- Benchmark Stats & Sinai Control -->
+          <div class="stats-matrix-card">
+            <!-- Circular Gauge & Progress Bars -->
+            <div class="gauge-and-bars">
+              <div class="circular-gauge-wrapper">
+                <svg viewBox="0 0 100 100" width="110" height="110">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="8"/>
+                  <circle id="f1Circle" cx="50" cy="50" r="42" fill="none" stroke="#D4810B" stroke-width="8"
+                          stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"
+                          transform="rotate(-90 50 50)" style="transition: stroke-dashoffset 1.5s ease-out;"/>
+                </svg>
+                <div class="gauge-center-text">
+                  <div class="gauge-score">0.942</div>
+                  <div class="gauge-caption">F1-Score</div>
+                </div>
+              </div>
+
+              <div class="progress-bar-group">
+                <div>
+                  <div class="p-bar-label-row">
+                    <span style="color:#A3B5AA;">Precision (دقة الإنذار)</span>
+                    <span style="color:#34D399; font-family:var(--font-mono);">96.1%</span>
+                  </div>
+                  <div class="p-bar-track">
+                    <div class="p-bar-fill precision" data-fill="96.1%"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="p-bar-label-row">
+                    <span style="color:#A3B5AA;">Recall (اصطياد الغاز)</span>
+                    <span style="color:#60A5FA; font-family:var(--font-mono);">92.4%</span>
+                  </div>
+                  <div class="p-bar-track">
+                    <div class="p-bar-fill recall" data-fill="92.4%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- The Sinai Mountain Trap Control -->
+            <div class="sinai-trap-box">
+              <div style="flex:1;">
+                <div style="font-weight:800; font-size:13.5px; color:#FFFFFF;">فخ جبال سيناء الصخرية (Negative Control)</div>
+                <div style="font-size:11.5px; color:#A3B5AA; margin-top:2px;">مشهد صخري بحت مفيهوش أي تسريب غاز</div>
+              </div>
+
+              <div class="sinai-pill nasa">
+                <span class="val">243</span>
+                <span class="lbl">إنذار كاذب (ناسا) ❌</span>
+              </div>
+
+              <div class="sinai-pill spectra">
+                <span class="val">0</span>
+                <span class="lbl">إنذار (برنامجنا) ✅</span>
+              </div>
+            </div>
+
+            <div style="font-size:12px; color:var(--sp-amber-400); margin-top:10px; font-weight:700; text-align:center;">
+              ⭐ Paired t-test: p = 2.4 × 10⁻⁸ (التفوق الإحصائي مؤكد بنسبة 99.99999%)
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:auto; padding-top:14px; display:flex; justify-content:space-between; font-size:12.5px; color:var(--sp-text-light-muted);">
+          <span>🔵 فارس: "التحليل بيخلص في 435 مللي ثانية وبدقة F1 تفوق 0.94"</span>
+          <span>🟢 الشناوي: "في فخ سيناء خوارزمية ناسا طلعت 243 إنذار كاذب وبرنامجنا طلع صفر بنجاح 100%"</span>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 5: Economic Feasibility & SDGs (Scene 5) -->
+      <!-- ========================================== -->
+      <section class="slide" id="slide-5">
+        <div class="slide-header">
+          <div>
+            <div class="slide-eyebrow">🌱 المشهد 5: الجدوى الاقتصادية، الاستدامة والختام</div>
+            <h2 class="slide-title">حل تطبيقي واقعي بدون أعباء مالية مدارية</h2>
+            <p class="slide-subtitle">توفير ملايين الدولارات لشركات الطاقة ودعم أهداف التنمية المستدامة للأمم المتحدة</p>
+          </div>
+          <div class="memory-anchors-bar">
+            <span class="anchor-chip">Zero Orbital CapEx <span class="tag-highlight">($0 Satellite Cost)</span></span>
+            <span class="anchor-chip">UN SDG 13 <span class="tag-highlight">(Climate Action)</span></span>
+            <span class="anchor-chip">UN SDG 7 <span class="tag-highlight">(Affordable Energy)</span></span>
+          </div>
+        </div>
+
+        <div class="business-grid">
+          <!-- Card 1: Zero CapEx -->
+          <div class="biz-card">
+            <div>
+              <div class="biz-icon-stage">
+                <!-- Satellite Free Icon -->
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+              </div>
+              <h3 class="biz-title">Zero Orbital CapEx</h3>
+              <p class="biz-desc">
+                بدلاً من تصنيع وإطلاق قمر صناعي خاص بتكلفة تتجاوز <strong>100 مليون دولار</strong>، نستثمر مجاناً تدفق البيانات المفتوحة من محطة الفضاء الدولية وقمر NASA EMIT.
+              </p>
+            </div>
+            <div class="biz-metric-highlight">
+              <span>تكلفة الأجهزة المدارية:</span>
+              <span style="color:var(--sp-safe-700);">$0.00</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Enterprise Value -->
+          <div class="biz-card">
+            <div>
+              <div class="biz-icon-stage">
+                <!-- Dollars / Economic Growth Icon -->
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <h3 class="biz-title">عائد اقتصادي حقيقي للشركات</h3>
+              <p class="biz-desc">
+                وقف تسريب واحد بحجم 1,000 kg/h يوفر للشركة المشغلة الغاز المهدور ويعيد ضخه في شبكة البيع بدلاً من خسارته في الهواء.
+              </p>
+            </div>
+            <div class="biz-metric-highlight">
+              <span>التوفير اليومي لكل بئر:</span>
+              <span style="color:var(--sp-amber-600);">$<span class="counter-num" data-target="18000">0</span>/يوم</span>
+            </div>
+          </div>
+
+          <!-- Card 3: UN SDGs -->
+          <div class="biz-card">
+            <div>
+              <div class="biz-icon-stage">
+                <!-- Globe Sustainability Icon -->
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+              </div>
+              <h3 class="biz-title">أهداف الأمم المتحدة (SDGs)</h3>
+              <p class="biz-desc">
+                المساهمة المباشرة في الحد من الانبعاثات الحرارية العالمية وتحقيق العدالة المناخية للأجيال القادمة.
+              </p>
+            </div>
+            <div class="sdg-badge-group">
+              <div class="sdg-pill sdg-13">
+                <span style="font-size:16px;">SDG 13</span>
+                <span style="font-size:11px;">العمل المناخي</span>
+              </div>
+              <div class="sdg-pill sdg-7">
+                <span style="font-size:16px;">SDG 7</span>
+                <span style="font-size:11px;">طاقة نظيفة وميسورة</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Closing Bar -->
+        <div class="closing-signoff-bar">
+          <div class="logbook-item">
+            <!-- Book Vector SVG -->
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--sp-amber-400)" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <div>
+              <div style="font-weight:800; font-size:15px; color:#FFFFFF;">Engineering Log Book جاهز للمراجعة</div>
+              <div style="font-size:12px; color:var(--sp-text-light-muted);">توثيق دقيق لكل تجربة ومعادلة وكود برمجي معتمد</div>
+            </div>
+          </div>
+
+          <div style="font-weight:900; font-size:18px; color:var(--sp-amber-400);">
+            شكراً لحضراتكم — جاهزون لأسئلة السادة المحكمين! 🎙️
+          </div>
+        </div>
+
+        <div style="margin-top:auto; padding-top:14px; display:flex; justify-content:space-between; font-size:12.5px; color:var(--sp-ink-muted);">
+          <span>🔵 فارس: "مشروعنا مش مجرد بحث في معمل، ده حل اقتصادي فوري"</span>
+          <span>🟢 الشناوي: "شكراً لوقت حضرتك يا فندم وإحنا متحمسين لأي استفسار"</span>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- SLIDE 6: Tough ISEF Q&A Defense            -->
+      <!-- ========================================== -->
+      <section class="slide" id="slide-6">
+        <div class="slide-header">
+          <div>
+            <div class="slide-eyebrow">🛡️ دفاع المسابقة — أسئلة المحكمين والردود النموذجية</div>
+            <h2 class="slide-title">أقوى 3 أسئلة متوقعة في تحكيم ISEF 2027</h2>
+            <p class="slide-subtitle">إجابات علمية مقنعة مبنية على فيزياء HITRAN والإحصاء الرياضي والأمانة العلمية</p>
+          </div>
+          <div class="presenter-turn-badge presenter-turn-both">
+            Q&A Defense Protocol
+          </div>
+        </div>
+
+        <div class="qa-stack">
+          <!-- Question 1 -->
+          <div class="qa-card" onclick="toggleQACard(this)">
+            <div class="qa-question-row">
+              <div class="qa-q-text">
+                <span style="color:var(--sp-amber-500); font-family:var(--font-mono); font-size:20px;">Q1</span>
+                "إيه الفرق الجوهري بينكم وبين خوارزميات وكالة ناسا الرسمية؟"
+              </div>
+              <span class="presenter-turn-badge presenter-turn-shnawy">المجيب: 🟢 الشناوي</span>
+            </div>
+            <div class="qa-answer-box">
+              <strong>الرد القاطع:</strong> ناسا تعتمد على خوارزميات مطابقة أحادية تلتبس مع صخور الحجر الجيري عند 2.3µm وتترك معدل التسريب مكتوب <code>NA</code> لغياب Inversion Model. 
+              نحن عزلنا الصخور بنسبة <strong>78.4%</strong> عبر فحص قمتي امتصاص التوأم من <strong>HITRAN 2024</strong>، وطبقنا نموذج <strong>IME</strong> الهيدروديناميكي مع رياح ERA5 اللحظية لحساب التسريب بالطن/ساعة بدقة <strong>92.1%</strong> في <strong>435ms</strong> فقط!
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="qa-card" onclick="toggleQACard(this)">
+            <div class="qa-question-row">
+              <div class="qa-q-text">
+                <span style="color:var(--sp-amber-500); font-family:var(--font-mono); font-size:20px;">Q2</span>
+                "القمر الصناعي بيمر كل عدة أيام، فلو تسريب حصل لساعة ووقف مش هتشوفوه؟"
+              </div>
+              <span class="presenter-turn-badge presenter-turn-fares">المجيب: 🔵 فارس</span>
+            </div>
+            <div class="qa-answer-box">
+              <strong>الرد القاطع:</strong> ملاحظة في غاية الأهمية يا فندم! وهذا قرار تصميمي مقصود مبني على ورقة <em>Science Advances 2023</em>؛ 
+              نحن نستهدف التسريبات المزمنة الكبرى (<strong>Super-Emitters</strong>) التي تظل نشطة لأيام وأسابيع والمسؤولة عن أكثر من <strong>50% من الكارثة</strong>. 
+              بهذا القرار وفرنا 100 مليون دولار كلفة إطلاق كوكبة أقمار خاصة وقدمنا حلاً فورياً مجانياً يحقق أكبر أثر بيئي ممكن.
+            </div>
+          </div>
+
+          <!-- Question 3 -->
+          <div class="qa-card" onclick="toggleQACard(this)">
+            <div class="qa-question-row">
+              <div class="qa-q-text">
+                <span style="color:var(--sp-amber-500); font-family:var(--font-mono); font-size:20px;">Q3</span>
+                "ليه نسبة استبعاد الصخور 78.4% وليست 100% في كل المشاهد؟"
+              </div>
+              <span class="presenter-turn-badge presenter-turn-both">الرد المشترك: 🔵 فارس أو 🟢 الشناوي</span>
+            </div>
+            <div class="qa-answer-box">
+              <strong>الرد القاطع:</strong> هذه الأمانة العلمية الدقيقة يا فندم؛ مساحة البكسل في قمر EMIT تبلغ 60×60 متراً، ويحدث بداخله تداخل طيفي موضعي (<strong>Sub-pixel mixing</strong>) بين الصخور والنباتات الجافة ورطوبة التربة. 
+              في المشاهد الصخرية النقية مثل <strong>جبال سيناء حققنا 100% إلغاء لـ 243 إنذاراً كاذباً</strong>، لكن متوسط أدائنا عبر 42 مسار تصوير حقيقي هو 78.4%، وهو رقم قياسي غير مسبوق عالمياً.
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:auto; padding-top:14px; display:flex; justify-content:space-between; font-size:12.5px; color:var(--sp-ink-muted);">
+          <span>💡 الردود تعكس الثقة والتمكن التام من فيزياء الغاز والإحصاء</span>
+          <span>اضغط على أي سؤال للتركيز عليه أثناء المناقشة</span>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation & Controls Bar -->
+    <footer class="deck-bottombar" id="bottomBar">
+      <div class="nav-arrow-group">
+        <button class="nav-btn" onclick="prevSlide()" title="السابق (Arrow Left / Backspace)">▶</button>
+        <button class="nav-btn" onclick="nextSlide()" title="التالي (Arrow Right / Space)">◀</button>
+        <span class="slide-counter" id="slideCounter">1 / 6</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:20px;">
+        <span style="font-size:11.5px; color:var(--sp-ink-muted);">⌨️ اختصارات: ◀ ▶ للتنقل · F ملء الشاشة · P كواليس الإلقاء · 1-6 للانتقال المباشر</span>
+      </div>
+
+      <div>
+        <span style="font-family:var(--font-display); font-weight:800; font-size:12px; color:var(--sp-forest-900);">
+          SpectraPlume © ISEF 2027
+        </span>
+      </div>
+    </footer>
+
+    <!-- Presenter Prompter Dock (كواليس الإلقاء المنبثقة) -->
+    <div class="prompter-dock" id="prompterDock">
+      <div class="prompter-header">
+        <div class="prompter-title">
+          <span>🎙️ مساعد الملقي — كواليس الإلقاء وتوزيع الأدوار اللحظي</span>
+          <span style="font-size:11.5px; font-weight:normal; color:#D2DDD6;">(المشهد الحالي: <strong id="prompterSceneName">المشهد 1</strong>)</span>
+        </div>
+        <button class="top-btn" onclick="togglePrompter()" style="padding:2px 8px; font-size:11px;">إغلاق ✕</button>
+      </div>
+
+      <div class="prompter-grid">
+        <div class="prompter-card">
+          <div class="prompter-role fares">🔵 دور فارس محمد</div>
+          <div class="prompter-text" id="prompterFaresText">
+            ابدأ بنبرة تشويق وإلقاء هادئ يشد المحكم: احكي سيناريو الماسورة المكسورة في الصحراء اللي بتخرج طاقة تشغل مدينة ومحدش شايفها، وأكد على تحديد الـ GPS في ثواني وحساب الكمية بالطن في الساعة!
+          </div>
+        </div>
+
+        <div class="prompter-card">
+          <div class="prompter-role shnawy">🟢 دور محمد الشناوي</div>
+          <div class="prompter-text" id="prompterShnawyText">
+            ادخل بابتسامة ترحيب وثقة: رحب بالمحكم وقدم نفسك وفارس، وعرّف مشروع SpectraPlume كـ "رادار فضائي ذكي" بيستغل قمر ناسا EMIT لكشف سحب الغاز الشفافة من المدار مباشرة.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Interactive Logic & Vector Animation Scripts -->
+  <script>
+    // State
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot-pill');
+    const counter = document.getElementById('slideCounter');
+    const bottomBar = document.getElementById('bottomBar');
+    const prompterDock = document.getElementById('prompterDock');
+    const btnPrompter = document.getElementById('btnPrompter');
+
+    // Prompter Script Cues by Slide
+    const prompterData = [
+      {
+        scene: "المشهد 1: الافتتاحية والسيناريو الخاطف",
+        fares: "ابدأ بنبرة تشويق وإلقاء هادئ: 'أهلاً بحضرتك يا فندم. تخيل معايا إن في اللحظة دي في ماسورة غاز مكسورة في صحراء بتخرج طاقة تشغل مدينة ومحدش شايفها..' وأكد على تحديد الـ GPS بالطن/ساعة.",
+        shnawy: "ادخل بابتسامة ترحيب وثقة: 'أنا محمد الشناوي وده زميلي فارس محمد.. مشروعنا رادار فضائي ذكي بيكشف سحب الغاز غير المرئية من مدار الأرض عبر قمر ناسا EMIT مباشرة.'"
+      },
+      {
+        scene: "المشهد 2: المشكلة وتوثيق الأبحاث",
+        fares: "شاور على نسبة 50% بحماس: 'ورقة Science Advances 2023 أثبتت إن الـ Super-Emitters أقل من 10% من المواقع ومسؤولة عن أكثر من 50% من الكارثة!'، ووضح عقبتي ناسا (الإنذارات الكاذبة وقيمة NA).",
+        shnawy: "شاور على جزيء الميثان: 'الميثان غاز شفاف لا يرى بالعين، لكن طبقاً لتقرير IPCC AR6 خطورته 84 ضعف CO2!'، وشاور على قمر ناسا EMIT ونطاق 2.3 ميكرومتر."
+      },
+      {
+        scene: "المشهد 3: الابتكار والفيزياء الجزيئية",
+        fares: "اشرح مدخل الابتكار: 'إحنا مبنعتمدش على ذكاء اصطناعي أعمى؛ بنينا منظومة Physics-Informed.' ثم أكد بانتصار: 'بفحص نسبة القمتين لغينا إنذارات الكالسيت بنسبة 78.4%!'",
+        shnawy: "اشرح الركيزتين: 'الركيزة الأولى: بالرجوع لـ HITRAN 2024، الميثان له قمتين توأم (2315 و 2260 nm)، بينما الكالسيت له قمة واحدة عند 2335 nm. الركيزة الثانية: طبقنا IME من Varon مع رياح ERA5 بخطأ 7.9% MAPE فقط!'"
+      },
+      {
+        scene: "المشهد 4: الديمو العملي والإثبات الإحصائي",
+        fares: "تحكم بالداشبورد ووجهها للمحكم: 'معدل التسريب 2.46 طن/ساعة، والخسارة 10,600 دولار كل يوم، والتحليل بيخلص في 435 مللي ثانية!' وشاور على F1-Score: 0.942 ودقة 96.1%.",
+        shnawy: "أشر للخريطة الفضائية وإسقاط الـ GPS للطوارئ، واختم بأقوى دليل: 'أثبتنا التفوق بـ Paired t-test (p = 2.4×10⁻⁸)! وفي فخ جبال سيناء خوارزمية ناسا طلعت 243 إنذار كاذب وبرنامجنا طلع صفر بنسبة نجاح 100%!'"
+      },
+      {
+        scene: "المشهد 5: الجدوى الاقتصادية وأهداف الاستدامة",
+        fares: "اشرح الجدوى: 'أولاً Zero Orbital CapEx: بنستغل قمر ناسا المجاني بدون ما نحتاج 100 مليون دولار لقمر خاص!'، واربط المشروع بـ SDG 13 لحماية المناخ و SDG 7 للطاقة النظيفة.",
+        shnawy: "أكمل التوفير المالي: 'وقف تسريب 1,000 kg/h بيوفر 18,000 دولار كل يوم!'، وأشر لـ Engineering Log Book على الطاولة واختم بثقة: 'شكراً لوقت حضرتك يا فندم وإحنا جاهزون لأي استفسارات!'"
+      },
+      {
+        scene: "دفاع المسابقة: أسئلة المحكمين Q&A",
+        fares: "سؤال الاستمرارية ومرور القمر: أكد أن التركيز على الـ Super-Emitters المزمنة التي تستمر لأيام وأسابيع هو قرار استراتيجي وفر 100 مليون دولار.",
+        shnawy: "سؤال الفرق عن ناسا: أكد على بصمة التوأم من HITRAN ونموذج IME، واشرح الأمانة العلمية وراء الـ 78.4% (Sub-pixel mixing في بكسل 60×60م)."
+      }
+    ];
+
+    // Presentation Timer (4:30 Target)
+    let secondsElapsed = 0;
+    let timerRunning = true;
+    const timerElem = document.getElementById('deckTimer');
+
+    setInterval(() => {
+      if (!timerRunning) return;
+      secondsElapsed++;
+      const mins = Math.floor(secondsElapsed / 60);
+      const secs = secondsElapsed % 60;
+      const fmt = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      timerElem.textContent = `⏱️ ${fmt} / 04:30`;
+
+      if (secondsElapsed > 270) {
+        timerElem.style.borderColor = 'var(--sp-danger-600)';
+        timerElem.style.color = '#F87171';
+      } else if (secondsElapsed > 210) {
+        timerElem.style.borderColor = 'var(--sp-amber-500)';
+        timerElem.style.color = 'var(--sp-amber-400)';
+      }
+    }, 1000);
+
+    // Slide Navigation
+    function goToSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      
+      slides[currentSlide].classList.remove('active');
+      dots[currentSlide].classList.remove('active');
+      
+      currentSlide = index;
+      
+      slides[currentSlide].classList.add('active');
+      dots[currentSlide].classList.add('active');
+      counter.textContent = `${currentSlide + 1} / ${slides.length}`;
+
+      // Update Bottom Bar Theme
+      if (currentSlide === 0 || currentSlide === 3) {
+        bottomBar.className = 'deck-bottombar deck-bottombar-dark';
+      } else {
+        bottomBar.className = 'deck-bottombar';
+      }
+
+      // Update Prompter Cues
+      updatePrompter();
+
+      // Trigger On-Enter Animations (Counters, Bars, Gauges)
+      triggerSlideAnimations(slides[currentSlide]);
+    }
+
+    function nextSlide() {
+      goToSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentSlide - 1);
+    }
+
+    // Number Counting Animations
+    function triggerSlideAnimations(slideElem) {
+      // Counter Numbers
+      const counters = slideElem.querySelectorAll('.counter-num');
+      counters.forEach(cnt => {
+        const target = parseFloat(cnt.getAttribute('data-target'));
+        const decimals = parseInt(cnt.getAttribute('data-decimals') || '0');
+        const duration = 1200;
+        const startTime = performance.now();
+
+        function updateCounter(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease-out cubic
+          const easeOut = 1 - Math.pow(1 - progress, 3);
+          const current = (target * easeOut).toFixed(decimals);
+          cnt.textContent = current;
+
+          if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+          } else {
+            cnt.textContent = target.toFixed(decimals);
+          }
+        }
+        requestAnimationFrame(updateCounter);
+      });
+
+      // Precision & Recall Bars on Slide 4
+      const pBars = slideElem.querySelectorAll('.p-bar-fill');
+      pBars.forEach(bar => {
+        const fill = bar.getAttribute('data-fill');
+        bar.style.width = '0%';
+        setTimeout(() => {
+          bar.style.width = fill;
+        }, 150);
+      });
+
+      // Circular Gauge on Slide 4
+      const f1Circle = slideElem.querySelector('#f1Circle');
+      if (f1Circle) {
+        // Circumference = 2 * PI * 42 ≈ 263.89
+        const total = 264;
+        const targetOffset = total - (total * 0.942);
+        f1Circle.style.strokeDashoffset = total;
+        setTimeout(() => {
+          f1Circle.style.strokeDashoffset = targetOffset;
+        }, 150);
+      }
+    }
+
+    // Prompter Toggle
+    function togglePrompter() {
+      prompterDock.classList.toggle('open');
+      btnPrompter.classList.toggle('active-mode');
+    }
+
+    function updatePrompter() {
+      const data = prompterData[currentSlide];
+      if (data) {
+        document.getElementById('prompterSceneName').textContent = data.scene;
+        document.getElementById('prompterFaresText').textContent = data.fares;
+        document.getElementById('prompterShnawyText').textContent = data.shnawy;
+      }
+    }
+
+    // Fullscreen Toggle
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Interactive Q&A Card Expander
+    function toggleQACard(card) {
+      card.style.borderColor = 'var(--sp-amber-500)';
+      card.style.boxShadow = '0 6px 20px rgba(212, 129, 11, 0.2)';
+      setTimeout(() => {
+        card.style.boxShadow = 'var(--shadow-card)';
+      }, 800);
+    }
+
+    // Keyboard Shortcuts
+    window.addEventListener('keydown', (e) => {
+      // Inhibit if typing in input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        togglePrompter();
+      } else if (e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        timerRunning = !timerRunning;
+      } else if (e.key >= '1' && e.key <= '6') {
+        goToSlide(parseInt(e.key) - 1);
+      }
+    });
+
+    // Initial Trigger on Load
+    window.addEventListener('DOMContentLoaded', () => {
+      goToSlide(0);
+      updatePrompter();
+    });
+  </script>
+</body>
+</html>
+'''
+
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    f.write(HTML_CONTENT)
+
+print(f"SUCCESS: Interactive presentation written to: {OUTPUT_FILE}")
+print(f"File size: {os.path.getsize(OUTPUT_FILE)} bytes")
