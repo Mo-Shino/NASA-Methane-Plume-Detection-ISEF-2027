@@ -26,6 +26,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 
+REQUIRED_API_VERSION = "2.3.0"
+
+
 def check_dependencies(auto_install: bool = True) -> None:
     required_imports = (
         "fastapi",
@@ -36,6 +39,8 @@ def check_dependencies(auto_install: bool = True) -> None:
         "scipy",
         "xarray",
         "matplotlib",
+        "PIL",
+        "requests",
     )
     missing = []
     for mod in required_imports:
@@ -79,22 +84,29 @@ def verify_assets() -> None:
     print("  [OK] Calibrated Spatial-Spectral PyTorch weights verified.")
 
 
-def is_spectraplume_running(host: str, port: int) -> bool:
+def is_spectraplume_running(host: str, port: int) -> tuple[bool, bool]:
+    """Returns (is_running, is_current_version)."""
     url = f"http://{host}:{port}/api/health"
     try:
         with urllib.request.urlopen(url, timeout=1.2) as resp:
             if resp.status == 200:
                 payload = json.loads(resp.read().decode("utf-8"))
                 ident = str(payload.get("engine", payload.get("service", "")))
-                return payload.get("status") == "ok" and "SpectraPlume" in ident
+                running = payload.get("status") == "ok" and "SpectraPlume" in ident
+                up_to_date = running and payload.get("api_version") == REQUIRED_API_VERSION
+                return running, up_to_date
     except Exception:
-        return False
-    return False
+        return False, False
+    return False, False
 
 
 def is_port_free(host: str, port: int) -> bool:
+    probe = "127.0.0.1" if host in ("0.0.0.0", "127.0.0.1", "localhost") else host
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as check_sock:
+        check_sock.settimeout(0.35)
+        if check_sock.connect_ex((probe, port)) == 0:
+            return False
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             sock.bind((host, port))
             return True
@@ -150,17 +162,26 @@ def main() -> int:
         ]
         return subprocess.call(cmd, cwd=str(PROJECT_ROOT))
 
-    # Check if SpectraPlume 2.0 is already live on preferred port
+    # Check if SpectraPlume 2.0 (current API build) is already live on preferred port
     probe_host = "127.0.0.1" if args.host in ("0.0.0.0", "127.0.0.1", "localhost") else args.host
-    if is_spectraplume_running(probe_host, args.port):
+    already_running, is_up_to_date = is_spectraplume_running(probe_host, args.port)
+    if already_running and is_up_to_date:
         live_url = f"http://localhost:{args.port}"
-        print(f"\n[3/3] SpectraPlume 2.0 is already live at {live_url}")
+        print(f"\n[3/3] SpectraPlume 2.0 (v{REQUIRED_API_VERSION}) is already live at {live_url}")
         if not args.no_browser:
             print("  [OK] Opening Mission Console in your browser...")
             webbrowser.open(live_url)
         return 0
+    if already_running and not is_up_to_date:
+        print(
+            f"\n  [INFO] Older SpectraPlume instance detected on port {args.port} (from before git pull)."
+            f"\n  [INFO] Launching updated v{REQUIRED_API_VERSION} engine on a clean port..."
+        )
+        start_port = args.port + 1
+    else:
+        start_port = args.port
 
-    port = find_available_port(args.host, args.port)
+    port = find_available_port(args.host, start_port)
     local_url = f"http://localhost:{port}"
     health_url = f"http://{probe_host}:{port}/api/health"
 

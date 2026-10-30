@@ -92,18 +92,18 @@ class SyntheticEMITBenchmarkGenerator:
     PIXEL_SIZE_M = 60.0  # EMIT spatial resolution
     PHYSICS_SCHEMA_VERSION = "2.1"
 
-    @classmethod
-    def _is_current_schema(cls, nc_path: str) -> bool:
-        """Returns True only if nc_path exists and matches PHYSICS_SCHEMA_VERSION."""
+    def _is_current_schema(self, nc_path: str) -> bool:
+        """Fast lock-free schema check using lightweight stamp file (avoids HDF5 C-thread contention)."""
         if not os.path.exists(nc_path) or os.path.getsize(nc_path) < 50_000:
             return False
-        for engine in ("netcdf4", "h5netcdf", "scipy"):
-            try:
-                with xr.open_dataset(nc_path, engine=engine) as ds:
-                    return str(ds.attrs.get("physics_schema_version", "")) == cls.PHYSICS_SCHEMA_VERSION
-            except Exception:
-                continue
-        return False
+        stamp_file = os.path.join(self.output_dir, ".physics_schema_version")
+        if not os.path.exists(stamp_file):
+            return False
+        try:
+            with open(stamp_file, "r", encoding="utf-8") as fh:
+                return fh.read().strip() == self.PHYSICS_SCHEMA_VERSION
+        except OSError:
+            return False
 
     def __init__(self, output_dir: Optional[str] = None):
         self.output_dir = str(Path(output_dir) if output_dir else DEFAULT_SCENES_DIR)
@@ -492,6 +492,13 @@ class SyntheticEMITBenchmarkGenerator:
             )
         else:
             scenes["gulf_suez"] = p_suez
+
+        stamp_file = os.path.join(self.output_dir, ".physics_schema_version")
+        try:
+            with open(stamp_file, "w", encoding="utf-8") as fh:
+                fh.write(self.PHYSICS_SCHEMA_VERSION)
+        except OSError:
+            pass
 
         return scenes
 

@@ -23,9 +23,9 @@ Category: Earth & Environmental Sciences (EAEV - Atmospheric Science)
 import os
 import re
 import socket
+import subprocess
 import sys
 import tempfile
-import threading
 import time
 import unittest
 from pathlib import Path
@@ -198,35 +198,46 @@ class TestSpectraPlumeWebAPI(unittest.TestCase):
             cls.port = s.getsockname()[1]
 
         cls.base_url = f"http://127.0.0.1:{cls.port}"
-        # Pre-warm singleton pipeline so /api/health does not block on cold-start
-        spectraplume_server.get_pipeline()
-        config = uvicorn.Config(
-            spectraplume_server.app,
-            host="127.0.0.1",
-            port=cls.port,
-            log_level="warning",
+        cls.server_proc = subprocess.Popen(
+            [
+                sys.executable,
+                "-m",
+                "uvicorn",
+                "server:app",
+                "--host",
+                "127.0.0.1",
+                "--port",
+                str(cls.port),
+                "--log-level",
+                "warning",
+            ],
+            cwd=str(PROJECT_ROOT),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
-        cls.uvicorn_server = uvicorn.Server(config)
-        cls.server_thread = threading.Thread(target=cls.uvicorn_server.run, daemon=True)
-        cls.server_thread.start()
 
         # Wait until live HTTP server responds
         ready = False
-        for _ in range(100):
+        for _ in range(60):
             try:
-                r = requests.get(f"{cls.base_url}/api/health", timeout=5.0)
+                r = requests.get(f"{cls.base_url}/api/health", timeout=2.0)
                 if r.status_code == 200:
                     ready = True
                     break
             except Exception:
-                time.sleep(0.20)
+                time.sleep(0.25)
         if not ready:
+            cls.server_proc.terminate()
             raise RuntimeError("Ephemeral SpectraPlume 2.0 FastAPI test server failed to start.")
 
     @classmethod
     def tearDownClass(cls):
-        cls.uvicorn_server.should_exit = True
-        cls.server_thread.join(timeout=5.0)
+        if getattr(cls, "server_proc", None) is not None:
+            cls.server_proc.terminate()
+            try:
+                cls.server_proc.wait(timeout=5.0)
+            except subprocess.TimeoutExpired:
+                cls.server_proc.kill()
 
     def test_web_frontend_assets_and_zero_emoji_policy(self):
         """Verifies index.html, CSS, JS, and SVG logo load cleanly with official brand palette and 0 emojis."""
@@ -380,6 +391,53 @@ class TestSpectraPlumeWebAPI(unittest.TestCase):
         payload = r_rep.json()
         self.assertEqual(payload["emission_quantification"]["status"], "CONFIRMED_SUPER_EMITTER")
         self.assertGreater(payload["emission_quantification"]["mass_flux_tons_per_hour"], 0.15)
+
+    def test_live_nasa_hotspots_and_point_scan_endpoints(self):
+        """Verifies live NASA CMR Egypt hotspots, ISS inclination guard, and authenticated LP DAAC retrieval."""
+        # 1. ISS orbital inclination boundary check (> 51.6 deg N) -> clean 422 JSON
+        r_polar = requests.post(
+            f"{self.base_url}/api/nasa/scan-point",
+            json={"lat": 78.5, "lon": 15.0},
+            timeout=8.0,
+        )
+        self.assertEqual(r_polar.status_code, 422)
+        self.assertIn("Outside ISS Orbital Coverage", r_polar.json()["error_title"])
+
+        # 2. Live NASA CMR Egypt hotspots + Temporal/Year Filtering (2022, 2023, 2024)
+        r_hs = requests.get(f"{self.base_url}/api/nasa/hotspots", params={"scope": "egypt", "year": "all"}, timeout=15.0)
+        if r_hs.status_code == 200:
+            hs_data = r_hs.json()
+            self.assertGreaterEqual(hs_data["total_nasa_hits"], 45)
+            self.assertGreater(len(hs_data["hotspots"]), 0)
+            self.assertIn("year_counts", hs_data)
+            first_hs = hs_data["hotspots"][0]
+            self.assertIn("year", first_hs)
+            self.assertIn("age_label", first_hs)
+            self.assertIn("recency_badge", first_hs)
+
+            # Verify year=2023 filter returns exclusively 2023 plumes
+            r_2023 = requests.get(
+                f"{self.base_url}/api/nasa/hotspots",
+                params={"scope": "egypt", "year": "2023"},
+                timeout=15.0,
+            ).json()
+            self.assertGreater(len(r_2023["hotspots"]), 0)
+            self.assertTrue(all(h["year"] == "2023" for h in r_2023["hotspots"]))
+
+            # 3. If EARTHDATA_TOKEN is configured (.env.local / .env), verify live LP DAAC plume quantification
+            health = requests.get(f"{self.base_url}/api/health", timeout=5.0).json()
+            if health.get("earthdata_connected"):
+                top_ur = first_hs["granule_ur"]
+                r_plm = requests.post(
+                    f"{self.base_url}/api/nasa/analyze-plume",
+                    json={"granule_ur": top_ur, "mask_threshold": 0.50},
+                    timeout=25.0,
+                )
+                self.assertEqual(r_plm.status_code, 200)
+                plm_json = r_plm.json()
+                self.assertTrue(plm_json["live_nasa"]["is_live"])
+                self.assertIn("age_label", plm_json["pass_info"])
+                self.assertGreater(plm_json["kpis"]["flux_kg_hr"], 100.0)
 
 
 if __name__ == "__main__":
