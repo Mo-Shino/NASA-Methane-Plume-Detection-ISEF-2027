@@ -453,11 +453,9 @@ with tab_benchmark:
         * **78.4% False Alarm Suppression:** 3D Spatial-Spectral attention U-Net eliminates confounding over high-albedo sand and urban metal roofs.
         * **P-Value Significance:** Paired two-tailed Student's t-test proves superiority is statistically robust ($t = 8.94, p = 2.4 \\times 10^{-8}$).
         * **Financial Payback:** 42-day payback period, 480% first-year ROI, and $1.85/ton CO2e abatement cost.
-        """)
-        * **P-Value Significance:** Paired two-tailed Student's t-test proves false alarm reduction is statistically significant ($t = 8.94, p = 2.4 \\times 10^{-8}$).
-        * **Mathematical Inversion:** Employs Tikhonov regularized covariance inversion $(\\Sigma + \\lambda I)^{-1}$ with $\\lambda = 10^{-4}$.
+        * **Mathematical Inversion:** Employs Tikhonov regularized covariance inversion $(\Sigma + \lambda I)^{-1}$ with $\lambda = 10^{-4}$.
         * **Spectroscopy Reference:** Standardized unit absorption vector derived from **HITRAN 2024** molecular line database.
-        * **Atmospheric Scaling:** Boundary layer scaling factor $U_{\\text{eff}} = 0.35 \\times U_{10\\text{m}}$ derived from WRF Large Eddy Simulations (Varon et al. 2018).
+        * **Atmospheric Scaling:** Boundary layer scaling factor $U_{\text{eff}} = 0.35 \times U_{10\text{m}}$ derived from WRF Large Eddy Simulations (Varon et al. 2018).
         """)
 
 st.markdown("---")

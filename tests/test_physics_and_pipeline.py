@@ -14,8 +14,11 @@ Category: Earth & Environmental Sciences (EAEV - Atmospheric Science)
 """
 
 import os
+import sys
 import unittest
 import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.matched_filter import ClassicalMatchedFilter
 from src.flux_calculator import IMEFluxCalculator
