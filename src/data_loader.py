@@ -12,11 +12,13 @@ Products:
 """
 
 import os
-import numpy as np
-import xarray as xr
+from pathlib import Path
 from typing import Tuple, Dict, Any, Optional, List
 
-# Ensure SSL certificates work smoothly across Windows environments
+import numpy as np
+import xarray as xr
+
+# Ensure SSL certificates work smoothly across Windows & Cloud environments
 try:
     import truststore
     truststore.inject_into_ssl()
@@ -28,6 +30,13 @@ try:
 except ImportError:
     earthaccess = None
 
+try:
+    from src.benchmark_generator import REQUIRED_SCENE_FILES, ensure_demo_scenes
+except ImportError:
+    from benchmark_generator import REQUIRED_SCENE_FILES, ensure_demo_scenes
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 
 class EMITDataLoader:
     """
@@ -38,26 +47,51 @@ class EMITDataLoader:
     METHANE_MIN_WAVELENGTH = 2150.0  # nm
     METHANE_MAX_WAVELENGTH = 2450.0  # nm
 
-    def __init__(self, cache_dir: str = "./data/cache"):
-        self.cache_dir = cache_dir
+    def __init__(self, cache_dir: Optional[str] = None):
+        resolved_cache = Path(cache_dir) if cache_dir else (PROJECT_ROOT / "data" / "cache")
+        self.cache_dir = str(resolved_cache)
         os.makedirs(self.cache_dir, exist_ok=True)
 
-    def login_earthdata(self, username: Optional[str] = None, password: Optional[str] = None, token: Optional[str] = None):
+    @staticmethod
+    def _load_env_token() -> Optional[str]:
+        """Reads EARTHDATA_TOKEN from environment variables or local .env files safely."""
+        if os.environ.get("EARTHDATA_TOKEN"):
+            return os.environ["EARTHDATA_TOKEN"].strip()
+
+        for env_candidate in (Path.cwd() / ".env", PROJECT_ROOT / ".env"):
+            if env_candidate.exists():
+                try:
+                    for line in env_candidate.read_text(encoding="utf-8").splitlines():
+                        line_s = line.strip()
+                        if line_s.startswith("EARTHDATA_TOKEN="):
+                            tok = line_s.split("=", 1)[1].strip().strip('"').strip("'")
+                            if tok:
+                                os.environ["EARTHDATA_TOKEN"] = tok
+                                return tok
+                except OSError:
+                    pass
+        return None
+
+    def has_earthdata_token(self) -> bool:
+        """Checks whether a NASA Earthdata bearer token is configured."""
+        return bool(self._load_env_token())
+
+    def login_earthdata(
+        self,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        token: Optional[str] = None
+    ):
         """Authenticate with NASA Earthdata Login via earthaccess library (token, netrc, or credentials)."""
         if earthaccess is None:
             raise ImportError("Please install 'earthaccess' via pip: pip install earthaccess")
 
-        # Check for token in arguments, environment, or .env file
         if token:
-            os.environ["EARTHDATA_TOKEN"] = token
-        elif "EARTHDATA_TOKEN" not in os.environ and os.path.exists(".env"):
-            with open(".env", "r", encoding="utf-8") as f:
-                for line in f:
-                    if line.startswith("EARTHDATA_TOKEN="):
-                        os.environ["EARTHDATA_TOKEN"] = line.split("=", 1)[1].strip()
-                        break
+            os.environ["EARTHDATA_TOKEN"] = token.strip()
+        else:
+            self._load_env_token()
 
-        if "EARTHDATA_TOKEN" in os.environ and os.environ["EARTHDATA_TOKEN"]:
+        if os.environ.get("EARTHDATA_TOKEN"):
             auth = earthaccess.login(strategy="environment")
         elif username and password:
             auth = earthaccess.login(strategy="interactive", username=username, password=password)
@@ -75,7 +109,7 @@ class EMITDataLoader:
     ) -> List[Any]:
         """
         Search for EMIT granules over a geographic bounding box.
-        
+
         Args:
             bbox: (lower_left_lon, lower_left_lat, upper_right_lon, upper_right_lat)
             product: 'EMITL2ARFL' (reflectance) or 'EMITL2BCH4PLM' (plumes)
@@ -92,6 +126,57 @@ class EMITDataLoader:
         )
         return results
 
+    def resolve_scene_path(self, filepath: str) -> Path:
+        """
+        Resolves a NetCDF path across arbitrary working directories and operating systems.
+        If the target is one of the 4 official benchmark scenes and does not exist yet
+        (e.g., fresh git clone or serverless cloud boot), automatically synthesizes it.
+        """
+        raw_path = Path(filepath)
+        candidates = [
+            raw_path,
+            PROJECT_ROOT / raw_path,
+            PROJECT_ROOT / "data" / "benchmark_scenes" / raw_path.name,
+        ]
+        for candidate in candidates:
+            if candidate.exists() and candidate.is_file():
+                return candidate.resolve()
+
+        if raw_path.name in REQUIRED_SCENE_FILES:
+            ensure_demo_scenes()
+            bootstrapped = PROJECT_ROOT / "data" / "benchmark_scenes" / raw_path.name
+            if bootstrapped.exists():
+                return bootstrapped.resolve()
+
+        raise FileNotFoundError(f"File not found: {filepath}")
+
+    @staticmethod
+    def _open_dataset_portable(resolved_path: Path) -> Dict[str, Any]:
+        """
+        Opens a NetCDF dataset using available engines, loads arrays eagerly into memory,
+        and immediately closes the file handle to prevent OS file-locking issues.
+        """
+        last_err = None
+        for engine in ("netcdf4", "h5netcdf", "scipy", None):
+            try:
+                kwargs = {"engine": engine} if engine else {}
+                with xr.open_dataset(str(resolved_path), **kwargs) as ds:
+                    wavelengths = ds["wavelengths"].values.copy() if "wavelengths" in ds else None
+                    reflectance = ds["reflectance"].values.copy()
+                    lat = ds["latitude"].values.copy() if "latitude" in ds else None
+                    lon = ds["longitude"].values.copy() if "longitude" in ds else None
+                    metadata = dict(ds.attrs)
+                return {
+                    "wavelengths": wavelengths,
+                    "reflectance": reflectance,
+                    "latitude": lat,
+                    "longitude": lon,
+                    "metadata": metadata,
+                }
+            except Exception as err:
+                last_err = err
+        raise RuntimeError(f"Unable to read NetCDF dataset {resolved_path}: {last_err}")
+
     def load_local_nc(self, filepath: str) -> Dict[str, Any]:
         """
         Parses a local NASA EMIT NetCDF4 (.nc) file and extracts:
@@ -100,28 +185,18 @@ class EMITDataLoader:
         - Latitude & Longitude arrays
         - Full NetCDF instrument attributes
         """
-        if not os.path.exists(filepath):
-            raise FileNotFoundError(f"File not found: {filepath}")
+        resolved_path = self.resolve_scene_path(filepath)
+        parsed = self._open_dataset_portable(resolved_path)
 
-        ds = xr.open_dataset(filepath, engine="netcdf4")
-
-        # Extract wavelengths
-        wavelengths = ds["wavelengths"].values if "wavelengths" in ds else None
-
-        # Extract reflectance (handling scale factors and nodata)
-        reflectance = ds["reflectance"].values
+        reflectance = parsed["reflectance"]
         reflectance = np.where(reflectance < -0.01, np.nan, reflectance)
-
-        # Extract spatial coordinates if present
-        lat = ds["latitude"].values if "latitude" in ds else None
-        lon = ds["longitude"].values if "longitude" in ds else None
 
         return {
             "reflectance": reflectance,
-            "wavelengths": wavelengths,
-            "latitude": lat,
-            "longitude": lon,
-            "metadata": ds.attrs
+            "wavelengths": parsed["wavelengths"],
+            "latitude": parsed["latitude"],
+            "longitude": parsed["longitude"],
+            "metadata": parsed["metadata"],
         }
 
     def extract_methane_window(
@@ -137,13 +212,12 @@ class EMITDataLoader:
             band_indices: indices of selected bands in original cube
         """
         if wavelengths is None or len(wavelengths) == 0:
-            # Fallback for synthetic / standardized 40-band sub-cubes
             num_bands = reflectance.shape[-1]
             sub_wl = np.linspace(self.METHANE_MIN_WAVELENGTH, self.METHANE_MAX_WAVELENGTH, num_bands)
             return reflectance, sub_wl, np.arange(num_bands)
 
         indices = np.where(
-            (wavelengths >= self.METHANE_MIN_WAVELENGTH) & 
+            (wavelengths >= self.METHANE_MIN_WAVELENGTH) &
             (wavelengths <= self.METHANE_MAX_WAVELENGTH)
         )[0]
 

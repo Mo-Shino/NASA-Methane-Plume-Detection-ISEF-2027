@@ -1,16 +1,18 @@
 """
 model_spatial_spectral.py
-Dual-Branch Spatial-Spectral Attention Network for Methane Plume Segmentation.
+Dual-Branch Physics-Informed Spatial-Spectral Attention Network for Methane Plume Segmentation.
 
 Architecture Innovation:
-    1. Spectral Feature Branch (1D CNN & Squeeze-and-Excitation):
-       Learns non-linear absorption manifolds and discriminates methane absorption (2.3 µm)
-       from confounding mineral absorption (calcite, dolomite, illite, chlorite).
-    2. Spatial Context Branch (2D Convolutional U-Net):
-       Learns atmospheric dispersion morphology (parabolic / conical Gaussian plumes, wind-driven flow).
-    3. Cross-Attention Fusion:
-       Suppresses high-reflectance urban roofs and false mineral alarms by conditioning
-       segmentation masks on consistent spectral deficit.
+    0. Continuum Optical-Depth Normalization Layer:
+       Cancels broadband surface albedo variations (bright desert quartz, urban roofs, dark basalt)
+       via per-pixel spectral continuum division and scene-level differential optical depth extraction.
+    1. Spectral Feature Branch (1x1 Spectral Projection & Squeeze-and-Excitation Attention):
+       Learns non-linear absorption manifolds and discriminates methane absorption doublet (2260 / 2315 nm)
+       from confounding carbonate mineral absorption singlet (calcite/dolomite at 2330 nm).
+    2. Spatial Context Branch (Multi-Scale 2D Convolutional U-Net with Dilated Bottleneck):
+       Learns atmospheric dispersion morphology (advection-diffusion Gaussian plumes, wind-driven cones).
+    3. Dual Task Heads:
+       Outputs calibrated pixel-level plume probability [0, 1] and column enhancement (ppm*m).
 
 Author: Fares & Shnawy (ISEF 2027)
 """
@@ -22,13 +24,15 @@ import torch.nn.functional as F
 
 class SpectralAttentionModule(nn.Module):
     """Channel-wise spectral attention focusing on characteristic gas absorption dips."""
+
     def __init__(self, in_channels: int, reduction: int = 4):
         super().__init__()
+        hidden = max(in_channels // reduction, 4)
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Sequential(
-            nn.Linear(in_channels, in_channels // reduction, bias=False),
+            nn.Linear(in_channels, hidden, bias=False),
             nn.ReLU(inplace=True),
-            nn.Linear(in_channels // reduction, in_channels, bias=False),
+            nn.Linear(hidden, in_channels, bias=False),
             nn.Sigmoid()
         )
 
@@ -41,6 +45,7 @@ class SpectralAttentionModule(nn.Module):
 
 class DoubleConv(nn.Module):
     """Standard double convolution block with BatchNorm and GELU."""
+
     def __init__(self, in_channels: int, out_channels: int):
         super().__init__()
         self.conv = nn.Sequential(
@@ -60,11 +65,12 @@ class SpatialSpectralMethaneNet(nn.Module):
     """
     End-to-end Deep Neural Network for automated hyperspectral methane plume segmentation.
     Input: Hyperspectral sub-cube of shape (Batch, Bands, Height, Width)
-    Output: Binary plume mask (Batch, 1, Height, Width) & Column Enhancement Map (Batch, 1, Height, Width)
+    Output: Binary plume probability mask (Batch, 1, Height, Width) & Column Enhancement Map (Batch, 1, Height, Width)
     """
 
     def __init__(self, in_spectral_bands: int = 40, base_features: int = 32):
         super().__init__()
+        self.in_spectral_bands = in_spectral_bands
 
         # Spectral feature reduction & attention
         self.spectral_proj = nn.Sequential(
@@ -111,15 +117,45 @@ class SpatialSpectralMethaneNet(nn.Module):
             nn.Sigmoid()
         )
 
-        # 2. Regression Head (Continuous column abundance enhancement in ppm*m)
+        # 2. Regression Head (Continuous column abundance enhancement in kilo-ppm*m -> scaled to ppm*m)
         self.head_enhancement = nn.Sequential(
             nn.Conv2d(base_features, 1, kernel_size=1),
             nn.ReLU()
         )
 
+    def _preprocess_continuum_optical_depth(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Physics-informed spectral preprocessing:
+        1. Sanitizes NaNs and resamples arbitrary SWIR band counts to `self.in_spectral_bands`.
+        2. Divides each pixel by its broadband SWIR continuum mean to cancel surface albedo.
+        3. Subtracts scene-wide background spectral shape to isolate molecular absorption depth.
+        """
+        x = torch.nan_to_num(x, nan=0.30, posinf=1.0, neginf=0.01)
+
+        if x.size(1) != self.in_spectral_bands:
+            b_sz, c_in, h_sz, w_sz = x.shape
+            x_perm = x.permute(0, 2, 3, 1).reshape(-1, 1, c_in)
+            x_res = F.interpolate(x_perm, size=self.in_spectral_bands, mode="linear", align_corners=True)
+            x = x_res.reshape(b_sz, h_sz, w_sz, self.in_spectral_bands).permute(0, 3, 1, 2)
+
+        pixel_continuum = torch.mean(x, dim=1, keepdim=True).clamp(min=1e-4)
+        r_norm = x / pixel_continuum
+        scene_bg = torch.mean(r_norm, dim=(2, 3), keepdim=True)
+        optical_deficit = (scene_bg - r_norm) * 35.0
+        return optical_deficit
+
     def forward(self, x: torch.Tensor):
         # x: (B, Bands, H, W)
-        x_proj = self.spectral_proj(x)
+        orig_h, orig_w = x.size(2), x.size(3)
+        x_norm = self._preprocess_continuum_optical_depth(x)
+
+        # Pad spatial dimensions cleanly to multiple of 8 for 3-level U-Net pooling
+        pad_h = (8 - orig_h % 8) % 8
+        pad_w = (8 - orig_w % 8) % 8
+        if pad_h > 0 or pad_w > 0:
+            x_norm = F.pad(x_norm, (0, pad_w, 0, pad_h), mode="reflect")
+
+        x_proj = self.spectral_proj(x_norm)
 
         # Encoder
         e1 = self.enc1(x_proj)
@@ -134,8 +170,11 @@ class SpatialSpectralMethaneNet(nn.Module):
         d2 = self.dec2(torch.cat([self.up2(d3), e2], dim=1))
         d1 = self.dec1(torch.cat([self.up1(d2), e1], dim=1))
 
+        if pad_h > 0 or pad_w > 0:
+            d1 = d1[:, :, :orig_h, :orig_w]
+
         mask = self.head_mask(d1)
-        enhancement = self.head_enhancement(d1)
+        enhancement = self.head_enhancement(d1) * 1000.0
 
         return {
             "mask": mask,
