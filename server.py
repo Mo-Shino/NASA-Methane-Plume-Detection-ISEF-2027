@@ -616,7 +616,7 @@ def api_health() -> Dict[str, Any]:
     auth_info = get_nasa_engine().get_auth_status()
     return {
         "status": "ok",
-        "api_version": "2.3.0",
+        "api_version": "2.3.1",
         "engine": "SpectraPlume Spatial-Spectral 3D-CNN + HITRAN 2024",
         "device": str(pipeline.device),
         "weights_loaded": bool(pipeline.weights_loaded),
@@ -681,7 +681,7 @@ class LivePlumeAnalyzeRequest(BaseModel):
 
 class LivePointScanRequest(BaseModel):
     lat: float = Field(..., ge=-90.0, le=90.0)
-    lon: float = Field(..., ge=-180.0, le=180.0)
+    lon: float = Field(...)
     wind_speed: Optional[float] = Field(default=None, ge=0.5, le=25.0)
     wind_direction: Optional[float] = Field(default=None, ge=0.0, le=360.0)
     mask_threshold: float = Field(default=0.50, ge=0.25, le=0.90)

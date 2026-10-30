@@ -26,7 +26,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 
 
-REQUIRED_API_VERSION = "2.3.0"
+REQUIRED_API_VERSION = "2.3.1"
 
 
 def check_dependencies(auto_install: bool = True) -> None:
