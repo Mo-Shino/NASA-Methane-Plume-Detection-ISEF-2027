@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpectraPlume — اسكربت المركز الأول والشرح العلمي المدعوم بالأبحاث (ISEF 2027)</title>
+    <title>SpectraPlume — اسكربت المركز الأول (ISEF 2027)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-page: #080D1A;
@@ -20,7 +20,6 @@
             --green-glow: rgba(16, 185, 129, 0.12);
             --amber-primary: #F59E0B;
             --amber-glow: rgba(245, 158, 11, 0.12);
-            --red-primary: #EF4444;
             --purple-primary: #8B5CF6;
         }
 
@@ -34,7 +33,7 @@
             font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
             background-color: var(--bg-page);
             color: var(--text-main);
-            line-height: 1.85;
+            line-height: 1.9;
             padding: 30px 20px;
             direction: rtl;
         }
@@ -68,63 +67,69 @@
         }
 
         .header h1 {
-            font-size: 29px;
+            font-size: 28px;
             font-weight: 900;
             color: #FFFFFF;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .header .subtitle {
             font-size: 16px;
             color: var(--cyan-primary);
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
 
         .badges {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
-            margin-top: 12px;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 15px;
         }
 
         .badge {
-            display: inline-block;
-            padding: 5px 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 13px;
+            font-size: 13.5px;
             font-weight: 700;
         }
 
-        .badge-cyan { background: var(--cyan-glow); color: var(--cyan-primary); border: 1px solid var(--cyan-primary); }
-        .badge-green { background: var(--green-glow); color: var(--green-primary); border: 1px solid var(--green-primary); }
-        .badge-amber { background: var(--amber-glow); color: var(--amber-primary); border: 1px solid var(--amber-primary); }
+        .badge-cyan { background: rgba(0, 180, 216, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-green { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-amber { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.3); }
 
-        /* Section Container */
-        .station-card {
+        /* Scene Cards */
+        .scene-card {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 26px;
+            border-radius: 14px;
+            padding: 24px;
             margin-bottom: 26px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            page-break-inside: avoid;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
 
-        .station-header {
+        .scene-card:hover {
+            border-color: #334E68;
+        }
+
+        .scene-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid var(--card-border);
             padding-bottom: 12px;
             margin-bottom: 18px;
             flex-wrap: wrap;
             gap: 10px;
         }
 
-        .station-title {
-            font-size: 20px;
+        .scene-title {
+            font-size: 18px;
             font-weight: 800;
             color: #FFFFFF;
             display: flex;
@@ -132,27 +137,34 @@
             gap: 10px;
         }
 
-        .board-cue {
-            background: rgba(139, 92, 246, 0.15);
-            color: #C4B5FD;
-            border: 1px solid rgba(139, 92, 246, 0.4);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
+        .scene-title span {
+            background: #1E293B;
+            color: var(--cyan-primary);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 14px;
         }
 
-        /* Dialogue Boxes */
+        .board-cue {
+            font-size: 13.5px;
+            color: var(--amber-primary);
+            background: var(--amber-glow);
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            font-weight: 600;
+        }
+
+        /* Dialogue Box */
         .dialogue-box {
             border-radius: 12px;
-            padding: 16px 20px;
+            padding: 18px 20px;
             margin-bottom: 14px;
-            font-size: 16px;
-            line-height: 1.9;
+            position: relative;
         }
 
         .dialogue-fares {
-            background: rgba(0, 180, 216, 0.07);
+            background: rgba(0, 180, 216, 0.05);
             border-right: 5px solid var(--cyan-primary);
             border-top: 1px solid rgba(0, 180, 216, 0.15);
             border-bottom: 1px solid rgba(0, 180, 216, 0.15);
@@ -160,7 +172,7 @@
         }
 
         .dialogue-shnawy {
-            background: rgba(16, 185, 129, 0.07);
+            background: rgba(16, 185, 129, 0.05);
             border-right: 5px solid var(--green-primary);
             border-top: 1px solid rgba(16, 185, 129, 0.15);
             border-bottom: 1px solid rgba(16, 185, 129, 0.15);
@@ -170,51 +182,36 @@
         .speaker-name {
             font-size: 15px;
             font-weight: 800;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .speaker-fares { color: var(--cyan-primary); }
-        .speaker-shnawy { color: var(--green-primary); }
+        .speaker-fares { color: #38BDF8; }
+        .speaker-shnawy { color: #34D399; }
 
         .action-cue {
-            color: #94A3B8;
             font-size: 13px;
-            font-style: italic;
             font-weight: 600;
+            color: var(--text-muted);
+            font-style: italic;
         }
 
         .speech-text {
+            font-size: 16px;
             color: #F1F5F9;
-            font-weight: 600;
-        }
-
-        .highlight-term {
-            color: #F59E0B;
-            font-weight: 700;
-        }
-
-        .citation-tag {
-            background: rgba(245, 158, 11, 0.15);
-            color: #FCD34D;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 700;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            display: inline-block;
-            margin: 0 2px;
+            line-height: 1.95;
+            font-weight: 500;
         }
 
         /* Explanation Box */
         .explanation-box {
-            background: rgba(245, 158, 11, 0.05);
+            background: rgba(245, 158, 11, 0.04);
             border: 1px dashed rgba(245, 158, 11, 0.35);
-            border-radius: 12px;
-            padding: 18px 20px;
-            margin-top: 16px;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-top: 14px;
         }
 
         .explanation-header {
@@ -233,6 +230,7 @@
             color: #CBD5E1;
             padding-right: 15px;
             position: relative;
+            line-height: 1.8;
         }
 
         .term-item::before {
@@ -259,7 +257,7 @@
 
         .qa-card h2 {
             color: #A5B4FC;
-            font-size: 21px;
+            font-size: 20px;
             font-weight: 900;
             margin-bottom: 18px;
             border-bottom: 1px solid rgba(165, 180, 252, 0.2);
@@ -270,7 +268,7 @@
             background: rgba(0,0,0,0.3);
             border-radius: 10px;
             padding: 14px 18px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             border-right: 4px solid #6366F1;
         }
 
@@ -278,13 +276,13 @@
             font-weight: 800;
             color: #E0E7FF;
             font-size: 15px;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .qa-answer {
             color: #CBD5E1;
             font-size: 14px;
-            line-height: 1.8;
+            line-height: 1.85;
         }
 
         /* Print Settings */
@@ -301,14 +299,15 @@
                 box-shadow: none !important;
             }
             .header h1 { color: #0F172A !important; }
-            .station-card {
+            .header .subtitle { color: #0284C7 !important; }
+            .scene-card {
                 background: #FFFFFF !important;
                 border: 1px solid #CBD5E1 !important;
                 color: #0F172A !important;
                 box-shadow: none !important;
                 page-break-inside: avoid;
             }
-            .station-title { color: #0F172A !important; }
+            .scene-title { color: #0F172A !important; }
             .dialogue-fares {
                 background: #F0FDF4 !important;
                 border-color: #0284C7 !important;
@@ -318,6 +317,8 @@
                 border-color: #059669 !important;
             }
             .speech-text { color: #0F172A !important; }
+            .speaker-fares { color: #0284C7 !important; }
+            .speaker-shnawy { color: #059669 !important; }
             .explanation-box {
                 background: #FFFBEB !important;
                 border: 1px solid #FCD34D !important;
@@ -341,204 +342,219 @@
 
     <!-- Header Section -->
     <div class="header">
-        <h1>🎙️ اسكربت "المركز الأول" — النسخة العلمية المحكمة</h1>
-        <div class="subtitle">مشروع SpectraPlume — مدعوم بأحدث أبحاث NASA, Science Advances, HITRAN 2024</div>
-        <p style="color: var(--text-muted); font-size: 13.5px;">المسابقة: Regeneron ISEF 2027 | الفئة: Earth & Environmental Sciences (EAEV - AIR)</p>
+        <h1>🎙️ اسكربت العرض الرسمي — مشروع SpectraPlume</h1>
+        <div class="subtitle">Autonomous Spaceborne Methane Super-Emitter Intelligence (NASA EMIT)</div>
+        <p style="color: var(--text-muted); font-size: 14px;">مسابقة Regeneron ISEF 2027 | فئة: Earth & Environmental Sciences (Atmospheric Science - AIR)</p>
         <div class="badges">
-            <span class="badge badge-cyan">👤 فارس محمد (Systems Architecture)</span>
-            <span class="badge badge-green">👤 محمد الشناوي (Physics & Math)</span>
-            <span class="badge badge-amber">⏱️ المدة: 4 دقائق ونصف</span>
+            <span class="badge badge-cyan">🔵 فارس محمد (Systems Architecture)</span>
+            <span class="badge badge-green">🟢 محمد الشناوي (Physics & Math Modeling)</span>
+            <span class="badge badge-amber">⏱️ زمن الإلقاء: 4 إلى 5 دقائق</span>
         </div>
     </div>
 
-    <!-- المشهد 1 -->
-    <div class="station-card">
-        <div class="station-header">
-            <div class="station-title">
-                <span>01</span> الافتتاحية والـ Hook الخاطف (The Scenario Hook)
+    <!-- المشهد 1: الافتتاحية والـ Hook -->
+    <div class="scene-card">
+        <div class="scene-header">
+            <div class="scene-title">
+                <span>01</span> الافتتاحية والسيناريو الخاطف (The Scenario Hook)
             </div>
-            <div class="board-cue">📍 الوقفة: أمام البوستر بالكامل، ابتسامة وثقة</div>
+            <div class="board-cue">📍 وقفة بثبات وابتسامة أمام اللوحة الرسمية</div>
         </div>
 
         <div class="dialogue-box dialogue-fares">
             <div class="speaker-name speaker-fares">
-                <span>🔵 [فارس]</span>
-                <span class="action-cue">(يبتسم، يبص في عين المحكم، ويبدأ بنبرة مشوقة وهادية)</span>
+                <span>🔵 [فارس محمد]</span>
+                <span class="action-cue">(يبدأ بثقة ونبرة تشويق واضحة تجذب انتباه المحكم)</span>
             </div>
             <div class="speech-text">
-                "أهلاً بحضرتك يا فندم. تخيل معايا إن في اللحظة اللي بنبدأ فيها كلامنا دي، في ماسورة غاز مكسورة في صحراء نائية، بتنفث في الجو كل ساعة كمية غاز تعادل طاقة تشغّل مدينة صغيرة، وبتخسر آلاف الدولارات.. والمشكلة الأكبر؟ <span class="highlight-term">إن مفيش إنسان على كوكب الأرض شايفها ولا عارف إنها موجودة أصلاً!</span> أنا فارس محمد وده زميلي محمد الشناوي، وإحنا تيم مشروع <span class="highlight-term">SpectraPlume</span>."
+أهلاً بحضرتك. تخيل معايا إن في اللحظة اللي بنبدأ فيها كلامنا دي، في ماسورة غاز مكسورة في صحراء، بتخرج في الجو كل ساعة كمية غاز تعادل طاقة تشغّل مدينة صغيرة، وبتخسر آلاف الدولارات.. والمشكلة الأكبر؟ إن مفيش إنسان شايفها ولا عارف إنها موجودة أصلاً! أنا فارس محمد وده زميلي محمد الشناوي، وإحنا تيم مشروع SpectraPlume
             </div>
         </div>
 
         <div class="dialogue-box dialogue-shnawy">
             <div class="speaker-name speaker-shnawy">
-                <span>🟢 [الشناوي]</span>
-                <span class="action-cue">(يكمل بثقة وهدوء)</span>
+                <span>🟢 [محمد الشناوي]</span>
+                <span class="action-cue">(يكمل بنبرة واثقة وهادئة)</span>
             </div>
             <div class="speech-text">
-                "مشروعنا ببساطة هو <span class="highlight-term">رادار فضائي ذكي</span>؛ بيستخدم كاميرات الأقمار الصناعية المتطورة التابعة لوكالة ناسا، عشان يكشف سحب الغاز غير المرئية دي من مدار الأرض، ويحسب كمية التسريب بالطن في الساعة، ويحدد مكانها بالضبط على الخريطة في ثواني معدودة!"
+مشروعنا ببساطة هو رادار فضائي ذكي؛ بيستخدم كاميرات الأقمار الصناعية المتطورة التابعة لوكالة ناسا EMIT، عشان يكشف سحب الغاز غير المرئية دي من مدار الأرض، ويحسب كمية التسريب بالطن في الساعة، ويحدد مكانها بالضبط على الخريطة في ثواني معدودة!
             </div>
         </div>
 
         <div class="explanation-box">
-            <div class="explanation-header">💡 فهم الكواليس (ليه بنبدأ كده؟ وشرح المصطلحات):</div>
-            <div class="term-item"><strong>ليه البداية دي قوية؟:</strong> لأنك بدأت بـ Scenario حقيقي خلق صورة سينمائية في خيال المحكم، فجذب انتباهه فوراً وخلاه يسيب أي ورق في إيده ويركز معاكم.</div>
-            <div class="term-item"><strong>رادار فضائي ذكي:</strong> توصيف بسيط جداً بيفهّم أي محكم مهما كانت خلفيته العلمية إن السيستم بيرصد من الفضاء ومبيحتاجش حساسات مكلفة على الأرض.</div>
+            <div class="explanation-header">💡 صندوق الفهم والشرح (ليه البداية دي ذكية؟):</div>
+            <div class="term-item"><strong>السيناريو الواقعي:</strong> بدأت بمشهد سينمائي محسوس (ماسورة بتسرب في الصحراء)، فالمحكم بيركز معاك فوراً وبيسيب الورق اللي في إيده لأنه فهم المشكلة العملية قبل المعادلات.</div>
+            <div class="term-item"><strong>رادار فضائي ذكي:</strong> تعبير مبسط بيوصل رسالة واضحة للمحكم: إحنا بنراقب الأرض من الفضاء بالأقمار الصناعية بدون أجهزة أرضية مكلفة.</div>
         </div>
     </div>
 
-    <!-- المشهد 2 -->
-    <div class="station-card">
-        <div class="station-header">
-            <div class="station-title">
-                <span>02</span> المشكلة وتوثيق الأبحاث العالمية (Problem & Peer-Reviewed Science)
+    <!-- المشهد 2: المشكلة وتوثيق الأبحاث -->
+    <div class="scene-card">
+        <div class="scene-header">
+            <div class="scene-title">
+                <span>02</span> المشكلة وتوثيق الأبحاث العالمية (Problem & Scientific Citations)
             </div>
-            <div class="board-cue">📍 الجناح الأيسر: قسم Introduction</div>
+            <div class="board-cue">📍 الإشارة باليد إلى الجناح الأيسر: قسم Introduction</div>
         </div>
 
         <div class="dialogue-box dialogue-fares">
             <div class="speaker-name speaker-fares">
-                <span>🔵 [فارس]</span>
-                <span class="action-cue">(يشاور بيده على الجناح الأيسر في البوستر عند Introduction)</span>
+                <span>🔵 [فارس محمد]</span>
+                <span class="action-cue">(يشاور بيده على قسم المشكلة في البوستر)</span>
             </div>
             <div class="speech-text">
-                "المشكلة بتبدأ من غاز <span class="highlight-term">الميثان (CH₄)</span>؛ ده المكون الأساسي للغاز الطبيعي اللي بيسرب من آبار البترول والمصانع. غاز شفاف لا يُرى بالعين، لكن <span class="citation-tag">طبقاً للتقرير السادس للهيئة الدولية المعنية بتغير المناخ (IPCC AR6)</span>، خطورته بتعادل <span class="highlight-term">84 ضعف ثاني أكسيد الكربون</span> في تسخين كوكب الأرض! والأخطر من كده، إن <span class="citation-tag">دراسة Thorpe et al. المنشورة في مجلة Science Advances سنة 2023</span> أثبتت إن الـ Super-Emitters (اللي بيمثلوا أقل من 10% بس من المواقع) هما السبب في <span class="highlight-term">أكتر من 50% من انبعاثات الميثان في العالم</span>!"
+المشكلة بتبدأ من غاز الميثان؛ ده المكون الأساسي للغاز الطبيعي اللي بيسرب من آبار البترول والمصانع. غاز شفاف لا يُرى بالعين، لكن طبقاً للتقرير السادس للهيئة الدولية المعنية بتغير المناخ، خطورته بتعادل 84 ضعف ثاني أكسيد الكربون في تسخين كوكب الأرض! والأخطر من كده، إن الدراسة المنشورة في مجلة Science Advances سنة 2023 أثبتت إن الـ Super-Emitters (اللي بيمثلوا أقل من 10% بس من المواقع) هما السبب في أكتر من 50% من انبعاثات الميثان في العالم!
             </div>
         </div>
 
         <div class="dialogue-box dialogue-shnawy">
             <div class="speaker-name speaker-shnawy">
-                <span>🟢 [الشناوي]</span>
-                <span class="action-cue">(يشاور على صورة قمر ناسا EMIT في البوستر)</span>
+                <span>🟢 [محمد الشناوي]</span>
+                <span class="action-cue">(يشاور على صورة قمر ناسا EMIT في اللوحة)</span>
             </div>
             <div class="speech-text">
-                "هنا وكالة ناسا أطلقت في نهاية 2022 جهاز <span class="highlight-term">EMIT</span> على محطة الفضاء الدولية، عشان يصور الأرض في 285 نطاق طيفي لعزل بصمة امتصاص الميثان عند <span class="highlight-term">2.315 ميكرومتر (2.315 µm)</span>. لكن أبحاث ناسا نفسها اعترفت بعقبتين كبار: أولاً الإنذارات الكاذبة: صخور الحجر الجيري (الكالسيت) <span class="citation-tag">طبقاً لأطلس المسح الجيولوجي الأمريكي (USGS)</span> بتمتص الضوء عند <span class="highlight-term">2.335 ميكرومتر (2.335 µm)</span>، وده قريب جداً للميثان فبيعمل تشويش إشعاعي وإنذارات كاذبة لناسا. ثانياً غياب معدل التدفق: ناسا بتطلع صورة السحابة، لكن بتسيب معدل التسريب الكتلي مكتوب <span class="highlight-term">NA (مجهول)</span> لعدم وجود Inversion Model مباشر!"
+هنا وكالة ناسا أطلقت في نهاية 2022 جهاز EMIT على محطة الفضاء الدولية، عشان يصور الأرض في 285 نطاق طيفي لعزل بصمة امتصاص الميثان عند 2.3 ميكرومتر لكن أبحاث ناسا نفسها اعترفت بعقبتين كبار: أولاً الإنذارات الكاذبة: صخور الحجر الجيري (الكالسيت) طبقاً لأطلس المسح الجيولوجي الأمريكي بتمتص الضوء عند 2.3 ميكرومتر، وده قريب جداً للميثان فبيعمل تشويش إشعاعي وإنذارات كاذبة لناسا. ثانياً غياب معدل التدفق: ناسا بتطلع صورة السحابة، لكن بتسيب معدل التسريب الكتلي مكتوب NA (مجهول) لعدم وجود Inversion Model مباشر!
             </div>
         </div>
 
         <div class="explanation-box">
-            <div class="explanation-header">💡 مربع الشرح العلمي والأبحاث (المحطة 2):</div>
-            <div class="term-item"><strong>المرجع 1:</strong> دراسة <em>Thorpe, A. K., et al. (Science Advances 2023)</em> حللت أول 750 سحابة ميثان رصدها قمر EMIT وأثبتت أن التسريبات النقطية (Super-Emitters) هي السبب الأكبر في الانبعاثات.</div>
-            <div class="term-item"><strong>الفارق الطيفي الدقيق (20 نانومتر فقط!):</strong> الميثان يمتص عند <strong>2.315 ميكرومتر (2315 نانومتر)</strong> بسبب اهتزاز رابطة C-H. بينما صخرة الكالسيت تمتص عند <strong>2.335 ميكرومتر (2335 نانومتر)</strong> بسبب اهتزاز الكربونات. الفارق 20 نانومتر فقط هو الذي يخدع خوارزميات ناسا!</div>
+            <div class="explanation-header">💡 صندوق الفهم والشرح (المصطلحات والأبحاث المذكورة):</div>
+            <div class="term-item"><strong>تقرير الهيئة الدولية (IPCC AR6):</strong> التقرير المرجعي العالمي للمناخ، بيأكد إن قوة تسخين الميثان للأرض بتعادل 84 ضعف ثاني أكسيد الكربون على مدى 20 سنة.</div>
+            <div class="term-item"><strong>دراسة مجلة Science Advances (2023):</strong> دراسة معتمدة لناسا أثبتت أن أقل من 10% من المصادر (Super-Emitters) هي المسؤولة عن أكثر من نصف الانبعاثات، وده بيثبت أهمية استهداف الكبار أولاً.</div>
+            <div class="term-item"><strong>جهاز EMIT:</strong> مطياف تصويري عالي الدقة (Imaging Spectrometer) تابع لناسا مثبت على محطة الفضاء الدولية ويصور في 285 نطاق ضوئي.</div>
+            <div class="term-item"><strong>مشكلة صخر الكالسيت (2.3 μm):</strong> صخور الحجر الجيري الصحراوية بتمتص الضوء عند 2.335 ميكرومتر بينما الميثان عند 2.315 ميكرومتر، الفارق 20 نانومتر فقط، وده اللي كان بيخدع ناسا!</div>
+            <div class="term-item"><strong>ليه ناسا بتكتب NA؟:</strong> لأن ناسا بتنتج صورة للتركيز فقط، ومعندهاش موديل يعكس سرعة الرياح لحساب وزن الغاز المتدفق بالساعة.</div>
         </div>
     </div>
 
-    <!-- المشهد 3 -->
-    <div class="station-card">
-        <div class="station-header">
-            <div class="station-title">
-                <span>03</span> الابتكار: الفيزياء الجزيئية وحركة الرياح (Molecular Physics & IME)
+    <!-- المشهد 3: الابتكار والفيزياء -->
+    <div class="scene-card">
+        <div class="scene-header">
+            <div class="scene-title">
+                <span>03</span> الابتكار: منظومة Physics-Informed والفيزياء الجزيئية
             </div>
             <div class="board-cue">📍 الجناح الأيسر: قسم Methods & Materials</div>
         </div>
 
         <div class="dialogue-box dialogue-shnawy">
             <div class="speaker-name speaker-shnawy">
-                <span>🟢 [الشناوي]</span>
-                <span class="action-cue">(يشرح بإيده حركة السحابة والفيزياء، وفارس جنبه متفاعل)</span>
+                <span>🟢 [محمد الشناوي]</span>
+                <span class="action-cue">(يشرح بحركة اليد تفرقة الغاز عن الصخر وحركة الرياح)</span>
             </div>
             <div class="speech-text">
-                "<span class="highlight-term">وهنا كان ابتكارنا في SpectraPlume:</span> إحنا مبنعتمدش على ذكاء اصطناعي أعمى؛ بنينا منظومة <span class="highlight-term">Physics-Informed</span> مقيدة بقوانين فيزياء الغلاف الجوي عبر ركيزتين: أولاً <span class="highlight-term">بصمة التوأم الجزيئية (Molecular Doublet):</span> بالرجوع لقاعدة بيانات هارفارد العالمية <span class="citation-tag">HITRAN 2024</span>، جزيء الميثان لما بيمتص الضوء بيعمل قمتين امتصاص توأم (واحدة رئيسية عند <span class="highlight-term">2315 نانومتر</span> وكتف فرعي عند <span class="highlight-term">2260 نانومتر</span>). بينما صخرة الكالسيت بتمتص عند 2335 نانومتر بس ومعندهاش القمة التانية! فخوارزميتنا بتفحص النسبة بين القمتين، وبتلغي الصخور بنسبة <span class="highlight-term">78.4%</span>! ثانياً <span class="highlight-term">نمذجة التدفق الهيدروديناميكي (IME):</span> طبقنا نموذج الـ Integrated Mass Enhancement المعتمد من <span class="citation-tag">Varon et al. 2018 في دورية AMT</span>، ودمجنا سرعات رياح ERA5 اللحظية على ارتفاع 10 أمتار لحساب كمية التسريب بالطن في الساعة بهامش خطأ <span class="highlight-term">7.9% MAPE</span> فقط!"
+وهنا كان ابتكارنا في SpectraPlume: إحنا مبنعتمدش على ذكاء اصطناعي أعمى؛ بنينا منظومة Physics-Informed مقيدة بقوانين فيزياء الغلاف الجوي عبر ركيزتين: أولاً بصمة التوأم الجزيئية: بالرجوع لقاعدة بيانات هارفارد العالمية HITRAN 2024، جزيء الميثان لما بيمتص الضوء بيعمل قمتين امتصاص (واحدة رئيسية عند 2315 نانومتر وكتف فرعي عند 2260 نانومتر). بينما صخرة الكالسيت بتمتص عند 2335 نانومتر بس ومعندهاش القمة التانية! فخوارزميتنا بتفحص النسبة بين القمتين، وبتلغي الصخور بنسبة 78.4%! ثانياً  (IME): طبقنا نموذج الـ Integrated Mass Enhancement المعتمد من Varon في دورية AMT، ودمجنا سرعات رياح ERA5 اللحظية على ارتفاع 10 أمتار لحساب كمية التسريب بالطن في الساعة بهامش خطأ 7.9% MAPE فقط!
             </div>
         </div>
 
         <div class="explanation-box">
-            <div class="explanation-header">💡 مربع الشرح العلمي والأبحاث (المحطة 3):</div>
-            <div class="term-item"><strong>قاعدة بيانات هارفارد (HITRAN 2024):</strong> المعيار العالمي المرجعي لأطياف الغازات، تثبت أن الميثان له قمتين (2315nm و 2260nm)، وهو الأساس الذي اعتمدنا عليه لطرد الكالسيت.</div>
-            <div class="term-item"><strong>المرجع 2 (Varon et al. AMT 2018):</strong> اشتقاق معادلة التدفق الكتلي $Q = \frac{\text{IME} \cdot U_{\text{eff}}}{L}$ مع معامل سرعة الرياح الفعالة $U_{\text{eff}} = 0.35 \times U_{10\text{m}}$.</div>
-            <div class="term-item"><strong>MAPE 7.9%:</strong> متوسط نسبة الخطأ المطلق في حساب أطنان الغاز 7.9% فقط، مقارنة بـ 28% إلى 35% في أبحاث ناسا وموديلات الـ AI الأخرى.</div>
+            <div class="explanation-header">💡 صندوق الفهم والشرح (الفيزياء والابتكار بالتفصيل):</div>
+            <div class="term-item"><strong>ذكاء اصطناعي مقيد بالفيزياء (Physics-Informed):</strong> مش بندي الذكاء الاصطناعي صور يخمن فيها؛ إحنا بنجبر الموديل يلتزم بمعادلات انتقال الإشعاع والفيزياء الجزيئية عشان ميهلوسش.</div>
+            <div class="term-item"><strong>قاعدة بيانات هارفارد (HITRAN 2024):</strong> أدق أرشيف عالمي لأطياف الغازات، ومنها استخرجنا إن الميثان له حفرتين توأم (2315 نانومتر + 2260 نانومتر).</div>
+            <div class="term-item"><strong>سر فحص التوأم:</strong> الصخرة عندها حفرة واحدة عند 2335 نانومتر، فلما نفحص الحفرة التانية (2260 نانومتر) بنعرف فوراً إنها صخرة كالسيت مش غاز، فلغينا 78.4% من الإنذارات الكاذبة!</div>
+            <div class="term-item"><strong>نموذج IME وسرعات ERA5:</strong> الـ Integrated Mass Enhancement بيحسب كتلة السحابة كاملة، وبدمج سرعة الرياح من محطة الأرصاد الأوروبية ERA5 بنحول الكتلة لمعدل تدفق (طن في الساعة).</div>
+            <div class="term-item"><strong>خطأ 7.9% MAPE:</strong> متوسط نسبة الخطأ في حساب الوزن 7.9% فقط (يعني دقة 92.1%) مقارنة بـ 28% إلى 35% في أبحاث ناسا والموديلات السابقة.</div>
         </div>
     </div>
 
-    <!-- المشهد 4 -->
-    <div class="station-card">
-        <div class="station-header">
-            <div class="station-title">
-                <span>04</span> الديمو العملي والإثبات الإحصائي (Live Demo & Paired t-test)
+    <!-- المشهد 4: الديمو العملي والنتائج -->
+    <div class="scene-card">
+        <div class="scene-header">
+            <div class="scene-title">
+                <span>04</span> الديمو العملي التفاعلي والإثبات الإحصائي (Live Demo & Statistical Proof)
             </div>
-            <div class="board-cue">📍 جناح المنتصف: الدائرة Donut Chart + شاشة اللابتوب</div>
+            <div class="board-cue">📍 شاشة اللابتوب (التطبيق الحي) + منتصف اللوحة (النتائج)</div>
         </div>
 
         <div class="dialogue-box dialogue-fares">
             <div class="speaker-name speaker-fares">
-                <span>🔵 [فارس]</span>
-                <span class="action-cue">(يتحكم بالماوس ويشاور على شاشة اللابتوب)</span>
+                <span>🔵 [فارس محمد]</span>
+                <span class="action-cue">(يتحكم بالماوس في اللابتوب ويوجه الشاشة للمحكم)</span>
             </div>
             <div class="speech-text">
-                "وعملياً قدام حضرتك على الداشبورد: ده مشهد حقيقي مباشر من ناسا <span class="highlight-term">(NASA Flight Granule 485)</span> صورته محطة الفضاء الدولية فوق حقل غاز في الشرق الأوسط: السيستم حلل المشهد وحسب إن معدل التسريب <span class="highlight-term">2.46 طن في الساعة ± 0.79</span> (بمجال ثقة 95% CI)، والخسارة اليومية <span class="highlight-term">10,600 دولار كل يوم</span>، والتحليل بيخلص في <span class="highlight-term">435 ملي ثانية</span> فقط! وهنا في الخريطة التفاعلية الفضائية (Esri Satellite) عملنا إسقاط للسحابة على خزانات ومحارق الغاز بالـ GPS لإصدار تقرير طوارئ رقمي فوري!"
+وعملياً قدام حضرتك على الداشبورد: ده مشهد حقيقي مباشر من ناسا صورته محطة الفضاء الدولية فوق حقل غاز في الشرق الأوسط: السيستم حلل المشهد وحسب إن معدل التسريب 2.46 طن في الساعة، والخسارة اليومية 10,600 دولار كل يوم، والتحليل بيخلص في 435 ملي ثانية فقط! وهنا في الخريطة التفاعلية الفضائية (Esri Satellite) عملنا إسقاط للسحابة على خزانات ومحارق الغاز بالـ GPS لإصدار تقرير طوارئ رقمي فوري!
             </div>
         </div>
 
         <div class="dialogue-box dialogue-shnawy">
             <div class="speaker-name speaker-shnawy">
-                <span>🟢 [الشناوي]</span>
-                <span class="action-cue">(يشاور على الـ Donut Chart في منتصف البوستر)</span>
+                <span>🟢 [محمد الشناوي]</span>
+                <span class="action-cue">(يشاور على الرسومات الإحصائية في منتصف اللوحة)</span>
             </div>
             <div class="speech-text">
-                "والنتايج دي مش صدفة يا فندم؛ اختبرنا المنظومة على <span class="highlight-term">42 مسار تصوير حقيقي لناسا (42 NASA Swaths)</span>: حققنا <span class="highlight-term">F1-Score: 0.942</span> مع Precision 96.1% و Recall 92.4%، ونزلنا حد الكشف لـ <span class="highlight-term">85 kg/h</span>، وأثبتنا التفوق إحصائياً باختبار <span class="citation-tag">Paired t-test بقيمة p = 2.4 × 10⁻⁸</span>! ولما اختبرنا المنظومة في أصعب فخ: مشهد جبال سيناء اللي مفيهوش أي غاز، خوارزمية ناسا طلعت 243 إنذار كاذب على صخور الكالسيت، بينما برنامجنا طلّع النتيجة صفر بنسبة نجاح 100%!"
+والنتايج دي مش صدفة يا فندم؛ اختبرنا المنظومة على 42 مسار تصوير حقيقي لناسا (42 NASA Swaths): حققنا F1-Score: 0.942 مع Precision 96.1% و Recall 92.4%، ونزلنا حد الكشف لـ 85 kg/h، وأثبتنا التفوق إحصائياً باختبار Paired t-test بقيمة p = 2.4 × 10⁻⁸! ولما اختبرنا المنظومة في أصعب فخ: مشهد جبال سيناء اللي مفيهوش أي غاز، خوارزمية ناسا طلعت 243 إنذار كاذب على صخور الكالسيت، بينما برنامجنا طلّع النتيجة صفر بنسبة نجاح 100%
             </div>
         </div>
 
         <div class="explanation-box">
-            <div class="explanation-header">💡 مربع الشرح العلمي والأبحاث (المحطة 4):</div>
-            <div class="term-item"><strong>الدلالة الإحصائية ($p = 2.4 \times 10^{-8}$):</strong> عندما تكون $p < 0.05$، تثبت التجربة أن التفوق حقيقي وليس صدفة. قيمة $10^{-8}$ تؤكد بنسبة 99.99999% أن SpectraPlume تتفوق رياضياً على خوارزمية ناسا.</div>
-            <div class="term-item"><strong>F1-Score (0.942):</strong> المقياس العالمي لجودة الرؤية الحاسوبية؛ يثبت التوافق المتزن بين دقة اصطياد التسريبات (Recall 92.4%) وعدم الوقوع في الإنذارات الكاذبة (Precision 96.1%).</div>
+            <div class="explanation-header">💡 صندوق الفهم والشرح (الأرقام والإثبات الإحصائي):</div>
+            <div class="term-item"><strong>الداشبورد المباشر:</strong> بيثبت للمحكم إن المشروع مش كلام على ورق؛ ده نظام شغال وبيحلل المشهد الفضائي في 435 ملي ثانية فقط (أقل من نصف ثانية!).</div>
+            <div class="term-item"><strong>F1-Score (0.942):</strong> التوازن الرياضي الدقيق بين دقة الكشف (Precision 96.1%) واصطياد التسريبات دون تفويت (Recall 92.4%).</div>
+            <div class="term-item"><strong>اختبار Paired t-test بقيمة p = 2.4 × 10⁻⁸:</strong> لما الـ p-value تكون أصغر بكثير من 0.05، ده إثبات رياضي قاطع إن تفوق برنامجنا على خوارزمية ناسا هو حقيقة علمية مثبتة بنسبة 99.99999% وليس مجرد صدفة!</div>
+            <div class="term-item"><strong>فخ جبال سيناء (Sinai Validation):</strong> مشهد صخري خالي تماماً من أي آبار أو غاز، ناسا ضربت فيه 243 إنذار كاذب، بينما خوارزميتنا فرقت بين الصخر والغاز بنجاح 100%.</div>
         </div>
     </div>
 
-    <!-- المشهد 5 -->
-    <div class="station-card">
-        <div class="station-header">
-            <div class="station-title">
-                <span>05</span> البيزنس والأثر العالمي والختام (Business Model & SDGs)
+    <!-- المشهد 5: الجدوى الاقتصادية والختام -->
+    <div class="scene-card">
+        <div class="scene-header">
+            <div class="scene-title">
+                <span>05</span> الجدوى الاقتصادية والأثر العالمي والختام (Economic Impact & UN SDGs)
             </div>
-            <div class="board-cue">📍 جناح المنتصف: جدول BMC + الجناح الأيمن + Log Book</div>
+            <div class="board-cue">📍 الجناح الأيمن: قسم Business Model + الإشارة لدفتر Log Book</div>
         </div>
 
         <div class="dialogue-box dialogue-shnawy">
             <div class="speaker-name speaker-shnawy">
-                <span>🟢 [الشناوي]</span>
-                <span class="action-cue">(يشاور على جدول Business Model Canvas في نص اللوحة)</span>
+                <span>🟢 [محمد الشناوي]</span>
+                <span class="action-cue">(يشاور على قسم الجدوى الاقتصادية في البوستر)</span>
             </div>
             <div class="speech-text">
-                "مشروعنا مش مجرد بحث في معمل، ده حل اقتصادي واقعي: أولاً <span class="highlight-term">Zero Orbital CapEx:</span> بنستغل قمر ناسا المجاني بدون ما نحتاج نطلق قمر بتكلفة 100 مليون دولار! ثانياً <span class="highlight-term">توفير حقيقي:</span> وقف تسريب واحد بحجم (1,000 kg/h) بيوفر للشركة <span class="highlight-term">18,000 دولار كل يوم</span> من الغاز المسترجع! والشركة بتسترد كامل مصاريف اشتراكها في السيستم خلال <span class="highlight-term">42 يوم فقط (42-day Payback Period)</span> و <span class="highlight-term">480% عائد استثمار (ROI)</span>!"
+مشروعنا مش مجرد بحث في معمل، ده حل اقتصادي واقعي: أولاً Zero Orbital CapEx: بنستغل قمر ناسا المجاني بدون ما نحتاج نطلق قمر بتكلفة 100 مليون دولار! ثانياً توفير حقيقي: وقف تسريب واحد بحجم (1,000 kg/h) بيوفر للشركة 18,000 دولار كل يوم من الغاز المسترجع!
             </div>
         </div>
 
         <div class="dialogue-box dialogue-fares">
             <div class="speaker-name speaker-fares">
-                <span>🔵 [فارس]</span>
-                <span class="action-cue">(يبتسم وينهي العرض بثقة ويشاور على الـ Log Book على الترابيزة)</span>
+                <span>🔵 [فارس محمد]</span>
+                <span class="action-cue">(يبتسم ويشير لدفتر الـ Log Book على الطاولة وينهي العرض بثقة)</span>
             </div>
             <div class="speech-text">
-                "وأخيراً، مشروع <span class="highlight-term">SpectraPlume</span> بيخدم أهداف التنمية المستدامة للأمم المتحدة: في <span class="highlight-term">حماية المناخ (SDG 13)</span>، وتوفير <span class="highlight-term">الطاقة النظيفة (SDG 7)</span> بوقف الهدر. وده الـ <span class="highlight-term">Engineering Log Book</span> بتاعنا بيوثق كل خطوة وتجربة واشتقاق اشتغلنا عليه من أول يوم. شكراً جداً لوقت حضرتك يا فندم، وإحنا جاهزين ومتحمسين لأي استفسارات!"
+وأخيراً، مشروع SpectraPlume بيخدم أهداف التنمية المستدامة للأمم المتحدة: في حماية المناخ (SDG 13)، وتوفير الطاقة النظيفة (SDG 7) بوقف الهدر
+شكراً جداً لوقت حضرتك، وإحنا جاهزين لأي استفسارات!
             </div>
         </div>
 
         <div class="explanation-box">
-            <div class="explanation-header">💡 مربع الشرح العلمي (المحطة 5):</div>
-            <div class="term-item"><strong>42-Day Payback Period:</strong> استرداد رأس المال في 42 يوماً بفضل القيمة المالية للغاز المسترجع ($18,000/يوم).</div>
-            <div class="term-item"><strong>Engineering Log Book:</strong> كشكول التجارب الموضوع على الطاولة، يثبت للمحكم أصالة الشغل البرمجي والفيزيائي من اليوم الأول.</div>
+            <div class="explanation-header">💡 صندوق الفهم والشرح (البيزنس والأثر المستدام):</div>
+            <div class="term-item"><strong>Zero Orbital CapEx:</strong> تكلفة إطلاق قمر صناعي خاص بتعدي 100 مليون دولار؛ إحنا استغلينا بيانات قمر ناسا المتاحة مجاناً وحولناها لمنتج سوفت وير ذكي بتكلفة أجهزة صفرية في الفضاء.</div>
+            <div class="term-item"><strong>توفير 18,000 دولار يومياً:</strong> الغاز الطبيعي المسرب ده وقود مهدر؛ لما الشركة تقفله بتبيعه وتوفر فلوسه وتمنع تلوث المناخ.</div>
+            <div class="term-item"><strong>أهداف التنمية المستدامة (SDGs):</strong> SDG 13 (العمل المناخي) و SDG 7 (طاقة نظيفة وميسورة التكلفة)، وده بيدعم تقييم المشروع في ISEF كحل بيئي متكامل.</div>
         </div>
     </div>
 
-    <!-- كبسولة الأمان -->
+    <!-- أقوى 3 أسئلة متوقعة والرد الذهبي عليها -->
     <div class="qa-card">
-        <h2>🛡️ أقوى 3 أسئلة ممكن المحكم يسألها والرد عليها في جملتين</h2>
+        <h2>🛡️ أقوى 3 أسئلة ممكن المحكم يسألها والرد عليها في جملتين:</h2>
 
         <div class="qa-item">
-            <div class="qa-question">س 1: إيه الفرق بينكم وبين اللي ناسا عملاه؟</div>
-            <div class="qa-answer"><strong>رد الشناوي:</strong> ناسا بتتلخبط بين الميثان وصخور الحجر الجيري في الصحراء وبتسيب كمية التسريب مجهولة. إحنا صفينا الصخور بنسبة 78% ببصمة التوأم من HITRAN، وحسبنا كمية التسريب بالطن في الساعة وسرعة الرياح بنموذج IME في أقل من نصف ثانية.</div>
+            <div class="qa-question">1. س: "إيه الفرق بينكم وبين ناسا؟"</div>
+            <div class="qa-answer">
+                <strong>الرد (الشناوي):</strong> "ناسا بتتلخبط بين الميثان وصخور الحجر الجيري في الصحراء وبتسيب كمية التسريب مجهولة بدون حساب. إحنا صفينا الصخور بنسبة 78.4% ببصمة التوأم من HITRAN 2024، وحسبنا كمية التسريب بالطن في الساعة وسرعة الرياح بنموذج IME في أقل من نصف ثانية وبدقة 92.1%."
+            </div>
         </div>
 
         <div class="qa-item">
-            <div class="qa-question">س 2: قمر ناسا بيمر كل كام يوم، فلو تسريب حصل لساعة ووقف مش هتشوفوه؟</div>
-            <div class="qa-answer"><strong>رد فارس:</strong> ملاحظة ممتازة يا فندم! وده قرار تصميمي مقصود؛ إحنا بنستهدف التسريبات المستمرة المزمنة (Persistent Super-Emitters) اللي بتفضل شغالة لأيام وأسابيع وهي المسؤولة عن نصف كوارث الانبعاثات، وبكده وفرنا 100 مليون دولار تكلفة إطلاق قمر خاص.</div>
+            <div class="qa-question">2. س: "القمر الصناعي بيمر كل كام يوم، فلو تسريب حصل لساعة ووقف مش هتشوفوه؟"</div>
+            <div class="qa-answer">
+                <strong>الرد (فارس):</strong> "ملاحظة ممتازة من حضرتك يا فندم! وده قرار تصميمي مقصود؛ إحنا بنستهدف التسريبات المزمنة الكبرى (Super-Emitters) اللي بتفضل شغالة لأيام وأسابيع والمسؤولة عن أكثر من 50% من الكوارث، وبكده وفرنا 100 مليون دولار تكلفة إطلاق أقمار خاصة وبنقدم حل سريع وفعال وفوري."
+            </div>
         </div>
 
         <div class="qa-item">
-            <div class="qa-question">س 3: لو اتسألتوا سؤال مفاجئ أول مرة تسمعوه؟</div>
-            <div class="qa-answer"><strong>الرد الذهبي (بهدوء وابتسامة):</strong> "سؤال ممتاز ومهم جداً من حضرتك يا فندم؛ النقطة دي مكانتش ضمن نطاق تجربتنا الحالية، لكن هنسجلها فوراً في الـ Log Book وهتكون في أولويات خطة التطوير القادمة."</div>
+            <div class="qa-question">3. س: "لو المحكم سألكم سؤال مفاجئ أول مرة تسمعوه؟"</div>
+            <div class="qa-answer">
+                <strong>الرد الذهبي (بهدوء وابتسامة وثقة):</strong> "سؤال ممتاز ومهم جداً من حضرتك يا فندم؛ النقطة دي مكانتش ضمن نطاق تجربتنا الحالية، لكن هنسجلها فوراً في الـ Log Book وهتكون في أولويات خطة التطوير القادمة في أبحاثنا."
+            </div>
         </div>
     </div>
 
