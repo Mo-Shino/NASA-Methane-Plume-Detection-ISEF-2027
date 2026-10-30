@@ -42,12 +42,24 @@ class EMITDataLoader:
         self.cache_dir = cache_dir
         os.makedirs(self.cache_dir, exist_ok=True)
 
-    def login_earthdata(self, username: Optional[str] = None, password: Optional[str] = None):
-        """Authenticate with NASA Earthdata Login via earthaccess library."""
+    def login_earthdata(self, username: Optional[str] = None, password: Optional[str] = None, token: Optional[str] = None):
+        """Authenticate with NASA Earthdata Login via earthaccess library (token, netrc, or credentials)."""
         if earthaccess is None:
             raise ImportError("Please install 'earthaccess' via pip: pip install earthaccess")
 
-        if username and password:
+        # Check for token in arguments, environment, or .env file
+        if token:
+            os.environ["EARTHDATA_TOKEN"] = token
+        elif "EARTHDATA_TOKEN" not in os.environ and os.path.exists(".env"):
+            with open(".env", "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.startswith("EARTHDATA_TOKEN="):
+                        os.environ["EARTHDATA_TOKEN"] = line.split("=", 1)[1].strip()
+                        break
+
+        if "EARTHDATA_TOKEN" in os.environ and os.environ["EARTHDATA_TOKEN"]:
+            auth = earthaccess.login(strategy="environment")
+        elif username and password:
             auth = earthaccess.login(strategy="interactive", username=username, password=password)
         else:
             auth = earthaccess.login(strategy="netrc")

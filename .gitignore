@@ -26,6 +26,8 @@ ENV/
 
 # Environment variables & secrets
 .env
+.dodsrc
+.urs_cookies
 earthdata_credentials.json
 
 # IDE
