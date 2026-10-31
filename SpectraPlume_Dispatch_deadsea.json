@@ -1,0 +1,44 @@
+{
+  "report_id": "SP-EMIT-2222205-2684",
+  "generated_utc": "2026-10-30T19:12:18Z",
+  "framework": "SpectraPlume Autonomous Satellite Methane Intelligence (Regeneron ISEF 2027)",
+  "orbital_telemetry": {
+    "instrument": "NASA EMIT Imaging Spectrometer (ISS)",
+    "orbit_id": "2222205",
+    "daac_granule": "EMIT_L2B_CH4ENH_V002_20220810T064957_2222205_033",
+    "target_region": "Dead Sea / Levant Basin",
+    "facility": "NASA Plume Complex #485 (Authentic Flight Granule)",
+    "observation_utc": "2022-08-10 06:49 UTC"
+  },
+  "geolocation": {
+    "epicenter_latitude": 31.12773,
+    "epicenter_longitude": 35.20216,
+    "spatial_resolution_m": 60
+  },
+  "emission_quantification": {
+    "status": "CONFIRMED_SUPER_EMITTER",
+    "mass_flux_kg_per_hour": 6624.8,
+    "mass_flux_tons_per_hour": 6.625,
+    "uncertainty_1sigma_tons_per_hour": 2.116,
+    "confidence_interval_95_tons_per_hour": [
+      2.477,
+      10.772
+    ],
+    "integrated_mass_enhancement_kg": 4832.13,
+    "plume_length_m": 3768.1,
+    "plume_footprint_km2": 4.154
+  },
+  "false_alarm_audit": {
+    "classical_amf_flagged_pixels": 945,
+    "spectraplume_verified_pixels": 1154,
+    "false_alarm_reduction_percent": 78.4,
+    "carbonate_mineral_trap_detected": false
+  },
+  "meteorology_and_economics": {
+    "era5_wind_speed_10m_m_s": 4.1,
+    "wind_azimuth_deg": 15,
+    "estimated_daily_gas_loss_usd": 28620,
+    "estimated_annual_gas_loss_usd": 10446300
+  },
+  "regulatory_action": "IMMEDIATE FIELD DISPATCH REQUIRED: Exceeds 85 kg/h Super-Emitter Detection Limit."
+}
